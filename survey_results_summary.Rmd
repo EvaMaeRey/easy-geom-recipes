@@ -1,0 +1,181 @@
+---
+title: "Untitled"
+author: "Evangeline Reynolds"
+date: "4/20/2023"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+library(tidyverse)
+readxl::read_xlsx("survey/'Easy Geom Recipes' Feedback Survey(1-7).xlsx") %>% 
+  slice(-1) -> # removing test with my responses
+survey_raw  
+
+survey_raw <- survey_raw %>% 
+  select(-starts_with("Points")) %>% 
+  select(-starts_with("Feedback")) %>% 
+  select(-5,-6, -7)
+
+q_long <- names(survey_raw)
+survey <- survey_raw
+names(survey) <- paste0("q", str_pad(1:28, 2, "left", "0"))
+survey
+
+ggplot(survey) + 
+  aes(x = q05) + 
+  geom_bar() + 
+  labs(title = q_long[5])
+
+ggplot(survey) + 
+  aes(x = q06) + 
+  geom_bar() + 
+  labs(title = q_long[6])
+
+ggplot(survey) + 
+  aes(x = q07) + 
+  geom_bar() + 
+  labs(title = q_long[7])
+
+ggplot(survey) + 
+  aes(x = q08) + 
+  geom_bar() + 
+  labs(title = q_long[8])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q09) + 
+  geom_bar() + 
+  labs(title = q_long[9])
+
+
+ggplot(survey) + 
+  aes(x = q10 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[10])
+
+ggplot(survey) + 
+  aes(x = q11 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[11])
+
+ggplot(survey) + 
+  aes(x = q12 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[12])
+
+ggplot(survey) + 
+  aes(x = q13 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[13])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q14 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[14])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q15 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[15])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q16 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[16])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q17 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[17])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q18 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[18])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q19 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[19])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q20 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[20])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q21) + 
+  geom_bar_delim() + 
+  labs(title = q_long[21])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q22 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[22])
+
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q24 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[24])
+
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q25 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[25])
+
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q26 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[26])
+
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q27 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[27])
+
+# checkbox
+ggplot(survey) + 
+  aes(x = q28 %>% str_wrap(30)) + 
+  geom_bar() + 
+  labs(title = q_long[28])
+
+
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
