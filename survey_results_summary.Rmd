@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, eval = F)
 ```
 
 ## R Markdown
@@ -167,9 +167,20 @@ ggplot(survey) +
   labs(title = q_long[28])
 
 toy_survey %>% 
+  pull(q1) %>%
+  paste(collapse = ";") %>%
+  str_split_1(";") %>%
+  data.frame(x = .) %>%
+  count(x) %>%
+  mutate(y = n) %>% 
   ggplot() + 
-  aes(responses = q1) + 
-  geom_bar_delim()
+  aes(x = x, y = y) + 
+  geom_col() + 
+  labs(title = "Number of people indicating each feeling")
+
+
+layer_data(last_plot())
+  
 
 ```
 
