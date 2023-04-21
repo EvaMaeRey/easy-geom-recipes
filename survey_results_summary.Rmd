@@ -166,7 +166,10 @@ ggplot(survey) +
   geom_bar() + 
   labs(title = q_long[28])
 
-
+toy_survey %>% 
+  ggplot() + 
+  aes(responses = q1) + 
+  geom_bar_delim()
 
 ```
 

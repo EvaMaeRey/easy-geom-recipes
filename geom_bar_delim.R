@@ -1,16 +1,31 @@
-toy_survey <- data.frame(multiple_response = c('excitement;skepticism', 'skepticism;curiousity'))
+toy_survey <- data.frame(q1 = c('excitement;skepticism', 'skepticism;curiousity'))
 
+
+toy_survey %>%
+  pull(q1) %>%
+  paste(collapse = ";") %>%
+  str_split_1(";") %>%
+  data.frame(x = .) %>%
+  count(x) %>%
+  mutate(y = n) %>%
+  ggplot() +
+  aes(x = x, y = y) +
+  geom_col()
+
+layer_data(last_plot())
 
 
 
 compute_panel_bar_delim <- function(data,
                                      scales){
 
-  data$x %>%
+  data$responses %>%
     paste(collapse = ";") %>%
     str_split_1(";") %>%
     data.frame(x = .) %>%
-    mutate(y = 1)
+    count(x) %>%
+    mutate(y = n) %>%
+    mutate(group = row_number())
 
     # add an additional column called label
     # the geom we inherit from requires the label aesthetic
@@ -18,26 +33,40 @@ compute_panel_bar_delim <- function(data,
 }
 
 
-compute_group_bar_delim <- function(data, scales){
+# compute_group_bar_delim <- function(data, scales){
+#
+#   data %>%
+#     count(x) %>%
+#     rename(y = n)
+#
+# }
 
-  data %>%
-    count(x) %>%
-    rename(y = n)
+toy_survey %>%
+  rename(responses = q1) %>%
+  compute_panel_bar_delim() %>%
+  compute_group_bar_delim()
+
+setup_data_function <- function(data, params){
+
+  if(data$group[1] == -1){
+    nrows <- nrow(data)
+    data$group <- seq_len(nrows)
+  }
+
+  data
 
 }
 
-toy_survey %>%
-  rename(x = multiple_response) %>%
-  compute_panel_bar_delim() %>%
-  compute_group_bar_delim()
 
 
 StatBardelim <- ggplot2::ggproto(
   `_class` = "StatBardelim",
   `_inherit` = ggplot2::Stat,
-  required_aes = c("x"),
-  compute_panel = compute_panel_bar_delim,
-  compute_goup = compute_group_bar_delim
+  required_aes = c("responses"),
+  compute_panel = compute_panel_bar_delim#,
+  # default_aes = ggplot2::aes(group = after_stat(x)),
+  # setup_data = setup_data_function
+  # compute_goup = compute_group_bar_delim
 )
 
 geom_bar_delim <- function(
@@ -58,3 +87,9 @@ geom_bar_delim <- function(
     params = list(na.rm = na.rm, ...)
   )
 }
+
+
+toy_survey %>%
+  ggplot() +
+  aes(responses = q1) +
+  geom_bar_delim()
