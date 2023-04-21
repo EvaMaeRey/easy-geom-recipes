@@ -1,0 +1,44 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# easy-geom-recipes
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of easy-geom-recipes is to provide points of entry into the ggplot2 extension space, focusing on layers. 
+
+    
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(      
+  collapse = TRUE,
+  warning = FALSE,
+  comment = "#>"          
+)       
+ 
+```
+
+ 
+
+```{r, results='asis', echo = F}
+library(magrittr)
+webpages <- fs::dir_ls(type = "file", recurse = T, glob = "*.html") %>% rev()
+     
+webpages %>%    
+  paste0("- [",
+         . ,
+         "]",
+         "(https://evamaerey.github.io/easy-geom-recipes/", ., ")\n") %>% 
+  cat()     
+```
