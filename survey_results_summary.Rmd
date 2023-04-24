@@ -1,5 +1,5 @@
 ---
-title: "Untitled"
+title: "Survey response summary"
 author: "Evangeline Reynolds"
 date: "4/20/2023"
 output: html_document
@@ -16,6 +16,20 @@ This is an R Markdown document. Markdown is a simple formatting syntax for autho
 When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
 ```{r cars}
+plot_multi_responses <- function(data, var){
+data %>%
+  pull({{var}}) %>%
+  paste(collapse = ";") %>%
+  str_split_1(";") %>%
+  data.frame(x = .) %>%
+  count(x) %>%
+  mutate(y = n) %>%
+  ggplot() +
+  aes(x = x, y = y) +
+  geom_col()
+}
+
+
 library(tidyverse)
 readxl::read_xlsx("survey/'Easy Geom Recipes' Feedback Survey(1-7).xlsx") %>% 
   slice(-1) -> # removing test with my responses
@@ -52,6 +66,7 @@ ggplot(survey) +
   labs(title = q_long[8])
 
 # checkbox
+plot_multi_responses(survey, q09)
 ggplot(survey) + 
   aes(x = q09) + 
   geom_bar() + 
@@ -103,6 +118,8 @@ ggplot(survey) +
   labs(title = q_long[17])
 
 # checkbox
+plot_multi_responses(survey, q18)
+
 ggplot(survey) + 
   aes(x = q18 %>% str_wrap(30)) + 
   geom_bar() + 

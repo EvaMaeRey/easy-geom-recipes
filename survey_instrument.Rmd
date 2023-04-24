@@ -42,227 +42,230 @@ Never
 ## 3.How frequently do you use the ggplot2 package to build plots?
 Single choice.
 
-Almost every day
 
-Several times a week
-
-Several times a month
-
-Several times a year
-
-Never
+```{r}
+frequency_levels <- 
+  c('Almost every day',
+'Several times a week',
+'Several times a month',
+'Several times a year',
+'Never')
+```
 
 
 
 ## 4.How frequently do you write your own functions in R?
 Single choice.
 
-Almost every day
 
-Several times a week
-
-Several times a month
-
-Several times a year
-
-Never
-
+```{r}
+frequency_levels <- 
+  c('Almost every day',
+'Several times a week',
+'Several times a month',
+'Several times a year',
+'Never')
+```
 
 
 ## 5.In which of the following contexts do you usually use ggplot2?
 Multiple choice.
 
-Teaching
-
-Academic Research
-
-Analytics for my employer
-
-Personal Projects
-
+```{r}
+activity_types <- 
+  c('Teaching',
+    'Academic Research',
+    'Analytics for my employer',
+    'Personal Projects')
+```
 
 
 ## 6.Prior to testing the tutorial, which of the following best describes your previous experience with ggplot2 extension, i.e. theme_*(), geom_*(), scale_*(), coord_*(), facet_*() functions outside of 'base ggplot2'.
 Single choice.
 
-I didn't know about any extension mechanisms!
+```{r}
+extension_levels <- c("I didn't know about any extension mechanisms!",
+                      "I knew about extension system and ggplot2 extension packages but haven't created any extension myself",
+                      "I've tried to write extensions (new themes, scales, geoms, facets), but was not successful.",
+                      "I've successfully written ggplot2 extensions")
 
-I knew about extension system and ggplot2 extension packages but haven't created any extension myself
-
-I've tried to write extensions (new themes, scales, geoms, facets), but was not successful.
-
-I've successfully written ggplot2 extensions
+```
 
 
 
 ## 7.Mark any of the following elements you tried to extend prior to taking the 'easy geom recipes tutorial', with the outcome (successful or unsuccessful):
 Multiple choice.
 
-theme_*(), successful
-
-theme_*(), unsuccessful
-
-scales_*(), successful
-
-scales_*(), unsuccessful
-
-position, successful
-
-position, unsuccessful
-
-geom_*()/stat_*(), successful
-
-geom_*()/stat_*(), unsuccessful
-
-coord_*(), successful
-
-coord_*(), unsuccessful
-
-facet_*(), successful
-
-facet_*(), unsuccessful
-
+```{r}
+c('theme_*(), successful',
+'theme_*(), unsuccessful',
+'scales_*(), successful',
+'scales_*(), unsuccessful',
+'position, successful',
+'position, unsuccessful',
+'geom_*()/stat_*(), successful',
+'geom_*()/stat_*(), unsuccessful',
+'coord_*(), successful',
+'coord_*(), unsuccessful',
+'facet_*(), successful',
+'facet_*(), unsuccessful') ->
+q7factors
+```
 
 
 ## 8.Please feel free to elaborate on any of your prior experiences with creating your own ggplot2 extension.
 Single line text.
 
-tough, but getting better
 
 
 
 ## 9.Prior to completion of the tutorial, which of the following describe your experiences with object oriented programming (OOP)?
 Multiple choice.
 
-I'd used ggproto for ggplot2 extension
+```{r}
+oop_experience <- 
+  c("I'd used ggproto for ggplot2 extension",
+    "I'd used one of the following R OOP systems: S3, R6, S4, S7/R7",
+    "I'd used object oriented programming techniques in programming languages other than R",
+    "I had no prior OOP experience.")
+```
 
-I'd used one of the following R OOP systems: S3, R6, S4, S7/R7
-
-I'd used object oriented programming techniques in programming languages other than R
-
-I had no prior OOP experience.
 
 
 
 ## 10.Which of the following 'easy geom recipes' tutorial did you attempt?
 Multiple choice.
 
-geom_point_xy_means() which used geom_point_xy_medians() as a reference
 
-geom_text_coordinates() which used geom_text_id() as a reference
+```{r}
+extension_types <- 
+  c('geom_point_xy_means() which used geom_point_xy_medians() as a reference',
+    'geom_text_coordinates() which used geom_text_id() as a reference',
+    'geom_segment_lm_residuals() which used geom_point_lm_fitted() as a reference')
+```
 
-geom_segment_lm_residuals() which used geom_point_lm_fitted() as a reference
 
 
 
 ## 11.Which of the following 'easy geom recipes' tutorial did you successfully complete?
 Multiple choice.
 
-geom_point_xy_means()
+```{r}
+ggplot_extension_functions <- c(
+  'geom_point_xy_means()',
+  'geom_text_coordinates()',
+  'geom_segment_lm_residuals()'
+)
 
-geom_text_coordinates()
-
-geom_segment_lm_residuals()
+```
 
 
 
 ## 12.For each recipe you attempted, how long would you estimate the time taken
  on average?Single choice.
 
-5-15 minutes
-
-15-30 minutes
-
-30-45 minutes
-
-45-60 minutes
-
-1-2 hours
-
-more than 2 hours
+```{r}
+time_levels <- 
+  c('5-15 minutes',
+    '15-30 minutes',
+    '30-45 minutes',
+    '45-60 minutes',
+    '1-2 hours',
+    'more than 2 hours')
+```
 
 
 
 ## 13.What would you say about the length of the tutorial content?
 Single choice.
 
-The tutorial length was about right 
+```{r}
+tutorial_length <- c("The tutorial length was about right", 
+                     "The tutorial was too long", 
+                     "The tutorial was too short")
 
-The tutorial was too long
-
-The tutorial was too short
+```
 
 
 
 ## 14.What would you say about the clarity of the examples and contentSingle choice.
 
-The examples were easy to follow
-
-The examples weren't always initially clear, but I ultimately managed to understand intent.
-
-I didn't follow the examples.
-
-
-
-## 15.Did you find the examples interesting/engaging?Single choice.
-
-In general, I did not find the examples interesting or engaging
-
-In general, I did find the examples interesting or engaging
+```{r}
+example_levels <- c("The examples were easy to follow",
+                    "The examples weren't always initially clear, but I ultimately managed to understand intent.",
+                    "I didn't follow the examples.")
+```
 
 
 
-## 16.Please provide any additional feedback on the tutorial.  In what ways do you think it is successful?  In what ways do you think it could be improved?  Do you perceive any oversights or pitfalls to using this as an educational resource?Single line text.
 
-this is a test of the survey instrument
+
+## 15.Did you find the examples interesting/engaging?
+Single choice.
+
+```{r}
+example_engagement <- c("In general, I did not find the examples interesting or engaging",
+                        "In general, I did find the examples interesting or engaging")
+
+
+
+
+
+```
+
+
+
+## 16.Please provide any additional feedback on the tutorial.  In what ways do you think it is successful?  In what ways do you think it could be improved?  Do you perceive any oversights or pitfalls to using this as an educational resource?
+Single line text.
+
 
 
 
 ## 17.Which of the following were your emotional response(s) to the tutorialMultiple choice.
 
-frustration
+```{r}
+sentiment_levels <- 
+  c("frustration", 
+    "satisfaction", 
+    "indifference", 
+    "gloom", 
+    "delight", 
+    "skepticism", 
+    "excitement", 
+    "curiosity")
 
-satisfaction
 
-indifference
 
-gloom
 
-delight
+```
 
-skepticism
-
-excitement
-
-curiousity
 
 
 
 ## 18.How likely are you to use the extension mechanism demonstrated in the tutorial in the future.Single choice.
 
-Very likely - I already have ideas for how to use!
+```{r}
+likelihood_levels <- c('Very likely - I already have ideas for how to use!',
+                       'Somewhat likely',
+                       'Neither likely nor unlikely',
+                       'Somewhat unlikely',
+                       'Very unlikely')
+```
 
-Somewhat likely
-
-Neither likely nor unlikely
-
-Somewhat unlikely
-
-Very unlikely
 
 
 
 ## 19.How likely would you be to use extension functions like the ones in the tutorial, if already in a package (e.g. functions in ggxmean, many demoed here:  https://evamaerey.github.io/ggxmean/flipbook.html)Single choice.
 
-Very likely
+```{r}
 
-Somewhat likely
+likelihood_levels <- c('Very likely', 
+                       'Somewhat likely', 
+                       'Neither likely nor unlikely', 
+                       'Somewhat unlikely', 
+                       'Very unlikely')
 
-Neither likely nor unlikely
-
-Somewhat unlikely
-
-Very unlikely
+```
 
 
 
@@ -281,24 +284,33 @@ No answer provided.
 ## 22.How long have you taught statistics, data science, or analytics? 
 Single choice.
 
-One to two years
 
-Three to five years
+```{r}
+teaching_experience_levels <- 
+  c("One to two years", 
+    "Three to five years", 
+    "Five to ten years", 
+    "More than ten years", 
+    "Not applicable")
+```
 
-Five to ten years
 
-More than ten years
 
-Not applicable
+
+
 
 
 
 ## 23.Do you think this tutorial would be accessible to students?
 Multiple choice.
 
-Yes
 
-No
+```{r}
+binary_levels <- 
+  c("no", "yes")
+```
+
+
 
 
 

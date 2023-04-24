@@ -22,10 +22,9 @@ compute_panel_bar_delim <- function(data,
   data$responses %>%
     paste(collapse = ";") %>%
     str_split_1(";") %>%
-    data.frame(x = .) %>%
-    count(x) %>%
-    mutate(y = n) %>%
-    mutate(group = row_number())
+    data.frame(cats = .) %>%
+    count(cats) %>%
+    rename(num_responding = n)
 
     # add an additional column called label
     # the geom we inherit from requires the label aesthetic
@@ -62,9 +61,9 @@ setup_data_function <- function(data, params){
 StatBardelim <- ggplot2::ggproto(
   `_class` = "StatBardelim",
   `_inherit` = ggplot2::Stat,
-  required_aes = c("responses"),
-  compute_panel = compute_panel_bar_delim#,
-  # default_aes = ggplot2::aes(group = after_stat(x)),
+  # required_aes = c("responses"),
+  compute_panel = compute_panel_bar_delim,
+  default_aes = ggplot2::aes(x = after_stat(cats), y = after_stat(num_responding), group = after_stat(cats)),
   # setup_data = setup_data_function
   # compute_goup = compute_group_bar_delim
 )
