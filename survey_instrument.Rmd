@@ -5,37 +5,39 @@ date: "4/20/2023"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## 1.For how long have you used the R programming language?
 Single choice.
 
-For more than ten years
 
-Between five and ten years
+```{r}
+q05_levels <- c("For more than ten years",
+"Between five and ten years",
 
-Between two and five years
+"Between two and five years",
+"Between one and two years",
 
-Between one and two years
-
-Less than a year
-
+"Less than a year")
+```
 
 
 ## 2.How frequently do you use the R programming language?
 Single choice.
 
-Almost every day
 
-Several times a week
+```{r}
+q06_levels <- c("Almost every day",
 
-Several times a month
+"Several times a week",
 
-Several times a year
+"Several times a month",
 
-Never
+"Several times a year",
+
+"Never")
+
+```
 
 
 
@@ -44,7 +46,7 @@ Single choice.
 
 
 ```{r}
-frequency_levels <- 
+q07_levels <- 
   c('Almost every day',
 'Several times a week',
 'Several times a month',
@@ -59,7 +61,7 @@ Single choice.
 
 
 ```{r}
-frequency_levels <- 
+q08_levels <- 
   c('Almost every day',
 'Several times a week',
 'Several times a month',
@@ -72,7 +74,7 @@ frequency_levels <-
 Multiple choice.
 
 ```{r}
-activity_types <- 
+q09_levels <- 
   c('Teaching',
     'Academic Research',
     'Analytics for my employer',
@@ -84,7 +86,7 @@ activity_types <-
 Single choice.
 
 ```{r}
-extension_levels <- c("I didn't know about any extension mechanisms!",
+q10_levels <- c("I didn't know about any extension mechanisms!",
                       "I knew about extension system and ggplot2 extension packages but haven't created any extension myself",
                       "I've tried to write extensions (new themes, scales, geoms, facets), but was not successful.",
                       "I've successfully written ggplot2 extensions")
@@ -109,7 +111,7 @@ c('theme_*(), successful',
 'coord_*(), unsuccessful',
 'facet_*(), successful',
 'facet_*(), unsuccessful') ->
-q7factors
+q11_levels
 ```
 
 
@@ -123,7 +125,7 @@ Single line text.
 Multiple choice.
 
 ```{r}
-oop_experience <- 
+q13_levels <- 
   c("I'd used ggproto for ggplot2 extension",
     "I'd used one of the following R OOP systems: S3, R6, S4, S7/R7",
     "I'd used object oriented programming techniques in programming languages other than R",
@@ -138,7 +140,7 @@ Multiple choice.
 
 
 ```{r}
-extension_types <- 
+q14_levels <- 
   c('geom_point_xy_means() which used geom_point_xy_medians() as a reference',
     'geom_text_coordinates() which used geom_text_id() as a reference',
     'geom_segment_lm_residuals() which used geom_point_lm_fitted() as a reference')
@@ -151,7 +153,7 @@ extension_types <-
 Multiple choice.
 
 ```{r}
-ggplot_extension_functions <- c(
+q15_levels <- c(
   'geom_point_xy_means()',
   'geom_text_coordinates()',
   'geom_segment_lm_residuals()'
@@ -165,7 +167,7 @@ ggplot_extension_functions <- c(
  on average?Single choice.
 
 ```{r}
-time_levels <- 
+q16_levels <- 
   c('5-15 minutes',
     '15-30 minutes',
     '30-45 minutes',
@@ -180,7 +182,7 @@ time_levels <-
 Single choice.
 
 ```{r}
-tutorial_length <- c("The tutorial length was about right", 
+q17_levels <- c("The tutorial length was about right", 
                      "The tutorial was too long", 
                      "The tutorial was too short")
 
@@ -191,7 +193,7 @@ tutorial_length <- c("The tutorial length was about right",
 ## 14.What would you say about the clarity of the examples and contentSingle choice.
 
 ```{r}
-example_levels <- c("The examples were easy to follow",
+q18_levels <- c("The examples were easy to follow",
                     "The examples weren't always initially clear, but I ultimately managed to understand intent.",
                     "I didn't follow the examples.")
 ```
@@ -204,7 +206,7 @@ example_levels <- c("The examples were easy to follow",
 Single choice.
 
 ```{r}
-example_engagement <- c("In general, I did not find the examples interesting or engaging",
+q19_levels <- c("In general, I did not find the examples interesting or engaging",
                         "In general, I did find the examples interesting or engaging")
 
 
@@ -221,10 +223,11 @@ Single line text.
 
 
 
-## 17.Which of the following were your emotional response(s) to the tutorialMultiple choice.
+## 17. Which of the following were your emotional response(s) to the tutorial
+Multiple choice.
 
 ```{r}
-sentiment_levels <- 
+q21_levels <- 
   c("frustration", 
     "satisfaction", 
     "indifference", 
@@ -233,10 +236,6 @@ sentiment_levels <-
     "skepticism", 
     "excitement", 
     "curiosity")
-
-
-
-
 ```
 
 
@@ -245,7 +244,7 @@ sentiment_levels <-
 ## 18.How likely are you to use the extension mechanism demonstrated in the tutorial in the future.Single choice.
 
 ```{r}
-likelihood_levels <- c('Very likely - I already have ideas for how to use!',
+q22_levels <- c('Very likely - I already have ideas for how to use!',
                        'Somewhat likely',
                        'Neither likely nor unlikely',
                        'Somewhat unlikely',
@@ -259,7 +258,7 @@ likelihood_levels <- c('Very likely - I already have ideas for how to use!',
 
 ```{r}
 
-likelihood_levels <- c('Very likely', 
+q23_levels <- c('Very likely', 
                        'Somewhat likely', 
                        'Neither likely nor unlikely', 
                        'Somewhat unlikely', 
@@ -286,7 +285,7 @@ Single choice.
 
 
 ```{r}
-teaching_experience_levels <- 
+q26_levels <- 
   c("One to two years", 
     "Three to five years", 
     "Five to ten years", 
@@ -306,8 +305,8 @@ Multiple choice.
 
 
 ```{r}
-binary_levels <- 
-  c("no", "yes")
+q27_levels <- 
+  c("Yes;", "No;")
 ```
 
 

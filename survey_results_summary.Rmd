@@ -1,37 +1,57 @@
 ---
 title: "Survey response summary"
 author: "Evangeline Reynolds"
-date: "4/20/2023"
-output: html_document
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: [default, "custom.css"]
+    nature:
+      ratio: 16:9
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, eval = F)
+```{r , include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F)
 ```
 
-## R Markdown
+# Survey response summary! 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
 
-```{r cars}
-plot_multi_responses <- function(data, var){
-data %>%
-  pull({{var}}) %>%
-  paste(collapse = ";") %>%
-  str_split_1(";") %>%
-  data.frame(x = .) %>%
-  count(x) %>%
-  mutate(y = n) %>%
-  ggplot() +
-  aes(x = x, y = y) +
-  geom_col()
-}
+```{r, child = "survey_instrument.Rmd", include = F}
+```
 
 
+
+```{r, include = F}
 library(tidyverse)
-readxl::read_xlsx("survey/'Easy Geom Recipes' Feedback Survey(1-7).xlsx") %>% 
+readxl::read_xlsx("../easy-geom-recipes-raw-data/'Easy Geom Recipes' Feedback Survey(1-10).xlsx", na = "NA") %>% 
   slice(-1) -> # removing test with my responses
 survey_raw  
 
@@ -44,169 +64,239 @@ q_long <- names(survey_raw)
 survey <- survey_raw
 names(survey) <- paste0("q", str_pad(1:28, 2, "left", "0"))
 survey
+theme_set(theme_minimal(base_size = 23))
 
+```
+
+---
+
+```{r q05r_length_user}
+dist_plot <- function(var = q05, levels = q05_levels, title = q_long[5], var_wrap = 10, base_size = 23, title_wrap = 40){
 ggplot(survey) + 
-  aes(x = q05) + 
-  geom_bar() + 
-  labs(title = q_long[5])
-
-ggplot(survey) + 
-  aes(x = q06) + 
-  geom_bar() + 
-  labs(title = q_long[6])
-
-ggplot(survey) + 
-  aes(x = q07) + 
-  geom_bar() + 
-  labs(title = q_long[7])
-
-ggplot(survey) + 
-  aes(x = q08) + 
-  geom_bar() + 
-  labs(title = q_long[8])
-
-# checkbox
-plot_multi_responses(survey, q09)
-ggplot(survey) + 
-  aes(x = q09) + 
-  geom_bar() + 
-  labs(title = q_long[9])
+        theme_minimal(base_size = base_size) + 
+  aes(x = {{var}} %>% str_wrap(var_wrap) %>% factor(levels %>% str_wrap(var_wrap))) + 
+  geom_bar(fill = "midnightblue") + 
+  scale_x_discrete(drop = F) +
+  labs(title = title %>% str_wrap(title_wrap)) + 
+  labs(x = NULL) + 
+  labs(y = NULL) + 
+  theme(plot.title.position = "plot") + 
+  ggdirect::geom_text_count(nudge_y = .1, size = 6) + 
+  # theme(axis.text.y = element_blank()) + 
+  theme(panel.grid.minor.x = element_blank(),
+        panel.grid.major.x = element_blank(),
+        panel.grid.minor.y = element_blank()) +
+  scale_y_continuous(limits = c(0,10), breaks = c(0,3,6,9))
+}
 
 
-ggplot(survey) + 
-  aes(x = q10 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[10])
-
-ggplot(survey) + 
-  aes(x = q11 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[11])
-
-ggplot(survey) + 
-  aes(x = q12 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[12])
-
-ggplot(survey) + 
-  aes(x = q13 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[13])
-
-# checkbox
-ggplot(survey) + 
-  aes(x = q14 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[14])
-
-# checkbox
-ggplot(survey) + 
-  aes(x = q15 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[15])
-
-# checkbox
-ggplot(survey) + 
-  aes(x = q16 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[16])
-
-# checkbox
-ggplot(survey) + 
-  aes(x = q17 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[17])
-
-# checkbox
-plot_multi_responses(survey, q18)
-
-ggplot(survey) + 
-  aes(x = q18 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[18])
-
-# checkbox
-ggplot(survey) + 
-  aes(x = q19 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[19])
-
-# checkbox
-ggplot(survey) + 
-  aes(x = q20 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[20])
-
-# checkbox
-ggplot(survey) + 
-  aes(x = q21) + 
-  geom_bar_delim() + 
-  labs(title = q_long[21])
-
-# checkbox
-ggplot(survey) + 
-  aes(x = q22 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[22])
 
 
-# checkbox
-ggplot(survey) + 
-  aes(x = q24 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[24])
+dist_plot()
+```
 
 
-# checkbox
-ggplot(survey) + 
-  aes(x = q25 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[25])
+
+---
+
+```{r q06r_frequency}
+dist_plot(q06, q06_levels, q_long[6])
+
+```
 
 
-# checkbox
-ggplot(survey) + 
-  aes(x = q26 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[26])
 
+---
 
-# checkbox
-ggplot(survey) + 
-  aes(x = q27 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[27])
+```{r q07ggplot2_frequency}
+dist_plot(q07, q07_levels, q_long[7])
 
-# checkbox
-ggplot(survey) + 
-  aes(x = q28 %>% str_wrap(30)) + 
-  geom_bar() + 
-  labs(title = q_long[28])
+```
 
-toy_survey %>% 
-  pull(q1) %>%
+---
+
+```{r q08r_frequency}
+dist_plot(q08, q08_levels, q_long[8])
+
+```
+---
+
+```{r cars, include = F}
+plot_multi_responses <- function(data = survey, var = q11, levels = q11_levels, var_title = q_long[11], var_wrap = 15, base_size = 18, title_wrap = 40){
+data %>%
+  pull({{var}}) %>%
   paste(collapse = ";") %>%
   str_split_1(";") %>%
   data.frame(x = .) %>%
+  filter(x != "") %>% 
+  filter(x != "NA") %>% 
   count(x) %>%
-  mutate(y = n) %>% 
-  ggplot() + 
-  aes(x = x, y = y) + 
-  geom_col() + 
-  labs(title = "Number of people indicating each feeling")
+  mutate(x = x %>% str_wrap(var_wrap)  %>% factor(levels = levels %>% str_wrap(var_wrap) )) %>% 
+  mutate(y = n) %>%
+  ggplot() +
+    theme_minimal(base_size = base_size) + 
+  aes(x = x , y = y) + 
+  labs(x = NULL, y = NULL) +
+  geom_col() +
+  geom_text(aes(label = paste0(y, "/", 9)), hjust = -0.2) + 
+  aes(fill = x) +
+      scale_x_discrete(drop = F) +
+  theme(plot.title.position = "plot") + 
+  # theme(axis.text.x = element_blank()) + 
+  theme(panel.grid.minor.y = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank())+  
+  scale_y_continuous(limits = c(0,10), breaks = c(0,3,6,9)) + 
+  scale_fill_viridis_d(guide = "none") + 
+  labs(fill = NULL) + 
+  coord_flip() + 
+  labs(title = var_title %>% str_wrap(title_wrap)) + 
+  labs(caption = "Number of respondents indicating each option")
 
+}
+# plot_multi_responses()
+```
 
-layer_data(last_plot())
-  
+```{r q09ggplot2_contexts}
+plot_multi_responses(survey, q09, q09_levels, q_long[9])
+```
+
+---
+```{r q10_previous_ext_experience}
+dist_plot(q10, q10_levels, q_long[10], var_wrap = 20, 
+          base_size = 15, title_wrap = 60) 
 
 ```
 
-## Including Plots
+---
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+```{r q11_previous_ext_attempt}
+plot_multi_responses(survey, q11, q11_levels, q_long[11], base_size = 12, var_wrap = 40, title_wrap = 70)
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+---
+
+<!-- ### `r q_long[12]` -->
+
+<!-- r paste(survey$q12, collapse = "------------------")`  -->
+
+<!-- --- -->
+
+<!-- --- -->
+
+```{r q13_oop_experience}
+plot_multi_responses(survey, q13, q13_levels, var_title = q_long[13], base_size = 18, title_wrap = 50, var_wrap = 35)
+```
+
+---
+
+```{r q14which_completed}
+plot_multi_responses(survey, q14, q14_levels, var_title = q_long[14])
+
+```
+
+
+---
+
+```{r q15number_completed}
+# checkbox
+plot_multi_responses(survey, q15, q15_levels, q_long[15])
+```
+
+```{r q16tutorial_time_taken}
+dist_plot(q16, q16_levels, q_long[16])
+
+```
+
+---
+
+```{r q17tutorial_length}
+dist_plot(q17, q17_levels, q_long[17], var_wrap = 18)
+
+```
+
+
+---
+
+```{r q18example_clarity}
+dist_plot(q18, q18_levels, q_long[18], var_wrap = 20, base_size = 20)
+
+```
+
+---
+
+```{r q19examples_engaging}
+dist_plot(q19, q19_levels, q_long[19], var_wrap = 30)
+
+```
+
+---
+
+
+
+
+### `r q_long[20]`
+
+r paste(survey$q20, collapse = "------------------")` 
+
+
+---
+
+```{r}
+plot_multi_responses(survey, q21, levels = q21_levels, 
+                     var_title = q_long[21])
+```
+
+---
+
+```{r}
+dist_plot(q22, q22_levels, q_long[22])
+
+```
+
+---
+
+```{r}
+dist_plot(q23, q23_levels, q_long[23])
+
+```
+
+---
+
+
+### `r q_long[25]`
+
+r paste(survey$q25, collapse = "------------------")`
+
+---
+
+
+
+### `r q_long[25]`
+
+r paste(survey$q25, collapse = "------------------")` 
+
+---
+
+```{r}
+dist_plot(q26, q26_levels, q_long[26])
+
+
+```
+
+---
+
+```{r, eval = F}
+dist_plot(q27, q27_levels, q_long[27])
+
+```
+
+---
+
+
+
+### `r q_long[28]`
+
+r paste(survey$q28, collapse = "------------------")` 
+
+

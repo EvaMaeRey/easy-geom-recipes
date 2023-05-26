@@ -62,7 +62,7 @@ StatBardelim <- ggplot2::ggproto(
   `_class` = "StatBardelim",
   `_inherit` = ggplot2::Stat,
   # required_aes = c("responses"),
-  compute_panel = compute_panel_bar_delim,
+  compute_panel = compute_layer_bar_delim,
   default_aes = ggplot2::aes(x = after_stat(cats), y = after_stat(num_responding), group = after_stat(cats)),
   # setup_data = setup_data_function
   # compute_goup = compute_group_bar_delim
