@@ -13,7 +13,7 @@ output:
 ---
 
 ```{r , include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F)
+knitr::opts_chunk$set(echo = FALSE, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F, fig.retina = 300)
 ```
 
 # Survey response summary! 
@@ -130,8 +130,10 @@ data %>%
   data.frame(x = .) %>%
   filter(x != "") %>% 
   filter(x != "NA") %>% 
+  filter(!is.na(x)) %>% 
   count(x) %>%
-  mutate(x = x %>% str_wrap(var_wrap)  %>% factor(levels = levels %>% str_wrap(var_wrap) )) %>% 
+  mutate(x = x %>% str_wrap(var_wrap)  %>% 
+           factor(levels = levels %>% str_wrap(var_wrap) )) %>% 
   mutate(y = n) %>%
   ggplot() +
     theme_minimal(base_size = base_size) + 

@@ -7,8 +7,8 @@
 
 <!-- badges: end -->
 
-The goal of easy-geom-recipes is to provide points of entry into the
-ggplot2 extension space, focusing on layers.
+The goal of easy-geom-recipes is to provide a new point of entry into
+the ggplot2 extension space focusing on layers.
 
 Informal background: *My entry to ggplot2 extension was slow. I’d say it
 took about a year – all of 2020 – going back and forth between materials
@@ -28,6 +28,7 @@ helped craft the compute\_group ‘recipes’ with me.*
   - [survey\_results\_summary.html](https://evamaerey.github.io/easy-geom-recipes/survey_results_summary.html)
   - [survey\_instrument.html](https://evamaerey.github.io/easy-geom-recipes/survey_instrument.html)
   - [invitation\_to\_participate.html](https://evamaerey.github.io/easy-geom-recipes/invitation_to_participate.html)
+  - [focus\_group\_script.html](https://evamaerey.github.io/easy-geom-recipes/focus_group_script.html)
   - [easy\_geom\_recipes\_compute\_panel.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_panel.html)
   - [easy\_geom\_recipes\_compute\_group.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html)
   - [easy\_geom\_recipes.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes.html)
