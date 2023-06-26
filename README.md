@@ -1,14 +1,11 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# easy-geom-recipes
+# Easy geom recipes: a new entry point to ggplot2 extension for statistical educators and their students
 
 <!-- badges: start -->
 
 <!-- badges: end -->
-
-The goal of easy-geom-recipes is to provide a new point of entry into
-the ggplot2 extension space focusing on layers.
 
 <!-- Informal background:  -->
 
@@ -24,9 +21,23 @@ the ggplot2 extension space focusing on layers.
   - [easy\_geom\_recipes\_compute\_group.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html)
   - [easy\_geom\_recipes.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes.html)
 
-# Narrative
-
 ### Abstract
+
+This paper introduces a new introductory tutorial in ggplot2 extension.
+The tutorial explores six layer extensions in a step-by-step fashion.
+Three of the extensions are fully worked examples. After each of the
+worked examples, the tutorial prompts the learner to work through a
+similar extension.
+
+The tutorial was evaluated by statistics and data analytics educators
+with substantial R and ggplot2 experience, but without much extension
+experience.
+
+In general, the tutorial was found to be engaging and appropriate in
+length. The level was judged to be accessible, such that instructors
+would feel comfortable sharing with advanced students.
+
+### Narrative
 
 Using ggplot2 has been described as writing ‘graphical poems’. But we
 may feel at a loss for ‘words’ when functions we’d like to have don’t
@@ -39,10 +50,11 @@ more primitive geoms after performing some calculation.
 To get feet wet in this world and provide a taste of patterns for geom
 extension, ‘easy geom recipes’ provide three basic examples of the
 geoms\_ that inherit from *existing* geoms (point, text, segment, etc)
-along with a practice exercise. With such geoms, calculation is done
-under the hood by the ggplot2 system. We’ll see how to define a ggproto
-object; The tutorial keeps things simple by only defining computation at
-the compute\_group stage.
+along with a practice exercise:
+<https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html>.
+With such geoms, calculation is done under the hood by the ggplot2
+system. We’ll see how to define a ggproto object; The tutorial keeps
+things simple by only defining computation at the compute\_group stage.
 
 With new geoms, you can write *new* graphical poems with exciting new
 graphical ‘words’\!
@@ -90,9 +102,7 @@ Our recipes take the form:
   - Step 4. Test/Enjoy\! Take your new geom for a spin\! Check out
     group-wise computation behavior\!
 
-## Example exercise
-
-## Participant profiles
+## Evaluation
 
 To test the tutorial, we approached statistics and data analytics
 educators that we believed would have substantial experience with R and
@@ -101,6 +111,11 @@ nine participants that completed the study and responded to a survey
 about the tutorial. Eight of the participants were also able to
 participate in focus group discussions following their completion of the
 the tutorial and survey.
+
+### Participant profiles
+
+Recruited participants generally had substantial experience teaching
+data analytics.
 
 ![](survey_results_summary_files/figure-html/unnamed-chunk-7-1.png)
 
@@ -207,8 +222,12 @@ exercise. Several participants failed complete the last recipe
 > all of these, these different primitives and proto elements and
 > whatever fit together… in such done that really helpful.
 
+# Skepticism
+
 > And it was that easy. And I felt empowered as a result of that…. But
 > you know, like, my problem isn’t gonna be that easy.
+
+# Concern - missing values
 
 > When, like place where you might have an opportunity to do a little
 > bit of pedagogical caution, it’s with like missing values. So when
@@ -218,6 +237,8 @@ exercise. Several participants failed complete the last recipe
 > summaries down without considering the data that are being used to
 > make them.
 
+# Accessibility for students
+
 > I’m teaching, so I’m teaching data visualization this summer online
 > again with my regular like online classes I’ve assigning \[the
 > tutorial\]… as kind of like an extra credit thing at the end of
@@ -225,6 +246,8 @@ exercise. Several participants failed complete the last recipe
 > and you get 10 bonus points or something just for the more advanced
 > students that will be in the class that will be interested. *But I
 > think it’s totally accessible for them.*
+
+# Higher level objectives
 
 > I’ll just add that I I think we, I could definitely use materials like
 > this and it did raise for me the points since I didn’t have a lot of
@@ -246,5 +269,160 @@ exercise. Several participants failed complete the last recipe
 > some ways. And I thought that would be a good. You know, this is
 > pretty good material along those lines.
 
+# Relationship to writing functions
+
 > Trying to clarify a little bit more when it’s Useful to have Your own
 > costume Geom, as opposed to your own function
+
+### Appendix, example exercise
+
+For clarity, I include one of the three exercises in the ‘easy geom
+recipes’ extension tutorial. First an ‘example recipe’ `geom_label_id()`
+is provided, with the step 0-4 guideposts. Then, the student is prompted
+to create `geom_text_coordinates()`.
+
+```` default
+
+# Example recipe #2:  `geom_label_id()`
+
+---
+
+## Step 0: use base ggplot2 to get the job done
+
+```{r cars}
+# step 0.a
+cars %>% 
+  mutate(id_number = 1:n()) %>% 
+  ggplot() + 
+  aes(x = speed, y = dist) + 
+  geom_point() + 
+  geom_label(aes(label = id_number), 
+             hjust = 1.2)
+
+# step 0.b
+layer_data(last_plot(), i = 2) %>% 
+  head()
+```
+
+---
+
+## Step 1: computation
+
+```{r compute_group_row_number}
+# you won't use the scales argument, but ggplot will later
+compute_group_row_number <- function(data, scales){
+  
+  data %>% 
+    # add an additional column called label
+    # the geom we inherit from requires the label aesthetic
+    mutate(label = 1:n())
+  
+}
+
+# step 1b test the computation function 
+cars %>% 
+  # input must have required aesthetic inputs as columns
+  rename(x = speed, y = dist) %>% 
+  compute_group_row_number() %>% 
+  head()
+```
+
+---
+
+## Step 2: define ggproto
+
+```{r StatRownumber}
+StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
+                                  `_inherit` = ggplot2::Stat,
+                                  required_aes = c("x", "y"),
+                                  compute_group = compute_group_row_number)
+```
+
+
+---
+
+## Step 3: define geom_* function
+
+
+
+- define the stat and geom for your layer
+
+```{r geom_label_row_number}
+geom_label_row_number <- function(mapping = NULL, data = NULL,
+                           position = "identity", na.rm = FALSE,
+                           show.legend = NA,
+                           inherit.aes = TRUE, ...) {
+  ggplot2::layer(
+    stat = StatRownumber, # proto object from Step 2
+    geom = ggplot2::GeomLabel, # inherit other behavior, this time Label
+    data = data, 
+    mapping = mapping,
+    position = position, 
+    show.legend = show.legend, 
+    inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...)
+  )
+}
+```
+
+
+
+
+
+---
+
+## Step 4: Enjoy! Use your function
+
+```{r enjoy_again}
+cars %>% 
+  ggplot() + 
+  aes(x = speed, y = dist) + 
+  geom_point() + 
+  geom_label_row_number(hjust = 1.2) # function in action
+```
+
+### And check out conditionality!
+
+```{r conditional_compute}
+last_plot() + 
+  aes(color = dist > 60) # Computation is within group
+```
+
+
+
+
+---
+
+# Task #2: create `geom_text_coordinates()`
+
+Using recipe #2 as a reference, can you create the function `geom_text_coordinates()`.  
+
+--
+
+- geom should label point with its coordinates '(x, y)'
+- geom should have behavior of geom_text (not geom_label)
+
+
+Hint:
+
+```{r}
+paste0("(", 1, ", ",3., ")")
+```
+
+```{r}
+# step 0: use base ggplot2
+
+# step 1: write your compute_group function (and test)
+
+# step 2: write ggproto with compute_group as an input
+
+# step 3: write your geom_*() function with ggproto as an input
+
+# step 4: enjoy!
+
+```
+````
+
+Thanks to Claus Wilke, June Choe, Teun Van der Brand, Isabella
+Velasquez, Cosima Meyer, and Eric Reder for pre-testing and reviewing
+the tutorial and providing useful feedback.
