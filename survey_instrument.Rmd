@@ -95,7 +95,7 @@ q10_levels <- c("I didn't know about any extension mechanisms!",
 
 
 
-## 7.Mark any of the following elements you tried to extend prior to taking the 'easy geom recipes tutorial', with the outcome (successful or unsuccessful):
+## 7. Mark any of the following elements you tried to extend prior to taking the 'easy geom recipes tutorial', with the outcome (successful or unsuccessful):
 Multiple choice.
 
 ```{r}

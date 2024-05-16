@@ -352,25 +352,31 @@ pre code {
 <div id="for-how-long-have-you-used-the-r-programming-language" class="section level2">
 <h2>1.For how long have you used the R programming language?</h2>
 <p>Single choice.</p>
-<p>For more than ten years</p>
-<p>Between five and ten years</p>
-<p>Between two and five years</p>
-<p>Between one and two years</p>
-<p>Less than a year</p>
+<pre class="r"><code>q05_levels &lt;- c(&quot;For more than ten years&quot;,
+&quot;Between five and ten years&quot;,
+
+&quot;Between two and five years&quot;,
+&quot;Between one and two years&quot;,
+
+&quot;Less than a year&quot;)</code></pre>
 </div>
 <div id="how-frequently-do-you-use-the-r-programming-language" class="section level2">
 <h2>2.How frequently do you use the R programming language?</h2>
 <p>Single choice.</p>
-<p>Almost every day</p>
-<p>Several times a week</p>
-<p>Several times a month</p>
-<p>Several times a year</p>
-<p>Never</p>
+<pre class="r"><code>q06_levels &lt;- c(&quot;Almost every day&quot;,
+
+&quot;Several times a week&quot;,
+
+&quot;Several times a month&quot;,
+
+&quot;Several times a year&quot;,
+
+&quot;Never&quot;)</code></pre>
 </div>
 <div id="how-frequently-do-you-use-the-ggplot2-package-to-build-plots" class="section level2">
 <h2>3.How frequently do you use the ggplot2 package to build plots?</h2>
 <p>Single choice.</p>
-<pre class="r"><code>frequency_levels &lt;- 
+<pre class="r"><code>q07_levels &lt;- 
   c(&#39;Almost every day&#39;,
 &#39;Several times a week&#39;,
 &#39;Several times a month&#39;,
@@ -380,7 +386,7 @@ pre code {
 <div id="how-frequently-do-you-write-your-own-functions-in-r" class="section level2">
 <h2>4.How frequently do you write your own functions in R?</h2>
 <p>Single choice.</p>
-<pre class="r"><code>frequency_levels &lt;- 
+<pre class="r"><code>q08_levels &lt;- 
   c(&#39;Almost every day&#39;,
 &#39;Several times a week&#39;,
 &#39;Several times a month&#39;,
@@ -390,7 +396,7 @@ pre code {
 <div id="in-which-of-the-following-contexts-do-you-usually-use-ggplot2" class="section level2">
 <h2>5.In which of the following contexts do you usually use ggplot2?</h2>
 <p>Multiple choice.</p>
-<pre class="r"><code>activity_types &lt;- 
+<pre class="r"><code>q09_levels &lt;- 
   c(&#39;Teaching&#39;,
     &#39;Academic Research&#39;,
     &#39;Analytics for my employer&#39;,
@@ -398,13 +404,13 @@ pre code {
 </div>
 <div id="prior-to-testing-the-tutorial-which-of-the-following-best-describes-your-previous-experience-with-ggplot2-extension-i.e.-theme_-geom_-scale_-coord_-facet_-functions-outside-of-base-ggplot2.-single-choice." class="section level2">
 <h2>6.Prior to testing the tutorial, which of the following best describes your previous experience with ggplot2 extension, i.e. theme_<em>(), geom_</em>(), scale_<em>(), coord_</em>(), facet_*() functions outside of ‘base ggplot2’. Single choice.</h2>
-<pre class="r"><code>extension_levels &lt;- c(&quot;I didn&#39;t know about any extension mechanisms!&quot;,
+<pre class="r"><code>q10_levels &lt;- c(&quot;I didn&#39;t know about any extension mechanisms!&quot;,
                       &quot;I knew about extension system and ggplot2 extension packages but haven&#39;t created any extension myself&quot;,
                       &quot;I&#39;ve tried to write extensions (new themes, scales, geoms, facets), but was not successful.&quot;,
                       &quot;I&#39;ve successfully written ggplot2 extensions&quot;)</code></pre>
 </div>
 <div id="mark-any-of-the-following-elements-you-tried-to-extend-prior-to-taking-the-easy-geom-recipes-tutorial-with-the-outcome-successful-or-unsuccessful" class="section level2">
-<h2>7.Mark any of the following elements you tried to extend prior to taking the ‘easy geom recipes tutorial’, with the outcome (successful or unsuccessful):</h2>
+<h2>7. Mark any of the following elements you tried to extend prior to taking the ‘easy geom recipes tutorial’, with the outcome (successful or unsuccessful):</h2>
 <p>Multiple choice.</p>
 <pre class="r"><code>c(&#39;theme_*(), successful&#39;,
 &#39;theme_*(), unsuccessful&#39;,
@@ -418,7 +424,7 @@ pre code {
 &#39;coord_*(), unsuccessful&#39;,
 &#39;facet_*(), successful&#39;,
 &#39;facet_*(), unsuccessful&#39;) -&gt;
-q7factors</code></pre>
+q11_levels</code></pre>
 </div>
 <div id="please-feel-free-to-elaborate-on-any-of-your-prior-experiences-with-creating-your-own-ggplot2-extension." class="section level2">
 <h2>8.Please feel free to elaborate on any of your prior experiences with creating your own ggplot2 extension.</h2>
@@ -427,7 +433,7 @@ q7factors</code></pre>
 <div id="prior-to-completion-of-the-tutorial-which-of-the-following-describe-your-experiences-with-object-oriented-programming-oop" class="section level2">
 <h2>9.Prior to completion of the tutorial, which of the following describe your experiences with object oriented programming (OOP)?</h2>
 <p>Multiple choice.</p>
-<pre class="r"><code>oop_experience &lt;- 
+<pre class="r"><code>q13_levels &lt;- 
   c(&quot;I&#39;d used ggproto for ggplot2 extension&quot;,
     &quot;I&#39;d used one of the following R OOP systems: S3, R6, S4, S7/R7&quot;,
     &quot;I&#39;d used object oriented programming techniques in programming languages other than R&quot;,
@@ -436,7 +442,7 @@ q7factors</code></pre>
 <div id="which-of-the-following-easy-geom-recipes-tutorial-did-you-attempt" class="section level2">
 <h2>10.Which of the following ‘easy geom recipes’ tutorial did you attempt?</h2>
 <p>Multiple choice.</p>
-<pre class="r"><code>extension_types &lt;- 
+<pre class="r"><code>q14_levels &lt;- 
   c(&#39;geom_point_xy_means() which used geom_point_xy_medians() as a reference&#39;,
     &#39;geom_text_coordinates() which used geom_text_id() as a reference&#39;,
     &#39;geom_segment_lm_residuals() which used geom_point_lm_fitted() as a reference&#39;)</code></pre>
@@ -444,7 +450,7 @@ q7factors</code></pre>
 <div id="which-of-the-following-easy-geom-recipes-tutorial-did-you-successfully-complete" class="section level2">
 <h2>11.Which of the following ‘easy geom recipes’ tutorial did you successfully complete?</h2>
 <p>Multiple choice.</p>
-<pre class="r"><code>ggplot_extension_functions &lt;- c(
+<pre class="r"><code>q15_levels &lt;- c(
   &#39;geom_point_xy_means()&#39;,
   &#39;geom_text_coordinates()&#39;,
   &#39;geom_segment_lm_residuals()&#39;
@@ -453,7 +459,7 @@ q7factors</code></pre>
 <div id="for-each-recipe-you-attempted-how-long-would-you-estimate-the-time-taken" class="section level2">
 <h2>12.For each recipe you attempted, how long would you estimate the time taken</h2>
 <p>on average?Single choice.</p>
-<pre class="r"><code>time_levels &lt;- 
+<pre class="r"><code>q16_levels &lt;- 
   c(&#39;5-15 minutes&#39;,
     &#39;15-30 minutes&#39;,
     &#39;30-45 minutes&#39;,
@@ -464,29 +470,30 @@ q7factors</code></pre>
 <div id="what-would-you-say-about-the-length-of-the-tutorial-content" class="section level2">
 <h2>13.What would you say about the length of the tutorial content?</h2>
 <p>Single choice.</p>
-<pre class="r"><code>tutorial_length &lt;- c(&quot;The tutorial length was about right&quot;, 
+<pre class="r"><code>q17_levels &lt;- c(&quot;The tutorial length was about right&quot;, 
                      &quot;The tutorial was too long&quot;, 
                      &quot;The tutorial was too short&quot;)</code></pre>
 </div>
 <div id="what-would-you-say-about-the-clarity-of-the-examples-and-contentsingle-choice." class="section level2">
 <h2>14.What would you say about the clarity of the examples and contentSingle choice.</h2>
-<pre class="r"><code>example_levels &lt;- c(&quot;The examples were easy to follow&quot;,
+<pre class="r"><code>q18_levels &lt;- c(&quot;The examples were easy to follow&quot;,
                     &quot;The examples weren&#39;t always initially clear, but I ultimately managed to understand intent.&quot;,
                     &quot;I didn&#39;t follow the examples.&quot;)</code></pre>
 </div>
 <div id="did-you-find-the-examples-interestingengaging" class="section level2">
 <h2>15.Did you find the examples interesting/engaging?</h2>
 <p>Single choice.</p>
-<pre class="r"><code>example_engagement &lt;- c(&quot;In general, I did not find the examples interesting or engaging&quot;,
+<pre class="r"><code>q19_levels &lt;- c(&quot;In general, I did not find the examples interesting or engaging&quot;,
                         &quot;In general, I did find the examples interesting or engaging&quot;)</code></pre>
 </div>
 <div id="please-provide-any-additional-feedback-on-the-tutorial.-in-what-ways-do-you-think-it-is-successful-in-what-ways-do-you-think-it-could-be-improved-do-you-perceive-any-oversights-or-pitfalls-to-using-this-as-an-educational-resource" class="section level2">
 <h2>16.Please provide any additional feedback on the tutorial. In what ways do you think it is successful? In what ways do you think it could be improved? Do you perceive any oversights or pitfalls to using this as an educational resource?</h2>
 <p>Single line text.</p>
 </div>
-<div id="which-of-the-following-were-your-emotional-responses-to-the-tutorialmultiple-choice." class="section level2">
-<h2>17.Which of the following were your emotional response(s) to the tutorialMultiple choice.</h2>
-<pre class="r"><code>sentiment_levels &lt;- 
+<div id="which-of-the-following-were-your-emotional-responses-to-the-tutorial" class="section level2">
+<h2>17. Which of the following were your emotional response(s) to the tutorial</h2>
+<p>Multiple choice.</p>
+<pre class="r"><code>q21_levels &lt;- 
   c(&quot;frustration&quot;, 
     &quot;satisfaction&quot;, 
     &quot;indifference&quot;, 
@@ -498,7 +505,7 @@ q7factors</code></pre>
 </div>
 <div id="how-likely-are-you-to-use-the-extension-mechanism-demonstrated-in-the-tutorial-in-the-future.single-choice." class="section level2">
 <h2>18.How likely are you to use the extension mechanism demonstrated in the tutorial in the future.Single choice.</h2>
-<pre class="r"><code>likelihood_levels &lt;- c(&#39;Very likely - I already have ideas for how to use!&#39;,
+<pre class="r"><code>q22_levels &lt;- c(&#39;Very likely - I already have ideas for how to use!&#39;,
                        &#39;Somewhat likely&#39;,
                        &#39;Neither likely nor unlikely&#39;,
                        &#39;Somewhat unlikely&#39;,
@@ -506,7 +513,7 @@ q7factors</code></pre>
 </div>
 <div id="how-likely-would-you-be-to-use-extension-functions-like-the-ones-in-the-tutorial-if-already-in-a-package-e.g.-functions-in-ggxmean-many-demoed-here-httpsevamaerey.github.ioggxmeanflipbook.htmlsingle-choice." class="section level2">
 <h2>19.How likely would you be to use extension functions like the ones in the tutorial, if already in a package (e.g. functions in ggxmean, many demoed here: <a href="https://evamaerey.github.io/ggxmean/flipbook.html)Single" class="uri">https://evamaerey.github.io/ggxmean/flipbook.html)Single</a> choice.</h2>
-<pre class="r"><code>likelihood_levels &lt;- c(&#39;Very likely&#39;, 
+<pre class="r"><code>q23_levels &lt;- c(&#39;Very likely&#39;, 
                        &#39;Somewhat likely&#39;, 
                        &#39;Neither likely nor unlikely&#39;, 
                        &#39;Somewhat unlikely&#39;, 
@@ -523,7 +530,7 @@ q7factors</code></pre>
 <div id="how-long-have-you-taught-statistics-data-science-or-analytics" class="section level2">
 <h2>22.How long have you taught statistics, data science, or analytics?</h2>
 <p>Single choice.</p>
-<pre class="r"><code>teaching_experience_levels &lt;- 
+<pre class="r"><code>q26_levels &lt;- 
   c(&quot;One to two years&quot;, 
     &quot;Three to five years&quot;, 
     &quot;Five to ten years&quot;, 
@@ -533,8 +540,8 @@ q7factors</code></pre>
 <div id="do-you-think-this-tutorial-would-be-accessible-to-students" class="section level2">
 <h2>23.Do you think this tutorial would be accessible to students?</h2>
 <p>Multiple choice.</p>
-<pre class="r"><code>binary_levels &lt;- 
-  c(&quot;no&quot;, &quot;yes&quot;)</code></pre>
+<pre class="r"><code>q27_levels &lt;- 
+  c(&quot;Yes;&quot;, &quot;No;&quot;)</code></pre>
 </div>
 <div id="if-yes-please-feel-free-to-elaborate-on-how-you-might-use-such-a-tutorial-with-students.-your-comments-might-be-useful-jumping-off-points-for-the-focus-group." class="section level2">
 <h2>24.If yes, please feel free to elaborate on how you might use such a tutorial with students. (your comments might be useful jumping off points for the focus group).</h2>
