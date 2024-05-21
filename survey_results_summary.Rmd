@@ -5,7 +5,7 @@ output: html_document
 ---
 
 ```{r , include=FALSE}
-knitr::opts_chunk$set(echo = FALSE, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F)
+knitr::opts_chunk$set(echo = T, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F)
 ```
 
 # Survey response summary! 
@@ -82,7 +82,8 @@ ggplot(survey) +
              vjust = 0, label.size = NA, 
              label.padding = unit(0.05, "lines"),
              alpha = .9) + 
-  geom_bar(fill = "midnightblue") + 
+  geom_bar(fill = "midnightblue",
+           alpha = .9) + 
   scale_y_continuous(limits = c(0,10), breaks = c(0,3,6,9)) ->
 dist_plot_q5; dist_plot_q5
 ```
@@ -125,12 +126,15 @@ dist_plot_q5 +
 
 
 ```{r, eval = T}
-compute_panel_multi_response <- function(data = survey, scales, cat_levels = q11_levels){
+library(tidyverse)
+compute_panel_multi_response <- function(data, 
+                                         scales, 
+                                         cat_levels){
   
-   data = data.frame(responses = survey$q11)
+   # data = data.frame(responses = survey$q09)
 
   data %>%
-    summarise(responses = paste(responses, collapse = ";")) %>% 
+    summarise(responses = paste0(responses, collapse = ";")) %>% 
     mutate(response = str_split(responses, ";")) %>% 
     select(-responses) %>% 
     unnest(response) %>% 
@@ -152,13 +156,46 @@ StatMulticat <- ggplot2::ggproto(`_class` = "StatMulticat",
                         # required_aes = "response"
                         )
 
+survey %>%
+  select(responses = q09) %>% 
+  compute_panel_multi_response(scales, cat_levels = q09_levels)
 
 
-ggplot(data = survey %>% select(q11) %>% remove_missing()) + 
-  aes(response = q11) + 
-  layer(geom = "bar", stat = StatMulticat, position = "identity") + 
-  scale_x_continuous(breaks = 1:length(q11_levels), labels = q11_levels) + 
+ggplot(data = survey) +
+  aes(responses = q09) +
+  layer(geom = "bar", 
+        stat = StatMulticat, position = "identity",
+        params = list(cat_levels = q09_levels)) +
+  scale_x_continuous(breaks = 1:length(q09_levels), 
+                     labels = q09_levels) +
   coord_flip()
+
+
+
+fruit_cats <- c("apple", "banana", "pear", "orange" )
+
+data.frame(liked_fruit = c("banana;apple;pear", "apple;pear", "banana;pear")) %>% 
+  ggplot() +  
+  aes(responses = liked_fruit) + 
+  layer(geom = "col", stat = StatMulticat, position = "identity",
+         params = list(cat_levels = fruit_cats)) + 
+  scale_x_continuous(breaks = 1:length(fruit_cats), 
+                     labels = fruit_cats, 
+                     limits = c(1, length(fruit_cats)),
+                     expand = expansion(mult = c(.5,.5))
+                    ) + 
+  coord_flip(clip = "off")
+
+layer_data()
+
+
+data.frame(liked_fruit = 
+             c("banana;apple;pear", 
+               "apple;pear", 
+               "banana;pear")) %>%
+  select(responses = liked_fruit) %>% 
+  compute_panel_multi_response(cat_levels = fruit_cats)
+
 ```
 
 
