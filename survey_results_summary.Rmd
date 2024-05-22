@@ -129,33 +129,71 @@ dist_plot_q5 +
 library(tidyverse)
 compute_panel_multi_response <- function(data, 
                                          scales, 
-                                         cat_levels){
+                                         cat_levels, 
+                                         sep = ";"){
   
-   # data = data.frame(responses = survey$q09)
+  # data = data.frame(responses = survey$q09)
+  nrespondents <- nrow(data)
 
   data %>%
-    summarise(responses = paste0(responses, collapse = ";")) %>% 
-    mutate(response = str_split(responses, ";")) %>% 
+    summarise(responses = paste0(responses, collapse = sep)) %>% 
+    mutate(response = str_split(responses, sep)) %>% 
     select(-responses) %>% 
     unnest(response) %>% 
     filter(response != "NA") %>% 
     count(response) %>%
-    mutate(x = factor(response, cat_levels) %>% as.numeric %>% as.double()) %>%
-    mutate(y = as.double(n)) ->
-  out
-  # 
-  # # data.frame(x = 1, y = 1)
-  out
-  
+    mutate(x = factor(response, cat_levels) %>% 
+             as.numeric %>% as.double()) %>%
+    mutate(y = as.double(n)) %>% 
+    mutate(num_respondents = nrespondents)
   
 }
 
+
+fruit_cats <- c("apple", "banana", "pear", "orange" )
+
+
+data.frame(selected_fruit = 
+             c("banana;apple;pear", 
+               "apple;pear", 
+               "banana;pear")) %>%
+  select(responses = selected_fruit) %>% 
+  compute_panel_multi_response(cat_levels = fruit_cats)
+
 StatMulticat <- ggplot2::ggproto(`_class` = "StatMulticat",
                         `_inherit` = ggplot2::Stat,  
-                        compute_panel = compute_panel_multi_response
-                        # required_aes = "response"
-                        )
+                        compute_panel = compute_panel_multi_response,
+                        default_aes = aes(label = ggplot2::after_stat(paste0(n, "/", num_respondents))))
 
+
+
+data.frame(fruit_selections = c("banana;apple;pear", "apple;pear", "pear")) %>% 
+  ggplot() +  
+  aes(responses = fruit_selections) + 
+  layer(geom = "col", stat = StatMulticat, position = "identity",
+         params = list(cat_levels = fruit_cats)) + 
+  layer(geom = "label", stat = StatMulticat, position = "identity",
+        params = list(cat_levels = fruit_cats, 
+                      hjust = 0,
+                      alpha = 0,
+                      label.size = 0)) +
+  aes(fill = after_scale(x)) +
+  coord_flip() + 
+  labs(title = "Number of respondents selecting each fruit when asked\n'Which of the following fruits do you like to eat?'",
+       subtitle = "Three people were surveyed")
+
+last_plot() +
+  scale_x_continuous(breaks = 1:length(fruit_cats), 
+                     labels = fruit_cats, 
+                     limits = c(1-.5, length(fruit_cats)+.5)
+                    ) 
+
+layer_data(i = 1)
+```
+
+
+
+```{r}
 survey %>%
   select(responses = q09) %>% 
   compute_panel_multi_response(scales, cat_levels = q09_levels)
@@ -170,31 +208,12 @@ ggplot(data = survey) +
                      labels = q09_levels) +
   coord_flip()
 
-
-
-fruit_cats <- c("apple", "banana", "pear", "orange" )
-
-data.frame(liked_fruit = c("banana;apple;pear", "apple;pear", "banana;pear")) %>% 
-  ggplot() +  
-  aes(responses = liked_fruit) + 
-  layer(geom = "col", stat = StatMulticat, position = "identity",
-         params = list(cat_levels = fruit_cats)) + 
-  scale_x_continuous(breaks = 1:length(fruit_cats), 
-                     labels = fruit_cats, 
-                     limits = c(1, length(fruit_cats)),
-                     expand = expansion(mult = c(.5,.5))
-                    ) + 
-  coord_flip(clip = "off")
-
 layer_data()
 
 
-data.frame(liked_fruit = 
-             c("banana;apple;pear", 
-               "apple;pear", 
-               "banana;pear")) %>%
-  select(responses = liked_fruit) %>% 
-  compute_panel_multi_response(cat_levels = fruit_cats)
+
+
+
 
 ```
 
