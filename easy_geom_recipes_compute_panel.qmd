@@ -508,7 +508,7 @@ geom_sf_county <- function(
 # step 4: test geom_* function, celebrate!
 
 ```{r}
-#| eval: !expr T
+#| eval: true
 read_csv("https://wilkelab.org/SDS375/datasets/US_census.csv",
                       col_types = cols(FIPS = "c")) %>%  
   ggplot() + 
@@ -525,7 +525,7 @@ read_csv("https://wilkelab.org/SDS375/datasets/US_census.csv",
 We give you step 0
 
 ```{r}
-#| eval: !expr F
+#| eval: false
 library(sf)
 
 my_states_df <- tibble(state.name, row = 1:50)
@@ -550,7 +550,7 @@ ggplot() +
 Step 1. 
 
 ```{r}
-#| eval: !expr F
+#| eval: false
 layer_data(last_plot()) %>% 
   select(state, geometry, xmin, xmax, ymin, ymax) ->
 states_reference
@@ -600,7 +600,7 @@ geom_sf_state <- function(
 
 
 ```{r}
-#| eval: !expr F
+#| eval: false
 my_states_df %>% 
   mutate(state.name = as.factor(state.name)) %>% 
   ggplot() +

@@ -8,4 +8,5 @@ Imports:
     tidyverse,
     palmerpenguins,
     gapminder,
+    sf,
     packcircles
