@@ -2,14 +2,13 @@
 title: "more easy geom recipes: compute panel"
 author: "Evangeline Reynolds"
 date: "3/16/2023"
-output: html_document
 ---
 
-```{r setup, include=FALSE}
+```{r}
+#| label: setup
+#| include: false 
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-## 
 
 In 'Easy Geom Recipes' the computation we did was within groups, specifying the compute_group parameter within ggproto.  
 
@@ -27,29 +26,14 @@ The second example is circle packing.  We can use the {circlepack} library to vi
 
 Finally, we look at a join of sf geometries as our computation.  Here, I think it may be possible to use set compute_group or compute_panel and get similar visual results.  However, computing and plotting a panel (we'll do this with an inner join of an input data set and an sf reference data frame) is much faster than computing  group-wise.  (just some guesses, need to try with sf w/ fewer geometries than fips.)
 
----
-class: inverse, middle, center
+# Recipe 1
 
-# Recipe #1
-
---
-
-##`geom_lm_indicator()`
-
---
+## Indicator: `geom_lm_indicator()`
 
 - This will be a layer that which by default shows the ols model y = x + indicator
 
 
----
-class: inverse, middle, center
-
-## Step 0: use base ggplot2 to get the job done
-
----
-
-
-
+## [Step 0: use base ggplot2 to get the job done]{.inverse .middle .center}
 
 ```{r penguins}
 library(tidyverse)
