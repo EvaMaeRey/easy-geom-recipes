@@ -1,0 +1,10 @@
+Package: easygeomrecipes
+Title: Easy Geom Recipes
+Version: 0.1.0
+Authors@R: c(person("First", "Last", "email@example.com", c("aut", "cre", "cph")))
+Depends: R (>= 4.4)
+URL: https://github.com/EvaMaeRey/easy-geom-recipes
+Imports:
+    tidyverse,
+    palmerpenguins,
+    gapminder
