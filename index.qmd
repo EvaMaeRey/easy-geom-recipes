@@ -1,0 +1,7 @@
+---
+title: "Welcome!"
+author: Gina Reynolds
+---
+
+Easy geom recipes: a new entry point to ggplot2 extension for statistical educators and their students
+
