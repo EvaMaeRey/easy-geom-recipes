@@ -13,10 +13,10 @@ jobs:
     # Only restrict concurrency for non-PR jobs
     concurrency:
       group: quarto-website-${{ github.event_name != 'pull_request' || github.run_id }}
-      permissions:
-        contents: read
-        pages: write
-        id-token: write
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       - name: "Check out repository"
         uses: actions/checkout@v4
