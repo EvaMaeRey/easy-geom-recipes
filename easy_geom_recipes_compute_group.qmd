@@ -175,7 +175,6 @@ penguins %>%
 
 ```{r}
 #| label: conditional_penguins
-#| label: conditional_penguins
 penguins %>%
   ggplot()+
   aes(x = bill_depth_mm, 
@@ -222,7 +221,6 @@ Using recipe #1 as a reference, try to create the function `geom_point_xy_means(
 
 ```{r}
 #| label: cars
-#| label: cars
 # step 0.a
 cars %>% 
   mutate(id_number = 1:n()) %>% 
@@ -243,7 +241,6 @@ layer_data(last_plot(), i = 2) %>%
 
 
 ```{r}
-#| label: compute_group_row_number
 #| label: compute_group_row_number
 
 # you won't use the scales argument, but ggplot will later
@@ -272,7 +269,6 @@ cars %>%
 
 ```{r}
 #| label: StatRownumber
-#| label: StatRownumber
 
 StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
                                   `_inherit` = ggplot2::Stat,
@@ -291,7 +287,6 @@ StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
 
 
 ```{r}
-#| label: geom_label_row_number
 #| label: geom_label_row_number
 
 geom_label_row_number <- function(mapping = NULL, data = NULL,
