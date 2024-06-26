@@ -2,7 +2,7 @@
 title: "easy geom recipes: compute_group"
 author: "Gina Reynolds, Morgan Brown"
 date: "1/3/2022"
-output: html_document
+format: html
 ---
 
 
@@ -48,7 +48,9 @@ penguins <- remove_missing(penguins)
 
 ---
 
-```{r setup, include=FALSE}
+```{r}
+#| label: setup
+#| include: false 
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
@@ -84,7 +86,9 @@ penguins %>%
   - here it's computing a variable with labels for each observation
 - test that functionality Step 1.b
 
-```{r compute_group_xy_medians}
+```{r}
+#| label: compute_group_xy_medians
+
 # Step 1.a
 compute_group_xy_medians <- function(data, scales){ #  scales is used internally in ggplot2
   data %>% 
@@ -119,7 +123,8 @@ Things to notice:
 - **Which aesthetics are required as inputs?** *Generally, you will have required aesthetics; in this case, you specify that one must define the variable that goes on the x and y axis.*
 - **Where does the function from above go?** *We input the computational function defined above at the compute_group argument.*
 
-```{r StatXYMedians}
+```{r}
+#| label: StatXYMedians
 StatXYMedians <- ggplot2::ggproto(`_class` = "StatXYMedians",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
@@ -134,7 +139,9 @@ Things to notice
 - Where does our work up to this point enter in?
 - What more primitive geom will we inherit behavior from?
 
-```{r geom_point_xy_medians} 
+```{r}
+#| label: geom_point_xy_medians
+ 
 geom_point_xy_medians <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
@@ -155,7 +162,8 @@ geom_point_xy_medians <- function(mapping = NULL, data = NULL,
 
 ## Step 4: Enjoy! Use your function
 
-```{r enjoy_penguins}
+```{r}
+#| label: enjoy_penguins
 penguins %>%
   ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
@@ -166,6 +174,7 @@ penguins %>%
 ### And check out conditionality!
 
 ```{r conditional_penguins}
+#| label: conditional_penguins
 penguins %>%
   ggplot()+
   aes(x = bill_depth_mm, 
@@ -188,7 +197,7 @@ layer_data(last_plot(),
 Using recipe #1 as a reference, try to create the function `geom_point_xy_means()`
 
 
-```{r}
+```{webr-r}
 # step 0: use base ggplot2
 
 # step 1: write your compute_group function (and test)
@@ -211,6 +220,7 @@ Using recipe #1 as a reference, try to create the function `geom_point_xy_means(
 
 
 ```{r cars}
+#| label: cars
 # step 0.a
 cars %>% 
   mutate(id_number = 1:n()) %>% 
@@ -231,6 +241,8 @@ layer_data(last_plot(), i = 2) %>%
 
 
 ```{r compute_group_row_number}
+#| label: compute_group_row_number
+
 # you won't use the scales argument, but ggplot will later
 compute_group_row_number <- function(data, scales){
   
@@ -256,6 +268,8 @@ cars %>%
 
 
 ```{r StatRownumber}
+#| label: StatRownumber
+
 StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
@@ -273,6 +287,8 @@ StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
 
 
 ```{r geom_label_row_number}
+#| label: geom_label_row_number
+
 geom_label_row_number <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
@@ -298,7 +314,9 @@ geom_label_row_number <- function(mapping = NULL, data = NULL,
 
 ## Step 4: Enjoy! Use your function
 
-```{r enjoy_again}
+```{r}
+#| label: enjoy_again
+
 cars %>% 
   ggplot() + 
   aes(x = speed, y = dist) + 
@@ -308,7 +326,9 @@ cars %>%
 
 ### And check out conditionality!
 
-```{r conditional_compute}
+```{r}
+#| label: conditional_compute
+
 last_plot() + 
   aes(color = dist > 60) # Computation is within group
 ```
@@ -337,7 +357,7 @@ paste0("(", 1, ", ",3., ")")
 
 
 
-```{r}
+```{webr-r}
 # step 0: use base ggplot2
 
 # step 1: write your compute_group function (and test)
@@ -360,7 +380,8 @@ paste0("(", 1, ", ",3., ")")
 
 ## Step 0: use base ggplot2 to get the job done
 
-```{r fitted_1}
+```{r}
+#| label: fitted_1
 model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
             data = penguins) 
 
@@ -381,7 +402,9 @@ penguins %>%
 
 ## Step 1: computation
 
-```{r fitted_2}
+```{r}
+#| label: fitted_2
+
 compute_group_lm_fitted<- function(data, scales){
   model<-lm(formula= y ~ x, data = data)
   data %>% 
@@ -398,7 +421,8 @@ penguins %>%
 
 ## Step 2: define ggproto
 
-```{r fitted_3}
+```{r}
+#| label: fitted_3
 StatLmFitted<-ggplot2::ggproto(`_class` = "StatLmFitted",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
@@ -409,7 +433,9 @@ StatLmFitted<-ggplot2::ggproto(`_class` = "StatLmFitted",
 ## Step 3: define geom_* function
 
 
-```{r fitted_4}
+```{r}
+#| label: fitted_4
+
 geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
@@ -429,7 +455,8 @@ geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
 
 ## Step 4: Enjoy! Use your function
 
-```{r fitted_5}
+```{r}
+#| label: fitted_5
 penguins %>% 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
@@ -440,7 +467,8 @@ penguins %>%
 
 ### And check out conditionality
 
-```{r fitted_6}
+```{r}
+#| label: fitted_6
 penguins %>% 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
@@ -460,7 +488,10 @@ Create the function `geom_segment_lm_residuals()`.
 
 ## Step 0: use base ggplot2 to get the job done
 
-```{r}
+```{webr-r}
+#| label: exercise-setup
+#| autorun: true
+
 # step 0: use base ggplot2
 model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
             data = penguins) 
@@ -476,7 +507,9 @@ penguins %>%
   geom_segment(data = penguins_w_fitted,
              aes(yend = fitted, xend = bill_depth_mm),
              color = "blue")
+```
 
+```{webr-r}
 # step 1: write your compute_group function (and test)
 
 # step 2: write ggproto with compute_group as an input

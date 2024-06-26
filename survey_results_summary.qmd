@@ -12,9 +12,6 @@ knitr::opts_chunk$set(echo = T, eval = T, fig.width = 8, fig.height = 5.5, out.w
 
 
 
-
-
-
 ```{r, include = F}
 library(tidyverse)
 load("survey_instrument.Rdata")
