@@ -1,11 +1,12 @@
 ---
 title: "Survey response summary"
 author: "Evangeline Reynolds"
-output: html_document
 ---
 
-```{r , include=FALSE}
-knitr::opts_chunk$set(echo = T, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F)
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = T, eval = FALSE, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F)
 ```
 
 # Survey response summary! 
