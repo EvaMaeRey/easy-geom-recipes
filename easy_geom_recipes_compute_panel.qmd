@@ -35,7 +35,8 @@ Finally, we look at a join of sf geometries as our computation.  Here, I think i
 
 ## [Step 0: use base ggplot2 to get the job done]{.inverse .middle .center}
 
-```{r penguins}
+```{r}
+#| label: penguins
 library(tidyverse)
 library(palmerpenguins)
 
@@ -70,7 +71,8 @@ penguins_w_fitted %>%
 
 
 
-```{r compute_panel_ols_ind}
+```{r}
+#| label: compute_panel_ols_ind
 compute_panel_ols_ind <- function(data, scales, formula = y ~ x + indicator) {
 
   model <- lm(formula = formula,
@@ -109,7 +111,8 @@ penguins %>%
 
 
 
-```{r StatXYMedians}
+```{r}
+#| label: StatXYMedians
 StatLmindicator <- ggplot2::ggproto("StatLmindicator",
                                       ggplot2::Stat,
                                       compute_panel = compute_panel_ols_ind,
@@ -130,7 +133,8 @@ StatLmindicator <- ggplot2::ggproto("StatLmindicator",
 
 
 
-```{r geom_point_xy_medians} 
+```{r} 
+#| label: geom_point_xy_medians
 geom_lm_indicator <- function(mapping = NULL, data = NULL,
                                 position = "identity", na.rm = FALSE,
                                 show.legend = NA,
@@ -159,7 +163,8 @@ geom_lm_indicator <- function(mapping = NULL, data = NULL,
 
 
 
-```{r enjoy_penguins}
+```{r}
+#| label: enjoy_penguins
 ggplot(palmerpenguins::penguins) +
   aes(x = flipper_length_mm ) +
   aes(y = body_mass_g ) +
@@ -208,7 +213,8 @@ Create a residuals layer analogue.
 
 ## Step 0: Use base ggplot2 to get the job done
 
-```{r cars}
+```{r}
+#| label: cars
 library(tidyverse)
 library(gapminder)
 gapminder %>%  
@@ -501,7 +507,8 @@ geom_sf_county <- function(
 
 # step 4: test geom_* function, celebrate!
 
-```{r, eval = T}
+```{r}
+#| eval: !expr T
 read_csv("https://wilkelab.org/SDS375/datasets/US_census.csv",
                       col_types = cols(FIPS = "c")) %>%  
   ggplot() + 
@@ -517,7 +524,8 @@ read_csv("https://wilkelab.org/SDS375/datasets/US_census.csv",
 
 We give you step 0
 
-```{r, eval = F}
+```{r}
+#| eval: !expr F
 library(sf)
 
 my_states_df <- tibble(state.name, row = 1:50)
@@ -541,7 +549,8 @@ ggplot() +
 
 Step 1. 
 
-```{r, eval = F}
+```{r}
+#| eval: !expr F
 layer_data(last_plot()) %>% 
   select(state, geometry, xmin, xmax, ymin, ymax) ->
 states_reference
@@ -590,7 +599,8 @@ geom_sf_state <- function(
 ```
 
 
-```{r, eval = F}
+```{r}
+#| eval: !expr F
 my_states_df %>% 
   mutate(state.name = as.factor(state.name)) %>% 
   ggplot() +

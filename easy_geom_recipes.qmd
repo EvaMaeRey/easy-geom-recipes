@@ -35,7 +35,9 @@ Below, you'll see a completely worked example (example recipes) and then a invit
 
 ---
 
-```{r setup, include=FALSE}
+```{r}
+#| label: setup
+#| include: false
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
@@ -47,7 +49,8 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 
 ## Step 0: use base ggplot2 to get the job done
 
-```{r penguins}
+```{r}
+#| label: penguins
 library(tidyverse)
 library(palmerpenguins)
 penguins <- remove_missing(penguins)
@@ -75,7 +78,8 @@ penguins %>%
   - here it's computing a variable with labels for each observation
 - test that functionality Step 1.b
 
-```{r compute_group_xy_medians}
+```{r}
+#| label: compute_group_xy_medians
 # Step 1.a
 compute_group_xy_medians <- function(data, scales){ #  scales is used internally in ggplot2
   data %>% 
@@ -99,7 +103,8 @@ Things to notice
 - which aesthetics are required as inputs?
 - where does the function from above go?
 
-```{r StatXYMedians}
+```{r}
+#| label: StatXYMedians
 StatXYMedians <- ggplot2::ggproto(`_class` = "StatXYMedians",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
@@ -114,7 +119,8 @@ Things to notice
 - Where does our work up to this point enter in?
 - What more primitive geom will we inherit behavior from?
 
-```{r geom_point_xy_medians} 
+```{r} 
+#| label: geom_point_xy_medians
 geom_point_xy_medians <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
@@ -135,7 +141,8 @@ geom_point_xy_medians <- function(mapping = NULL, data = NULL,
 
 ## Step 4: Enjoy! Use your function
 
-```{r enjoy_penguins}
+```{r}
+#| label: enjoy_penguins
 penguins %>%
   ggplot()+
   aes(x = bill_depth_mm, y = bill_length_mm)+
@@ -145,7 +152,8 @@ penguins %>%
 
 ### And check out conditionality!
 
-```{r conditional_penguins}
+```{r}
+#| label: conditional_penguins
 penguins %>%
   ggplot()+
   aes(x = bill_depth_mm, 
@@ -182,7 +190,8 @@ Using recipe #1 as a reference, try to create the function `geom_point_xy_means(
 ## Step 0: use base ggplot2 to get the job done
 
 
-```{r cars}
+```{r}
+#| label: cars
 cars %>% 
   mutate(id_number = 1:n()) %>% 
   ggplot() + 
@@ -198,7 +207,8 @@ cars %>%
 
 
 
-```{r compute_group_row_number}
+```{r}
+#| label: compute_group_row_number
 # you won't use the scales argument, but ggplot will later
 compute_group_row_number <- function(data, scales){
   
@@ -223,7 +233,8 @@ cars %>%
 
 
 
-```{r StatRownumber}
+```{r}
+#| label: StatRownumber
 StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
@@ -240,7 +251,8 @@ StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
 - define the stat and geom for your layer
 
 
-```{r geom_label_row_number}
+```{r}
+#| label: geom_label_row_number
 geom_label_row_number <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
@@ -266,7 +278,8 @@ geom_label_row_number <- function(mapping = NULL, data = NULL,
 
 ## Step 4: Enjoy! Use your function
 
-```{r enjoy_again}
+```{r}
+#| label: enjoy_again
 cars %>% 
   ggplot() + 
   aes(x = speed, y = dist) + 
@@ -276,7 +289,8 @@ cars %>%
 
 ### And check out conditionality!
 
-```{r conditional_compute}
+```{r}
+#| label: conditional_compute
 last_plot() + 
   aes(color = dist > 60) # Computation is within group
 ```
@@ -328,7 +342,8 @@ paste0("(", 1, ", ",3., ")")
 
 ## Step 0: use base ggplot2 to get the job done
 
-```{r fitted_1}
+```{r}
+#| label: fitted_1
 model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
             data = penguins) 
 
@@ -349,7 +364,8 @@ penguins %>%
 
 ## Step 1: computation
 
-```{r fitted_2}
+```{r}
+#| label: fitted_2
 compute_group_lm_fitted<- function(data, scales){
   model<-lm(formula= y ~ x, data = data)
   data %>% 
@@ -366,7 +382,8 @@ penguins %>%
 
 ## Step 2: define ggproto
 
-```{r fitted_3}
+```{r}
+#| label: fitted_3
 StatLmFitted<-ggplot2::ggproto(`_class` = "StatLmFitted",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
@@ -377,7 +394,8 @@ StatLmFitted<-ggplot2::ggproto(`_class` = "StatLmFitted",
 ## Step 3: define geom_* function
 
 
-```{r fitted_4}
+```{r}
+#| label: fitted_4
 geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
@@ -397,7 +415,8 @@ geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
 
 ## Step 4: Enjoy! Use your function
 
-```{r fitted_5}
+```{r}
+#| label: fitted_5
 penguins %>% 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
@@ -408,7 +427,8 @@ penguins %>%
 
 ### And check out conditionality
 
-```{r fitted_6}
+```{r}
+#| label: fitted_6
 penguins %>% 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +

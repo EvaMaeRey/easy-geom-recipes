@@ -2,7 +2,6 @@
 title: "easy geom recipes: compute_group"
 author: "Gina Reynolds, Morgan Brown"
 date: "1/3/2022"
-format: html
 ---
 
 
@@ -62,7 +61,8 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 
 ## Step 0: use base ggplot2 to get the job done
 
-```{r penguins}
+```{r}
+#| label: penguins
 penguins_medians <- penguins %>% 
   summarize(bill_length_mm_median = median(bill_length_mm),
             bill_depth_mm_median = median(bill_depth_mm))
@@ -173,7 +173,8 @@ penguins %>%
 
 ### And check out conditionality!
 
-```{r conditional_penguins}
+```{r}
+#| label: conditional_penguins
 #| label: conditional_penguins
 penguins %>%
   ggplot()+
@@ -219,7 +220,8 @@ Using recipe #1 as a reference, try to create the function `geom_point_xy_means(
 ## Step 0: use base ggplot2 to get the job done
 
 
-```{r cars}
+```{r}
+#| label: cars
 #| label: cars
 # step 0.a
 cars %>% 
@@ -240,7 +242,8 @@ layer_data(last_plot(), i = 2) %>%
 ## Step 1: computation
 
 
-```{r compute_group_row_number}
+```{r}
+#| label: compute_group_row_number
 #| label: compute_group_row_number
 
 # you won't use the scales argument, but ggplot will later
@@ -267,7 +270,8 @@ cars %>%
 
 
 
-```{r StatRownumber}
+```{r}
+#| label: StatRownumber
 #| label: StatRownumber
 
 StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
@@ -286,7 +290,8 @@ StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
 - define the stat and geom for your layer
 
 
-```{r geom_label_row_number}
+```{r}
+#| label: geom_label_row_number
 #| label: geom_label_row_number
 
 geom_label_row_number <- function(mapping = NULL, data = NULL,
