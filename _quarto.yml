@@ -1,0 +1,14 @@
+project:
+  type: website
+  resources: 
+    - CNAME
+  output-dir: _site
+
+website:
+  title: "Easy Geom Recipes"
+  reader-mode: true
+  repo-url: https://github.com/EvaMaeRey/easy-geom-recipes
+  repo-actions: [edit, issue]
+
+filters:
+ - webr
