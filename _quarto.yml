@@ -10,5 +10,9 @@ website:
   repo-url: https://github.com/EvaMaeRey/easy-geom-recipes
   repo-actions: [edit, issue]
 
+format: 
+  html:
+    toc: true
+
 filters:
  - webr
