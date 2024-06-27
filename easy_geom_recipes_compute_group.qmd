@@ -59,8 +59,6 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 
 # Example recipe #1: `geom_point_xy_medians()`
 
---
-
 - This will be a point at the median of x and y
 
 ## Step 0: use base ggplot2 to get the job done
