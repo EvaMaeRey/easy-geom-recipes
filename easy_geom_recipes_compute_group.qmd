@@ -2,6 +2,10 @@
 title: "easy geom recipes: compute_group"
 author: "Gina Reynolds, Morgan Brown"
 date: "1/3/2022"
+webr: 
+  packages:
+    - tidyverse
+    - palmerpenguins
 ---
 
 
@@ -491,6 +495,11 @@ Create the function `geom_segment_lm_residuals()`.
 ```{webr-r}
 #| label: exercise-setup
 #| autorun: true
+#| read-only: true
+library(tidyverse)
+library(palmerpenguins)
+# handling missingness is not a discussion of this tutorial, so we'll only use complete cases
+penguins <- remove_missing(penguins) 
 
 # step 0: use base ggplot2
 model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
