@@ -37,7 +37,7 @@ knitr::opts_chunk$set(
 
 ```{r}
 #| results: asis
-#| echo: !expr F
+#| echo: false
 library(magrittr)
 webpages <- fs::dir_ls(type = "file", recurse = T, glob = "*.html") %>% rev()
      
