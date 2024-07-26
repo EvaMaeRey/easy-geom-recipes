@@ -1,17 +1,22 @@
 ---
-title: "easy geom recipes: compute_group"
+title: "easy geom recipes"
 author: "Gina Reynolds, Morgan Brown"
 date: "1/3/2022"
-webr: 
-  packages:
-    - tidyverse
-    - palmerpenguins
+output: 
+  html_document
+  
 ---
 
 
+Using ggplot2 has been described as writing 'graphical poems'.  But we may feel at a loss for 'words' when functions we'd like to have don't exist.  The ggplot2 extension system allows us to build new 'vocabulary' for fluent expression.  
 
+An exciting extension mechanism is that of inheriting from existing, more primitive geoms after performing some calculation.  
 
-This tutorial is intended for individuals who already have a working knowledge of the grammar of ggplot2, but may like to build a richer vocabulary for themselves via the Stat extension mechanism.
+To get your feet wet in this world and give you a taste of patterns for geom extension, we provide three basic examples of the geoms_ that inherit from *existing* geoms (point, text, segment, etc) along with a practice exercise.  With such geoms, calculation is done under the hood by the ggplot2 system.
+
+With these geom, you can write *new* graphical poems with exciting new graphical 'words'! 
+
+This tutorial is intended for individuals who already have a working knowledge of the grammar of ggplot2, but may like to build a richer vocabulary for themselves.
 
 # Preview
 
@@ -22,7 +27,7 @@ It's a good idea to clarify what needs to happen without getting into the extens
 - *Step 1. Write a computation function.* 
 Wrap the necessary computation into a function that your target geom_*() function will perform. We focus on 'compute_group' computation only in this tutorial.
 - *Step 2. Define a ggproto object.* 
-ggproto objects allow your extension to work together with base ggplot2 functions!  You'll use the computation function from step 1 to help define it.  
+ggproto objects allow your extension  to work together with base ggplot2 functions!  You'll use the computation function from step 1 to help define it.
 - *Step 3. Write your geom function!* 
 You're ready to write your function.  You will incorporate the ggproto from step 2 and also define which more primitive geom (point, text, segment etc) you want other behaviors to inherit from. 
 - *Step 4. Test/Enjoy!*
@@ -32,26 +37,15 @@ Below, you'll see a completely worked example (example recipes) and then a invit
 
 ---
 
-# Step 00
-
-prestep to this tutorial is loading packages and prepping data
-
-```{r}
-library(tidyverse)
-library(palmerpenguins)
-# handling missingness is not a discussion of this tutorial, so we'll only use complete cases
-penguins <- remove_missing(penguins) 
-```
-
----
-
 ```{r}
 #| label: setup
-#| include: false 
+#| include: false
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
 # Example recipe #1: `geom_point_xy_medians()`
+
+--
 
 - This will be a point at the median of x and y
 
@@ -59,6 +53,11 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 
 ```{r}
 #| label: penguins
+library(tidyverse)
+library(palmerpenguins)
+penguins <- remove_missing(penguins)
+
+
 penguins_medians <- penguins %>% 
   summarize(bill_length_mm_median = median(bill_length_mm),
             bill_depth_mm_median = median(bill_depth_mm))
@@ -72,7 +71,6 @@ penguins %>%
     color = "red", size = 4,
              aes(x = bill_depth_mm_median,
                  y = bill_length_mm_median))
-
 ```
 
 
@@ -84,7 +82,6 @@ penguins %>%
 
 ```{r}
 #| label: compute_group_xy_medians
-
 # Step 1.a
 compute_group_xy_medians <- function(data, scales){ #  scales is used internally in ggplot2
   data %>% 
@@ -94,30 +91,19 @@ compute_group_xy_medians <- function(data, scales){ #  scales is used internally
 
 # Step 1.b
 penguins %>%
-  # prep data to look like it will inside of ggplot2
-  rename(x = bill_depth_mm,       # ggplot2 will work with *aes* column names
+  rename(x = bill_depth_mm,       # ggplot2 will work with 'aes' column names
          y = bill_length_mm) %>%  # therefore rename is required to used the compute function
-  select(x, y) %>%  # ggplot will use only variables, i.e. variables mapped to aesthetics for your target layer
   compute_group_xy_medians()
 ```
 
 
 ## Step 2: define ggproto
 
-In the background, when you build ggplot2 plots, you are defining a plot specification.  The `+` in ggplot2 and the proto system allows you to update your specification (changing the aesthetic mapping, adding layers, changing scales to be used, etc).  
+Things to notice
 
-
-The ggproto function allows you to define a new class that's usable within the ggplot2 ecosystem; that is, you can do updating using extension packages.
-
-https://ggplot2.tidyverse.org/reference/ggproto.html
-
-
-Things to notice:
-
-- **What's the naming convention for the proto object?** *The name of your class is the same as the object you create; also, it is convention to use camel case for ggproto objects.*
-- **What is the inherited class?**  *In fact, your ggproto object is a subclass and you aren't fully defining it.  You inherit the class properties of ggplot2::Stat.*
-- **Which aesthetics are required as inputs?** *Generally, you will have required aesthetics; in this case, you specify that one must define the variable that goes on the x and y axis.*
-- **Where does the function from above go?** *We input the computational function defined above at the compute_group argument.*
+- what's the naming convention for the proto object?
+- which aesthetics are required as inputs?
+- where does the function from above go?
 
 ```{r}
 #| label: StatXYMedians
@@ -135,9 +121,8 @@ Things to notice
 - Where does our work up to this point enter in?
 - What more primitive geom will we inherit behavior from?
 
-```{r}
+```{r} 
 #| label: geom_point_xy_medians
- 
 geom_point_xy_medians <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
@@ -161,10 +146,10 @@ geom_point_xy_medians <- function(mapping = NULL, data = NULL,
 ```{r}
 #| label: enjoy_penguins
 penguins %>%
-  ggplot() +
-  aes(x = bill_depth_mm, y = bill_length_mm) +
-  geom_point() +
-  geom_point_xy_medians(color = "red", size = 4)
+  ggplot()+
+  aes(x = bill_depth_mm, y = bill_length_mm)+
+  geom_point()+
+  geom_point_xy_medians(color = "red")
 ```
 
 ### And check out conditionality!
@@ -177,15 +162,7 @@ penguins %>%
       y = bill_length_mm, 
       color = species)+
   geom_point()+
-  geom_point_xy_medians(size = 8)
-```
-
-
-### Optional: use ggplot2::layer_data to inspect the data ggplot2 prepared in the background
-
-```{r}
-layer_data(last_plot(), 
-           i = 2) # indicate which layer from the last plot
+  geom_point_xy_medians(size = 4)
 ```
 
 # Task #1: create the function `geom_point_xy_means()`
@@ -193,7 +170,7 @@ layer_data(last_plot(),
 Using recipe #1 as a reference, try to create the function `geom_point_xy_means()`
 
 
-```{webr-r}
+```{r}
 # step 0: use base ggplot2
 
 # step 1: write your compute_group function (and test)
@@ -217,7 +194,6 @@ Using recipe #1 as a reference, try to create the function `geom_point_xy_means(
 
 ```{r}
 #| label: cars
-# step 0.a
 cars %>% 
   mutate(id_number = 1:n()) %>% 
   ggplot() + 
@@ -225,10 +201,6 @@ cars %>%
   geom_point() + 
   geom_label(aes(label = id_number), 
              hjust = 1.2)
-
-# step 0.b
-layer_data(last_plot(), i = 2) %>% 
-  head()
 ```
 
 ---
@@ -236,9 +208,9 @@ layer_data(last_plot(), i = 2) %>%
 ## Step 1: computation
 
 
+
 ```{r}
 #| label: compute_group_row_number
-
 # you won't use the scales argument, but ggplot will later
 compute_group_row_number <- function(data, scales){
   
@@ -265,7 +237,6 @@ cars %>%
 
 ```{r}
 #| label: StatRownumber
-
 StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
@@ -284,14 +255,13 @@ StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
 
 ```{r}
 #| label: geom_label_row_number
-
 geom_label_row_number <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
                            inherit.aes = TRUE, ...) {
   ggplot2::layer(
     stat = StatRownumber, # proto object from Step 2
-    geom = ggplot2::GeomLabel, # inherit other behavior, this time Label
+    geom = ggplot2::GeomLabel, # inherit other behavior
     data = data, 
     mapping = mapping,
     position = position, 
@@ -312,7 +282,6 @@ geom_label_row_number <- function(mapping = NULL, data = NULL,
 
 ```{r}
 #| label: enjoy_again
-
 cars %>% 
   ggplot() + 
   aes(x = speed, y = dist) + 
@@ -324,7 +293,6 @@ cars %>%
 
 ```{r}
 #| label: conditional_compute
-
 last_plot() + 
   aes(color = dist > 60) # Computation is within group
 ```
@@ -353,7 +321,7 @@ paste0("(", 1, ", ",3., ")")
 
 
 
-```{webr-r}
+```{r}
 # step 0: use base ggplot2
 
 # step 1: write your compute_group function (and test)
@@ -400,7 +368,6 @@ penguins %>%
 
 ```{r}
 #| label: fitted_2
-
 compute_group_lm_fitted<- function(data, scales){
   model<-lm(formula= y ~ x, data = data)
   data %>% 
@@ -431,7 +398,6 @@ StatLmFitted<-ggplot2::ggproto(`_class` = "StatLmFitted",
 
 ```{r}
 #| label: fitted_4
-
 geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
                            position = "identity", na.rm = FALSE,
                            show.legend = NA,
@@ -484,15 +450,7 @@ Create the function `geom_segment_lm_residuals()`.
 
 ## Step 0: use base ggplot2 to get the job done
 
-```{webr-r}
-#| label: exercise-setup
-#| autorun: true
-#| read-only: true
-library(tidyverse)
-library(palmerpenguins)
-# handling missingness is not a discussion of this tutorial, so we'll only use complete cases
-penguins <- remove_missing(penguins) 
-
+```{r}
 # step 0: use base ggplot2
 model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
             data = penguins) 
@@ -508,9 +466,7 @@ penguins %>%
   geom_segment(data = penguins_w_fitted,
              aes(yend = fitted, xend = bill_depth_mm),
              color = "blue")
-```
 
-```{webr-r}
 # step 1: write your compute_group function (and test)
 
 # step 2: write ggproto with compute_group as an input

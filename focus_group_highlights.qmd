@@ -1,0 +1,159 @@
+---
+title: "Focus Group Highlights"
+author: "Evangeline Reynolds"
+date: "5/26/2023"
+output: html_document
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+#| label: cars
+#| eval: !expr F
+#| echo: false
+readLines("../easy-geom-recipes-raw-data/ggplot2 extension focus group 1.vtt")
+readLines("../easy-geom-recipes-raw-data/Focus Group 2 ggplot2 easy geom recipes .vtt")
+```
+
+
+
+#### mechanics
+
+> '... going through this was super helpful
+because now I like understand the
+mechanics of it all.
+
+> 'And so I
+don't have any intentions of
+like making formal geoms on my
+own for anything yet. But it was
+like really helpful for
+understanding how the whole
+system works.'
+
+#### failure w/ previous attempts
+
+> 'So like there's some other layer of
+getting into the ggplot
+extension world that I [was]
+missing.'
+
+
+#### Step-by-step and including Step 0
+
+> 'So pedagogically, I liked how it
+was. I like the general
+steps. Like start with ... regular
+ggplot and Step 0 just to
+have like a baseline. And then
+going to each of the steps to
+get there and then being able to
+compare with the original. Like
+as far as like pedagogically,
+that was super helpful just as
+as an approach to get it
+right just so you can have a
+goal.  And see how all of
+these different primitives and
+proto elements and whatever fit together.
+
+# Skepticism
+
+> It was that easy. And I felt
+empowered as a result of that.... But you know, like, my problem isn't gonna be that easy.
+
+
+# Concern regarding missing values
+
+> A place where you might
+have an opportunity to do a
+little bit of pedagogical
+caution [is with] missing
+values. So when computing a mean
+like ggplot says, by the way, there were three rows I didn't
+plot.... So then you
+need to explicitly override the
+default and that something like
+that so that people are not just
+blindly putting summaries down
+without considering the data
+that are being used to make
+them.
+
+
+# Accessibility for students
+
+
+>  I'm teaching, so I'm
+teaching data visualization this
+summer online again with my
+regular like online classes I've
+assigning [the tutorial]... as kind of like an extra
+credit thing at the end of
+semester to saying like, if
+you're interested, go through
+this thing and you get 10 bonus
+points or something just for the
+more advanced students that will
+be in the class that will be
+interested. 
+*But I think it's totally accessible for them.*
+
+# Higher level objectives 
+
+> I'll just add that I I think we, I could definitely use materials
+like this and it did raise for
+me the points since I didn't
+have a lot of experience writing
+extensions before like it was
+ended up being very
+comprehensible to me and so it
+kind of made me think that in
+like a data visuals, data
+visualization classes that we
+teach, we probably need to.
+There's a balance between
+teaching the students to use the
+tools that exist right now to
+like, just do your analysis and
+just do the best with the tools
+that are available. But we
+probably should include a couple
+of weeks on like.
+You know, programming and
+writing extensions along these
+lines, because it's obviously
+like very powerful and they need
+to have at least some exposure
+to it. So you know, a week or
+two weeks of materials kind of
+like this would be helpful and
+would help distinguish them from
+like being able to just work
+through tutorials on your own
+online. Like, if they could
+write their own extension,
+that's like real value added,
+you know, to their organization.
+So it it made me think that I
+need to think about my data
+visualization class A little bit
+more as a programming class in
+some ways. And I thought that
+would be a good.
+You know, this is pretty good
+material along those lines.
+
+# Relationship to writing functions
+
+> [A useful addition might be] trying to clarify a little bit
+more when it's
+useful to have
+your own custom Geom, as
+opposed to your own function.

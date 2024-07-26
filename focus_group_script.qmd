@@ -11,7 +11,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-*This session will be recorded for the purposes of retaining feedback via a transcript.  Comments will be deidentified and the video deleted once the transcript checked and finalized.  Individuals' comments will not be shared with participants names or identifiable information.*
+*This session will be recorded for the purposes of retaining feedback via a transcript.  Comments will be de-identified and the video deleted once the transcript checked and finalized.  Individuals' comments will not be shared with participants names or identifiable information.*
 
  
 
