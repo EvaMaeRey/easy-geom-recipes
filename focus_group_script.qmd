@@ -1,0 +1,28 @@
+---
+title: "Focus Group Script"
+author: "Evangeline Reynolds"
+date: "4/24/2023"
+output: html_document
+---
+
+```{r}
+#| label: setup
+#| include: false
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+*This session will be recorded for the purposes of retaining feedback via a transcript.  Comments will be deidentified and the video deleted once the transcript checked and finalized.  Individuals' comments will not be shared with participants names or identifiable information.*
+
+ 
+
+- What was your previous knowledge of ggplot2 extension?
+- Please feel free to elaborate on any of your prior experiences with creating your own ggplot2 extensions.
+- How successful were you at completing the ‘Easy Geom Recipes’ tutorial?
+- Do you have comments about accessibility, length, compellingness of the examples?
+- In what ways do you think it is successful?  In what ways do you think it could be improved? 
+- Do you perceive any oversights or pitfalls to using this as an educational resource?  Do you have any suggestions or concerns about the tutorial?
+- Would you use this tutorial (or others like it) in the future? In what contexts?
+
+- If there is a computational geom that you think should exist, but you don't have time to take it on, please describe that geom.  (for example, geom_lm_residuals() is a new function in the package ggxmean.   Is there something you're always ‘drawing’ or would like to draw in ggplot2, but seems cumbersome to do in 'base ggplot2'? perhaps there is a fair amount of precomputation.) 
+
+- Have you used other resources to learn about extending ggplot2? Which? How do they compare to ‘easy geom recipes’ tutorial’s approach?
