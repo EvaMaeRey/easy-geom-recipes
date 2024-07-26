@@ -315,3 +315,8 @@ q27_levels <-
 
 ## 24.If yes, please feel free to elaborate on how you might use such a tutorial with students. (your comments might be useful jumping off points for the focus group).
 Single line text.
+
+```{r}
+save(list = ls(), file = "survey_instrument.Rdata")
+
+```

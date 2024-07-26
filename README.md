@@ -4,28 +4,24 @@
 # Easy geom recipes: a new entry point to ggplot2 extension for statistical educators and their students
 
 <!-- badges: start -->
-
 <!-- badges: end -->
-
 <!-- Informal background:  -->
-
 <!-- *My entry to ggplot2 extension was slow.  I’d say it took about a year – all of 2020 -- going back and forth between materials (Thomas Lin Pederson 'extending your ability to extend' RStudio presentation), ggplot2 extension vignette (part of the ggplot2 package), and the extension section of the new edition of the ggplot2 book to find a path to the geom I was after.  But once I got going, I found that I used one that mechanisms over and over. It is the mechanims that is featured in the easy recipes tutorial: compute_group. I think it is a cool entry point; for mathminded folks --- maybe more exciting than defining themes which is often the promoted entry point? In Fall 2021, I took on two students to do independent studies to create additional geoms.  Working with them really helped define the steps of the process. And in the following spring term, one of the students stayed on and helped craft the compute_group ‘recipes’ with me.* -->
 
 # Study material
 
-  - [survey\_results\_summary.html](https://evamaerey.github.io/easy-geom-recipes/survey_results_summary.html)
-  - [survey\_instrument.html](https://evamaerey.github.io/easy-geom-recipes/survey_instrument.html)
-  - [invitation\_to\_participate.html](https://evamaerey.github.io/easy-geom-recipes/invitation_to_participate.html)
-  - [focus\_group\_script.html](https://evamaerey.github.io/easy-geom-recipes/focus_group_script.html)
-  - [easy\_geom\_recipes\_compute\_panel.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_panel.html)
-  - [easy\_geom\_recipes\_compute\_group.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html)
-  - [easy\_geom\_recipes.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes.html)
+- [survey_instrument.html](https://evamaerey.github.io/easy-geom-recipes/survey_instrument.html)
+- [invitation_to_participate.html](https://evamaerey.github.io/easy-geom-recipes/invitation_to_participate.html)
+- [focus_group_script.html](https://evamaerey.github.io/easy-geom-recipes/focus_group_script.html)
+- [easy_geom_recipes_compute_panel.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_panel.html)
+- [easy_geom_recipes_compute_group.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html)
+- [easy_geom_recipes.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes.html)
 
 ### Abstract
 
 This paper introduces a new introductory tutorial in ggplot2 extension.
 The tutorial explores six layer extensions in a step-by-step fashion.
-Three of the extensions are fully worked examples. After each of the
+Three of the extensions are fully-worked examples. After each of the
 worked examples, the tutorial prompts the learner to work through a
 similar extension.
 
@@ -54,10 +50,10 @@ along with a practice exercise:
 <https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html>.
 With such geoms, calculation is done under the hood by the ggplot2
 system. We’ll see how to define a ggproto object; The tutorial keeps
-things simple by only defining computation at the compute\_group stage.
+things simple by only defining computation at the compute_group stage.
 
 With new geoms, you can write *new* graphical poems with exciting new
-graphical ‘words’\!
+graphical ‘words’!
 
 The tutorial is intended for individuals who already have a working
 knowledge of the grammar of ggplot2, but may like to build a richer
@@ -65,17 +61,17 @@ vocabulary for themselves.
 
 ### Motivation
 
-  - ggplot2 extension underutilized
+- ggplot2 extension underutilized
 
-  - inaccessibility to demographic that might really benefit
+- inaccessibility to demographic that might really benefit
 
-  - statistical storytelling benefits from greater fluidity that new
-    geoms afford
+- statistical storytelling benefits from greater fluidity that new geoms
+  afford
 
-  - traditional entry point (themes) might not be compelling to an
-    audience that might be really productive in extension\!
+- traditional entry point (themes) might not be compelling to an
+  audience that might be really productive in extension!
 
-  - repetition and numerous examples useful in pedegogical materials
+- repetition and numerous examples useful in pedegogical materials
 
 ### Tutorial form
 
@@ -86,21 +82,21 @@ computationally similar to the example.
 
 Our recipes take the form:
 
-  - Step 0. Get the job done with ‘base’ ggplot2. It’s a good idea to
-    clarify what needs to happen without getting into the extension
-    architecture
-  - Step 1. Write a computation function. Wrap the necessary computation
-    into a function that your target geom\_\*() function will perform.
-    We focus on ‘compute\_group’ computation only in this tutorial.
-  - Step 2. Define a ggproto object. ggproto objects allow your
-    extension to work together with base ggplot2 functions\! You’ll use
-    the computation function from step 1 to help define it.
-  - Step 3. Write your geom function\! You’re ready to write your
-    function. You will incorporate the ggproto from step 2 and also
-    define which more primitive geom (point, text, segment etc) you want
-    other behaviors to inherit from.
-  - Step 4. Test/Enjoy\! Take your new geom for a spin\! Check out
-    group-wise computation behavior\!
+- Step 0. Get the job done with ‘base’ ggplot2. It’s a good idea to
+  clarify what needs to happen without getting into the extension
+  architecture
+- Step 1. Write a computation function. Wrap the necessary computation
+  into a function that your target geom\_\*() function will perform. We
+  focus on ‘compute_group’ computation only in this tutorial.
+- Step 2. Define a ggproto object. ggproto objects allow your extension
+  to work together with base ggplot2 functions! You’ll use the
+  computation function from step 1 to help define it.
+- Step 3. Write your geom function! You’re ready to write your function.
+  You will incorporate the ggproto from step 2 and also define which
+  more primitive geom (point, text, segment etc) you want other
+  behaviors to inherit from.
+- Step 4. Test/Enjoy! Take your new geom for a spin! Check out
+  group-wise computation behavior!
 
 ## Evaluation
 
@@ -123,17 +119,31 @@ Study participants all had substantial experience. All had at least five
 years programming in the R statistical language, with the majority
 having more than ten years of experience.
 
-![hello](survey_results_summary_files/figure-html/q05r_length_user-1.png)
+<figure>
+<img
+src="survey_results_summary_files/figure-html/q05r_length_user-1.png"
+style="width:50.0%" alt="hello" />
+<figcaption aria-hidden="true">hello</figcaption>
+</figure>
 
 Most of the participants identified as frequent users of R, using the
 language almost every day.
 
-![hello](survey_results_summary_files/figure-html/q06r_frequency-1.png)
+<figure>
+<img src="survey_results_summary_files/figure-html/q06r_frequency-1.png"
+alt="hello" />
+<figcaption aria-hidden="true">hello</figcaption>
+</figure>
 
 Furthermore, most of the participants (7 of 9) responded that they use
 ggplot2 several times a week or more.
 
-![hello](survey_results_summary_files/figure-html/q07ggplot2_frequency-1.png)
+<figure>
+<img
+src="survey_results_summary_files/figure-html/q07ggplot2_frequency-1.png"
+alt="hello" />
+<figcaption aria-hidden="true">hello</figcaption>
+</figure>
 
 With respect to writing functions, most of the group had experience
 writing functions, though the frequency was not as great as with using R
@@ -191,7 +201,7 @@ exercise. Several participants failed complete the last recipe
 
 ![](survey_results_summary_files/figure-html/unnamed-chunk-5-1.png)
 
------
+------------------------------------------------------------------------
 
 ![](survey_results_summary_files/figure-html/unnamed-chunk-6-1.png)
 

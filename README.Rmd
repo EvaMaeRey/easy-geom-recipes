@@ -46,7 +46,7 @@ webpages %>%
 
 ### Abstract
 
-This paper introduces a new introductory tutorial in ggplot2 extension.  The tutorial explores six layer extensions in a step-by-step fashion. Three of the extensions are fully worked examples.  After each of the worked examples, the tutorial prompts the learner to work through a similar extension. 
+This paper introduces a new introductory tutorial in ggplot2 extension.  The tutorial explores six layer extensions in a step-by-step fashion. Three of the extensions are fully-worked examples.  After each of the worked examples, the tutorial prompts the learner to work through a similar extension. 
 
 The tutorial was evaluated by statistics and data analytics educators with substantial R and ggplot2 experience, but without much extension experience.
 

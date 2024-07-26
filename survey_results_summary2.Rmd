@@ -5,7 +5,7 @@ output: html_document
 ---
 
 ```{r , include=FALSE}
-knitr::opts_chunk$set(echo = T, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F)
+knitr::opts_chunk$set(echo = T, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F, fig.path = "fig_")
 ```
 
 # Survey response summary! 
@@ -71,7 +71,7 @@ theme_minimal_bar <- function(...){
 # dist_plot <- function(var = q05, levels = q05_levels, title = q_long[5], var_wrap = 10, base_size = 23, title_wrap = 40){
 ggplot(survey) + 
   theme_minimal_bar(base_size = 23) + 
-  aes(x = str_wrap_w_levels(q05, 10, q05_levels)) + 
+  aes(x = fct_rev(str_wrap_w_levels(q05, 10, q05_levels))) + 
   scale_x_discrete(drop = F) +
   labs(title = q_long[5] %>% str_wrap(40)) + 
   labs(x = NULL) + 
@@ -81,10 +81,10 @@ ggplot(survey) +
              aes(label = after_stat(count)),
              vjust = 0, label.size = NA, 
              label.padding = unit(0.05, "lines"),
-             alpha = .9) + 
-  geom_bar(fill = "midnightblue",
-           alpha = .9) + 
-  scale_y_continuous(limits = c(0,10), breaks = c(0,3,6,9)) ->
+             alpha = .9, fill = NA) + 
+  geom_bar(alpha = .9) + 
+  scale_y_continuous(limits = c(0,10), breaks = c(0,3,6,9)) + 
+  aes(fill = I("midnightblue")) ->
 dist_plot_q5; dist_plot_q5
 ```
 
@@ -94,7 +94,7 @@ dist_plot_q5; dist_plot_q5
 
 ```{r q06r_frequency}
 dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q06, 10, q06_levels)) + 
+  aes(x = fct_rev(str_wrap_w_levels(q06, 10, q06_levels))) + 
   labs(x = NULL) +
   labs(title = q_long[6] %>% str_wrap(40))
 
@@ -107,7 +107,7 @@ dist_plot_q5 +
 
 ```{r q07ggplot2_frequency}
 dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q07, 10, q07_levels)) + 
+  aes(x = fct_rev(str_wrap_w_levels(q07, 10, q07_levels))) + 
   labs(x = NULL) +
   labs(title = q_long[7] %>% str_wrap(40))
 
@@ -117,7 +117,7 @@ dist_plot_q5 +
 
 ```{r q08r_frequency}
 dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q08, 10, q08_levels)) + 
+  aes(x = fct_rev(str_wrap_w_levels(q08, 10, q08_levels))) + 
   labs(x = NULL) +
   labs(title = q_long[8] %>% str_wrap(40))
 ```
@@ -125,7 +125,7 @@ dist_plot_q5 +
 ---
 
 
-```{r, eval = T}
+```{r, eval = F}
 library(tidyverse)
 compute_panel_multi_response <- function(data, 
                                          scales, 
@@ -185,7 +185,7 @@ data.frame(fruit_selections = c("banana;apple;pear", "apple;pear", "pear")) %>%
 last_plot() +
   scale_x_continuous(breaks = 1:length(fruit_cats), 
                      labels = fruit_cats, 
-                     limits = c(1-.5, length(fruit_cats)+.5)
+                     limits = c(1-.5, length(fruit_cats) + .5)
                     ) 
 
 layer_data(i = 1)
@@ -193,7 +193,7 @@ layer_data(i = 1)
 
 
 
-```{r}
+```{r, eval = F}
 survey %>%
   select(responses = q09) %>% 
   compute_panel_multi_response(scales, cat_levels = q09_levels)
@@ -202,16 +202,15 @@ survey %>%
 ggplot(data = survey) +
   aes(responses = q09) +
   layer(geom = "bar", 
-        stat = StatMulticat, position = "identity",
+        stat = StatMulticat, 
+        position = "identity",
         params = list(cat_levels = q09_levels)) +
   scale_x_continuous(breaks = 1:length(q09_levels), 
                      labels = q09_levels) +
-  coord_flip()
+  coord_flip() 
+
 
 layer_data()
-
-
-
 
 
 
@@ -273,7 +272,9 @@ dist_plot_q5 +
 ---
 
 ```{r q11_previous_ext_attempt}
-plot_multi_responses(survey, q11, q11_levels, q_long[11], base_size = 12, var_wrap = 40, title_wrap = 70)
+plot_multi_responses(survey, 
+                     q11, 
+                     q11_levels, q_long[11], base_size = 12, var_wrap = 40, title_wrap = 70)
 ```
 
 ---
@@ -293,7 +294,8 @@ plot_multi_responses(survey, q13, q13_levels, var_title = q_long[13], base_size 
 ---
 
 ```{r q14which_completed}
-plot_multi_responses(survey, q14, q14_levels, var_title = q_long[14])
+plot_multi_responses(survey, q14, q14_levels, var_title = q_long[14]) + 
+  scale_fill_viridis_d(option = "C", guide = "none")
 ```
 
 
@@ -301,7 +303,8 @@ plot_multi_responses(survey, q14, q14_levels, var_title = q_long[14])
 
 ```{r q15number_completed}
 # checkbox
-plot_multi_responses(survey, q15, q15_levels, q_long[15])
+plot_multi_responses(survey, q15, q15_levels, q_long[15]) + 
+  scale_fill_viridis_d(option = "C", guide = "none")
 ```
 
 ```{r q16tutorial_time_taken}
@@ -311,16 +314,20 @@ dist_plot_q5 +
   labs(title = q_long[16] %>% str_wrap(50)) + 
   theme_minimal(base_size = 17) + 
   theme(panel.grid.minor.y = element_blank(),
-        panel.grid.major.x = element_blank())
+        panel.grid.major.x = element_blank()) + 
+  aes(fill = I("blue4"))
 ```
 
 ---
 
 ```{r q17tutorial_length}
+q17_levels <- q17_levels[c(3,1,2)]
+
 dist_plot_q5 + 
   aes(x = str_wrap_w_levels(q17, 12, q17_levels)) + 
   labs(x = NULL) +
-  labs(title = q_long[17] %>% str_wrap(40)) 
+  labs(title = q_long[17] %>% str_wrap(40))  + 
+  aes(fill = I("blue4"))
 ```
 
 
@@ -328,10 +335,11 @@ dist_plot_q5 +
 
 ```{r q18example_clarity}
 dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q18, 25, q18_levels)) + 
+  aes(x = fct_rev(str_wrap_w_levels(q18, 25, q18_levels))) + 
   labs(x = NULL) +
   labs(title = q_long[18] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15)
+  theme_minimal_bar(base_size = 15) + 
+  aes(fill = I("blue4"))
 ```
 
 ---
@@ -340,7 +348,8 @@ dist_plot_q5 +
 dist_plot_q5 + 
   aes(x = str_wrap_w_levels(q19, 25, q19_levels)) + 
   labs(x = NULL) +
-  labs(title = q_long[19] %>% str_wrap(45))
+  labs(title = q_long[19] %>% str_wrap(45)) + 
+  aes(fill = I("blue4"))
 ```
 
 ---
@@ -355,29 +364,37 @@ r paste(survey$q20, collapse = "------------------")`
 
 ---
 
-```{r}
+```{r q21emotion}
+survey$q21 <- str_remove(survey$q21, ";$")
+
 plot_multi_responses(survey, q21, levels = q21_levels, 
-                     var_title = q_long[21])
+                     var_title = q_long[21]) + 
+  scale_y_discrete(breaks = q21_levels) + 
+  scale_fill_viridis_d(option = "C", guide = "none")
+
+
 ```
 
 ---
 
-```{r}
+```{r q22futureuse}
 dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q22, 17, q22_levels)) + 
+  aes(x = fct_rev(str_wrap_w_levels(q22, 17, q22_levels))) + 
   labs(x = NULL) +
   labs(title = q_long[22] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15)
+  theme_minimal_bar(base_size = 15) + 
+  aes(fill = I("blue4"))
 ```
 
 ---
 
-```{r}
+```{r q5usepackaged}
 dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q23, 17, q23_levels)) + 
+  aes(x = fct_rev(str_wrap_w_levels(q23, 17, q23_levels))) + 
   labs(x = NULL) +
   labs(title = q_long[23] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15)
+  theme_minimal_bar(base_size = 15) + 
+  aes(fill = I("blue4"))
 ```
 
 ---
@@ -397,25 +414,57 @@ r paste(survey$q25, collapse = "------------------")`
 
 ---
 
-```{r}
+```{r q26longtaught}
 dist_plot_q5 + 
   aes(x = str_wrap_w_levels(q26, 17, q26_levels)) + 
   labs(x = NULL) +
   labs(title = q_long[26] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15)
+  theme_minimal_bar(base_size = 15)  + 
+  aes(fill = I("blue4"))
 ```
 
 ---
 
-```{r, eval = F}
+```{r q27accessiblestudents, eval = F}
 dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q27, 17, q27_levels)) + 
+  aes(x = str_remove(q27, ";")) + 
   labs(x = NULL) +
   labs(title = q_long[27] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15)
+  theme_minimal_bar(base_size = 15) + 
+  aes(fill = I("blue4"))
 ```
 
+
+
+
 ---
+
+
+```{r, out.width="33%", fig.show='hold'}
+knitr::include_graphics(c("fig_q05r_length_user-1.png",
+                        "fig_q06r_frequency-1.png",
+                        "fig_q07ggplot2_frequency-1.png",
+                        "fig_q08r_frequency-1.png",
+                        "fig_q09ggplot2_contexts-1.png",
+                        "fig_q10_previous_ext_experience-1.png",
+                        "fig_q11_previous_ext_attempt-1.png",
+                        "fig_q13_oop_experience-1.png"))
+
+```
+
+```{r, out.width="33%", fig.show='hold'}
+knitr::include_graphics(c(
+                        "fig_q14which_completed-1.png",
+                        "fig_q15number_completed-1.png",
+                        "fig_q16tutorial_time_taken-1.png",
+                        "fig_q17tutorial_length-1.png",
+                        "fig_q18example_clarity-1.png",
+                        "fig_q19examples_engaging-1.png",
+                        "fig_q21emotion-1.png",
+                        "fig_q22futureuse-1.png",
+                        "fig_q26longtaught-1.png"))
+
+```
 
 
 
