@@ -2,7 +2,7 @@ project:
   type: website
   resources:
     - CNAME
-  output-dir: _site
+  output-dir: docs
 
 website:
   title: "Easy geom recipes"
