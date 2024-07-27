@@ -5,10 +5,8 @@ output: html_document
 ---
 
 ```{r , include=FALSE}
-knitr::opts_chunk$set(echo = T, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F, fig.path = "fig_")
+knitr::opts_chunk$set(echo = T, eval = T, fig.width = 8, fig.height = 5.5, out.width = "85%", warning = F, fig.path = "survey_results_figures/", echo = F, include = F)
 ```
-
-# Survey response summary! 
 
 
 
@@ -36,7 +34,7 @@ theme_set(theme_minimal(base_size = 23))
 
 ```
 
----
+
 
 ```{r q05r_length_user}
 str_wrap_w_levels <- function(x, width, levels){
@@ -90,7 +88,7 @@ dist_plot_q5; dist_plot_q5
 
 
 
----
+
 
 ```{r q06r_frequency}
 dist_plot_q5 + 
@@ -103,7 +101,7 @@ dist_plot_q5 +
 
 
 
----
+
 
 ```{r q07ggplot2_frequency}
 dist_plot_q5 + 
@@ -113,7 +111,7 @@ dist_plot_q5 +
 
 ```
 
----
+
 
 ```{r q08r_frequency}
 dist_plot_q5 + 
@@ -122,7 +120,7 @@ dist_plot_q5 +
   labs(title = q_long[8] %>% str_wrap(40))
 ```
 
----
+
 
 
 ```{r, eval = F}
@@ -235,7 +233,7 @@ data %>%
     theme_minimal(base_size = base_size) + 
   aes(x = x , y = y) + 
   labs(x = NULL, y = NULL) +
-  geom_col() +
+  geom_col(na.rm = TRUE) + 
   geom_text(aes(label = paste0(y, "/", 9)), hjust = -0.2) + 
   aes(fill = x) +
       scale_x_discrete(drop = F) +
@@ -259,7 +257,7 @@ data %>%
 plot_multi_responses(survey, q09, q09_levels, q_long[9])
 ```
 
----
+
 
 ```{r q10_previous_ext_experience}
 dist_plot_q5 + 
@@ -269,7 +267,7 @@ dist_plot_q5 +
   theme_minimal_bar(base_size = 15) 
 ```
 
----
+
 
 ```{r q11_previous_ext_attempt}
 plot_multi_responses(survey, 
@@ -277,7 +275,7 @@ plot_multi_responses(survey,
                      q11_levels, q_long[11], base_size = 12, var_wrap = 40, title_wrap = 70)
 ```
 
----
+
 
 <!-- ### r q_long[12]` -->
 
@@ -291,7 +289,7 @@ plot_multi_responses(survey,
 plot_multi_responses(survey, q13, q13_levels, var_title = q_long[13], base_size = 18, title_wrap = 50, var_wrap = 35)
 ```
 
----
+
 
 ```{r q14which_completed}
 plot_multi_responses(survey, q14, q14_levels, var_title = q_long[14]) + 
@@ -299,7 +297,7 @@ plot_multi_responses(survey, q14, q14_levels, var_title = q_long[14]) +
 ```
 
 
----
+
 
 ```{r q15number_completed}
 # checkbox
@@ -318,7 +316,7 @@ dist_plot_q5 +
   aes(fill = I("blue4"))
 ```
 
----
+
 
 ```{r q17tutorial_length}
 q17_levels <- q17_levels[c(3,1,2)]
@@ -331,7 +329,7 @@ dist_plot_q5 +
 ```
 
 
----
+
 
 ```{r q18example_clarity}
 dist_plot_q5 + 
@@ -342,7 +340,7 @@ dist_plot_q5 +
   aes(fill = I("blue4"))
 ```
 
----
+
 
 ```{r q19examples_engaging}
 dist_plot_q5 + 
@@ -352,30 +350,30 @@ dist_plot_q5 +
   aes(fill = I("blue4"))
 ```
 
----
 
 
 
 
-### r q_long[20]`
 
-r paste(survey$q20, collapse = "------------------")` 
+<!-- ### r q_long[20]` -->
+
+<!-- r paste(survey$q20, collapse = "------------------")`  -->
 
 
----
+<!-- --- -->
 
 ```{r q21emotion}
-survey$q21 <- str_remove(survey$q21, ";$")
+survey$q21temp <- str_remove(survey$q21, ";$")
 
-plot_multi_responses(survey, q21, levels = q21_levels, 
+plot_multi_responses(survey, q21temp, 
+                     levels = q21_levels, 
                      var_title = q_long[21]) + 
-  scale_y_discrete(breaks = q21_levels) + 
+  scale_y_discrete(breaks = q21_levels, limits = c(1,8)) + 
   scale_fill_viridis_d(option = "C", guide = "none")
 
 
 ```
 
----
 
 ```{r q22futureuse}
 dist_plot_q5 + 
@@ -386,7 +384,7 @@ dist_plot_q5 +
   aes(fill = I("blue4"))
 ```
 
----
+
 
 ```{r q5usepackaged}
 dist_plot_q5 + 
@@ -397,22 +395,22 @@ dist_plot_q5 +
   aes(fill = I("blue4"))
 ```
 
----
-
-
-### r q_long[25]`
-
-r paste(survey$q25, collapse = "------------------")`
-
----
 
 
 
-### r q_long[25]`
+<!-- ### r q_long[25]` -->
 
-r paste(survey$q25, collapse = "------------------")` 
+<!-- r paste(survey$q25, collapse = "------------------")` -->
 
----
+
+
+
+
+<!-- ### r q_long[25]` -->
+
+<!-- r paste(survey$q25, collapse = "------------------")`  -->
+
+
 
 ```{r q26longtaught}
 dist_plot_q5 + 
@@ -423,7 +421,7 @@ dist_plot_q5 +
   aes(fill = I("blue4"))
 ```
 
----
+
 
 ```{r q27accessiblestudents, eval = F}
 dist_plot_q5 + 
@@ -437,39 +435,44 @@ dist_plot_q5 +
 
 
 
----
+# Questions related to prior experience with R, ggplot2, and analytics education
 
-
-```{r, out.width="33%", fig.show='hold'}
-knitr::include_graphics(c("fig_q05r_length_user-1.png",
-                        "fig_q06r_frequency-1.png",
-                        "fig_q07ggplot2_frequency-1.png",
-                        "fig_q08r_frequency-1.png",
-                        "fig_q09ggplot2_contexts-1.png",
-                        "fig_q10_previous_ext_experience-1.png",
-                        "fig_q11_previous_ext_attempt-1.png",
-                        "fig_q13_oop_experience-1.png"))
+```{r, out.width="99%", fig.show='hold', include=T}
+knitr::include_graphics(c("survey_results_figures/q05r_length_user-1.png",
+                        "survey_results_figures/q06r_frequency-1.png",
+                        "survey_results_figures/q07ggplot2_frequency-1.png",
+                        "survey_results_figures/q08r_frequency-1.png",
+                        "survey_results_figures/q09ggplot2_contexts-1.png",
+                        "survey_results_figures/q26longtaught-1.png"))
+```                        
+                        
+# Questions related to ggplot2 extension experience and object oriented programming                     
+                        
+```{r, out.width="99%", fig.show='hold', include=T}
+knitr::include_graphics(c("survey_results_figures/q10_previous_ext_experience-1.png",                        "survey_results_figures/q11_previous_ext_attempt-1.png",
+                        "survey_results_figures/q13_oop_experience-1.png"))
 
 ```
 
-```{r, out.width="33%", fig.show='hold'}
+# Questions evaluating the 'easy geom recipes' Stat extensions tutorial
+
+```{r, out.width="99%", fig.show='hold', include=T}
 knitr::include_graphics(c(
-                        "fig_q14which_completed-1.png",
-                        "fig_q15number_completed-1.png",
-                        "fig_q16tutorial_time_taken-1.png",
-                        "fig_q17tutorial_length-1.png",
-                        "fig_q18example_clarity-1.png",
-                        "fig_q19examples_engaging-1.png",
-                        "fig_q21emotion-1.png",
-                        "fig_q22futureuse-1.png",
-                        "fig_q26longtaught-1.png"))
+                        "survey_results_figures/q14which_completed-1.png",
+                        "survey_results_figures/q15number_completed-1.png",
+                        "survey_results_figures/q16tutorial_time_taken-1.png",
+                        "survey_results_figures/q17tutorial_length-1.png",
+                        "survey_results_figures/q18example_clarity-1.png",
+                        "survey_results_figures/q19examples_engaging-1.png",
+                        "survey_results_figures/q21emotion-1.png",
+                        "survey_results_figures/q22futureuse-1.png"))
 
 ```
 
 
 
-### r q_long[28]`
+<!-- ### r q_long[28]` -->
 
-r paste(survey$q28, collapse = "------------------")` 
+<!-- r paste(survey$q28, collapse = "------------------")`  -->
 
 

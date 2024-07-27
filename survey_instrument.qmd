@@ -5,6 +5,11 @@ date: "4/20/2023"
 ---
 
 
+```{r}
+knitr::opts_chunk$set(echo = F)
+
+```
+
 
 ## 1. For how long have you used the R programming language?
 Single choice.
@@ -18,8 +23,9 @@ q05_levels <- c("For more than ten years",
 "Between one and two years",
 "Less than a year")
 
+cat(paste('-', q05_levels), sep = '\n')
 ```
-
+<!-- `r cat(paste(q05_levels, "\\n-"))` -->
 
 ## 2. How frequently do you use the R programming language?
 Single choice.
@@ -31,6 +37,9 @@ q06_levels <- c("Almost every day",
 "Several times a month",
 "Several times a year",
 "Never")
+
+cat(paste('-', q06_levels), sep = '\n')
+
 ```
 
 
@@ -47,6 +56,9 @@ q07_levels <-
 'Several times a month',
 'Several times a year',
 'Never')
+
+cat(paste('-', q07_levels), sep = '\n')
+
 ```
 
 
@@ -63,6 +75,9 @@ q08_levels <-
 'Several times a month',
 'Several times a year',
 'Never')
+
+cat(paste('-', q08_levels), sep = '\n')
+
 ```
 
 
@@ -76,6 +91,9 @@ q09_levels <-
     'Academic Research',
     'Analytics for my employer',
     'Personal Projects')
+
+cat(paste('-', q09_levels), sep = '\n')
+
 ```
 
 
@@ -87,6 +105,9 @@ q10_levels <- c("I didn't know about any extension mechanisms!",
                       "I knew about extension system and ggplot2 extension packages but haven't created any extension myself",
                       "I've tried to write extensions (new themes, scales, geoms, facets), but was not successful.",
                       "I've successfully written ggplot2 extensions")
+
+cat(paste('-', q10_levels), sep = '\n')
+
 
 ```
 
@@ -109,6 +130,9 @@ c('theme_*(), successful',
 'facet_*(), successful',
 'facet_*(), unsuccessful') ->
 q11_levels
+
+cat(paste('-', q11_levels), sep = '\n')
+
 ```
 
 
@@ -127,6 +151,9 @@ q13_levels <-
     "I'd used one of the following R OOP systems: S3, R6, S4, S7/R7",
     "I'd used object oriented programming techniques in programming languages other than R",
     "I had no prior OOP experience.")
+
+cat(paste('-', q13_levels), sep = '\n')
+
 ```
 
 
@@ -141,6 +168,9 @@ q14_levels <-
   c('geom_point_xy_means() which used geom_point_xy_medians() as a reference',
     'geom_text_coordinates() which used geom_text_id() as a reference',
     'geom_segment_lm_residuals() which used geom_point_lm_fitted() as a reference')
+
+cat(paste('-', q14_levels), sep = '\n')
+
 ```
 
 
@@ -155,6 +185,9 @@ q15_levels <- c(
   'geom_text_coordinates()',
   'geom_segment_lm_residuals()'
 )
+
+cat(paste('-', q15_levels), sep = '\n')
+
 
 ```
 
@@ -171,6 +204,9 @@ q16_levels <-
     '45-60 minutes',
     '1-2 hours',
     'more than 2 hours')
+
+cat(paste('-', q16_levels), sep = '\n')
+
 ```
 
 
@@ -183,6 +219,9 @@ q17_levels <- c("The tutorial length was about right",
                      "The tutorial was too long", 
                      "The tutorial was too short")
 
+cat(paste('-', q17_levels), sep = '\n')
+
+
 ```
 
 
@@ -193,6 +232,9 @@ q17_levels <- c("The tutorial length was about right",
 q18_levels <- c("The examples were easy to follow",
                 "The examples weren't always initially clear, but I ultimately managed to understand intent.",
                     "I didn't follow the examples.")
+
+cat(paste('-', q18_levels), sep = '\n')
+
 ```
 
 
@@ -207,6 +249,7 @@ q19_levels <- c("In general, I did not find the examples interesting or engaging
                         "In general, I did find the examples interesting or engaging")
 
 
+cat(paste('-', q19_levels), sep = '\n')
 
 
 
@@ -235,6 +278,9 @@ q21_levels <-
     "skepticism", 
     "excitement", 
     "curiosity")
+
+cat(paste('-', q21_levels), sep = '\n')
+
 ```
 
 
@@ -248,6 +294,9 @@ q22_levels <- c('Very likely - I already have ideas for how to use!',
                        'Neither likely nor unlikely',
                        'Somewhat unlikely',
                        'Very unlikely')
+
+cat(paste('-', q22_levels), sep = '\n')
+
 ```
 
 
@@ -262,6 +311,8 @@ q23_levels <- c('Very likely',
                        'Neither likely nor unlikely', 
                        'Somewhat unlikely', 
                        'Very unlikely')
+
+cat(paste('-', q23_levels), sep = '\n')
 
 ```
 
@@ -290,6 +341,9 @@ q26_levels <-
     "Five to ten years", 
     "More than ten years", 
     "Not applicable")
+
+cat(paste('-', q26_levels), sep = '\n')
+
 ```
 
 
@@ -306,6 +360,10 @@ Multiple choice.
 ```{r}
 q27_levels <- 
   c("Yes;", "No;")
+
+
+cat(paste('-', q27_levels), sep = '\n')
+
 ```
 
 
