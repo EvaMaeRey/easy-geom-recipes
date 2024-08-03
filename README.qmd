@@ -1,5 +1,5 @@
 ---
-output: github_document
+format: gfm
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -20,7 +20,8 @@ knitr::opts_chunk$set(
 <!-- Informal background:  -->
 <!-- *My entry to ggplot2 extension was slow.  I’d say it took about a year – all of 2020 -- going back and forth between materials (Thomas Lin Pederson 'extending your ability to extend' RStudio presentation), ggplot2 extension vignette (part of the ggplot2 package), and the extension section of the new edition of the ggplot2 book to find a path to the geom I was after.  But once I got going, I found that I used one that mechanisms over and over. It is the mechanims that is featured in the easy recipes tutorial: compute_group. I think it is a cool entry point; for mathminded folks --- maybe more exciting than defining themes which is often the promoted entry point? In Fall 2021, I took on two students to do independent studies to create additional geoms.  Working with them really helped define the steps of the process. And in the following spring term, one of the students stayed on and helped craft the compute_group ‘recipes’ with me.* -->
  
-```{r, include = FALSE}
+```{r}
+#| include: false
 knitr::opts_chunk$set(      
   collapse = TRUE,
   warning = FALSE,
@@ -31,7 +32,11 @@ knitr::opts_chunk$set(
 
 # Study material
 
-```{r, results='asis', echo = F}
+```{r}
+#| label: list-urls
+#| results: asis
+#| echo: false
+
 library(magrittr)
 webpages <- fs::dir_ls(type = "file", recurse = T, glob = "*.html") %>% rev()
      

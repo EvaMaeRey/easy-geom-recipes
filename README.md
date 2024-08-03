@@ -1,4 +1,5 @@
 
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
 # Easy geom recipes: a new entry point to ggplot2 extension for statistical educators and their students
@@ -10,12 +11,18 @@
 
 # Study material
 
-- [survey_instrument.html](https://evamaerey.github.io/easy-geom-recipes/survey_instrument.html)
-- [invitation_to_participate.html](https://evamaerey.github.io/easy-geom-recipes/invitation_to_participate.html)
-- [focus_group_script.html](https://evamaerey.github.io/easy-geom-recipes/focus_group_script.html)
-- [easy_geom_recipes_compute_panel.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_panel.html)
-- [easy_geom_recipes_compute_group.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html)
-- [easy_geom_recipes.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes.html)
+- [survey_results_summary2.html](https://evamaerey.github.io/easy-geom-recipes/survey_results_summary2.html)
+- [\_site/survey_results_summary.html](https://evamaerey.github.io/easy-geom-recipes/_site/survey_results_summary.html)
+- [\_site/survey_instrument.html](https://evamaerey.github.io/easy-geom-recipes/_site/survey_instrument.html)
+- [\_site/index.html](https://evamaerey.github.io/easy-geom-recipes/_site/index.html)
+- [\_site/focus_group_script.html](https://evamaerey.github.io/easy-geom-recipes/_site/focus_group_script.html)
+- [\_site/focus_group_results_summary.html](https://evamaerey.github.io/easy-geom-recipes/_site/focus_group_results_summary.html)
+- [\_site/focus_group_highlights.html](https://evamaerey.github.io/easy-geom-recipes/_site/focus_group_highlights.html)
+- [\_site/easy_geom_recipes_compute_group.html](https://evamaerey.github.io/easy-geom-recipes/_site/easy_geom_recipes_compute_group.html)
+- [\_site/easy_geom_recipes.html](https://evamaerey.github.io/easy-geom-recipes/_site/easy_geom_recipes.html)
+- [\_site/about.html](https://evamaerey.github.io/easy-geom-recipes/_site/about.html)
+- [\_site/2023_easy_geom_recipes.html](https://evamaerey.github.io/easy-geom-recipes/_site/2023_easy_geom_recipes.html)
+- [\_extensions/coatless/webr/qwebr-monaco-editor-init.html](https://evamaerey.github.io/easy-geom-recipes/_extensions/coatless/webr/qwebr-monaco-editor-init.html)
 
 ### Abstract
 
@@ -47,7 +54,7 @@ To get feet wet in this world and provide a taste of patterns for geom
 extension, ‘easy geom recipes’ provide three basic examples of the
 geoms\_ that inherit from *existing* geoms (point, text, segment, etc)
 along with a practice exercise:
-<https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html>.
+https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html.
 With such geoms, calculation is done under the hood by the ggplot2
 system. We’ll see how to define a ggproto object; The tutorial keeps
 things simple by only defining computation at the compute_group stage.
@@ -119,31 +126,19 @@ Study participants all had substantial experience. All had at least five
 years programming in the R statistical language, with the majority
 having more than ten years of experience.
 
-<figure>
 <img
 src="survey_results_summary_files/figure-html/q05r_length_user-1.png"
 style="width:50.0%" alt="hello" />
-<figcaption aria-hidden="true">hello</figcaption>
-</figure>
 
 Most of the participants identified as frequent users of R, using the
 language almost every day.
 
-<figure>
-<img src="survey_results_summary_files/figure-html/q06r_frequency-1.png"
-alt="hello" />
-<figcaption aria-hidden="true">hello</figcaption>
-</figure>
+![hello](survey_results_summary_files/figure-html/q06r_frequency-1.png)
 
 Furthermore, most of the participants (7 of 9) responded that they use
 ggplot2 several times a week or more.
 
-<figure>
-<img
-src="survey_results_summary_files/figure-html/q07ggplot2_frequency-1.png"
-alt="hello" />
-<figcaption aria-hidden="true">hello</figcaption>
-</figure>
+![hello](survey_results_summary_files/figure-html/q07ggplot2_frequency-1.png)
 
 With respect to writing functions, most of the group had experience
 writing functions, though the frequency was not as great as with using R

@@ -2,14 +2,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.5.47">
+<meta name="generator" content="quarto-1.5.55">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Gina Reynolds, Morgan Brown">
 <meta name="dcterms.date" content="2022-01-03">
 
-<title>easy geom recipes: compute_group – Easy Geom Recipes</title>
+<title>easy geom recipes: compute_group – Easy geom recipes 🫖</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -392,7 +392,7 @@ globalThis.qwebrCustomizedWebROptions = {
 };
 
 // Store cell data
-globalThis.qwebrCellDetails = [{"code":"# step 0: use base ggplot2\n\n# step 1: write your compute_group function (and test)\n\n# step 2: write ggproto with compute_group as an input\n\n# step 3: write your geom_*() function with ggproto as an input\n\n# step 4: enjoy!\n","options":{"read-only":"false","fig-height":5,"context":"interactive","output":"true","editor-font-scale":"1","results":"markup","dpi":72,"out-width":"700px","message":"true","comment":"","editor-quick-suggestions":"false","label":"unnamed-chunk-1","warning":"true","fig-width":7,"classes":"","out-height":"","fig-cap":"","autorun":"false","editor-max-height":"","editor-word-wrap":"true"},"id":1},{"code":"# step 0: use base ggplot2\n\n# step 1: write your compute_group function (and test)\n\n# step 2: write ggproto with compute_group as an input\n\n# step 3: write your geom_*() function with ggproto as an input\n\n# step 4: enjoy!\n","options":{"read-only":"false","fig-height":5,"context":"interactive","output":"true","editor-font-scale":"1","results":"markup","dpi":72,"out-width":"700px","message":"true","comment":"","editor-quick-suggestions":"false","label":"unnamed-chunk-2","warning":"true","fig-width":7,"classes":"","out-height":"","fig-cap":"","autorun":"false","editor-max-height":"","editor-word-wrap":"true"},"id":2},{"code":"library(tidyverse)\nlibrary(palmerpenguins)\n# handling missingness is not a discussion of this tutorial, so we'll only use complete cases\npenguins <- remove_missing(penguins) \n\n# step 0: use base ggplot2\nmodel <- lm(formula = bill_length_mm ~ bill_depth_mm, \n            data = penguins) \n\npenguins_w_fitted <- penguins %>% \n  mutate(fitted = model$fitted.values)\n\npenguins %>% \n  ggplot() + \n  aes(x = bill_depth_mm, y = bill_length_mm) +\n  geom_point() + \n  geom_smooth(method = \"lm\", se = F) + \n  geom_segment(data = penguins_w_fitted,\n             aes(yend = fitted, xend = bill_depth_mm),\n             color = \"blue\")","options":{"read-only":"true","fig-height":5,"context":"interactive","output":"true","editor-font-scale":"1","results":"markup","dpi":72,"out-width":"700px","message":"true","comment":"","editor-quick-suggestions":"false","label":"exercise-setup","warning":"true","fig-width":7,"classes":"","out-height":"","fig-cap":"","autorun":"true","editor-max-height":"","editor-word-wrap":"true"},"id":3},{"code":"# step 1: write your compute_group function (and test)\n\n# step 2: write ggproto with compute_group as an input\n\n# step 3: write your geom_*() function with ggproto as an input\n\n# step 4: enjoy!\n","options":{"read-only":"false","fig-height":5,"context":"interactive","output":"true","editor-font-scale":"1","results":"markup","dpi":72,"out-width":"700px","message":"true","comment":"","editor-quick-suggestions":"false","label":"unnamed-chunk-4","warning":"true","fig-width":7,"classes":"","out-height":"","fig-cap":"","autorun":"false","editor-max-height":"","editor-word-wrap":"true"},"id":4}];
+globalThis.qwebrCellDetails = [{"code":"# step 0: use base ggplot2\n\n# step 1: write your compute_group function (and test)\n\n# step 2: write ggproto with compute_group as an input\n\n# step 3: write your geom_*() function with ggproto as an input\n\n# step 4: enjoy!\n","options":{"output":"true","context":"interactive","editor-font-scale":"1","label":"unnamed-chunk-1","classes":"","fig-width":7,"message":"true","warning":"true","editor-word-wrap":"true","out-width":"700px","editor-max-height":"","results":"markup","read-only":"false","out-height":"","fig-height":5,"editor-quick-suggestions":"false","dpi":72,"fig-cap":"","comment":"","autorun":"false"},"id":1},{"code":"# step 0: use base ggplot2\n\n# step 1: write your compute_group function (and test)\n\n# step 2: write ggproto with compute_group as an input\n\n# step 3: write your geom_*() function with ggproto as an input\n\n# step 4: enjoy!\n","options":{"output":"true","context":"interactive","editor-font-scale":"1","label":"unnamed-chunk-2","classes":"","fig-width":7,"message":"true","warning":"true","editor-word-wrap":"true","out-width":"700px","editor-max-height":"","results":"markup","read-only":"false","out-height":"","fig-height":5,"editor-quick-suggestions":"false","dpi":72,"fig-cap":"","comment":"","autorun":"false"},"id":2},{"code":"library(tidyverse)\nlibrary(palmerpenguins)\n# handling missingness is not a discussion of this tutorial, so we'll only use complete cases\npenguins <- remove_missing(penguins) \n\n# step 0: use base ggplot2\nmodel <- lm(formula = bill_length_mm ~ bill_depth_mm, \n            data = penguins) \n\npenguins_w_fitted <- penguins %>% \n  mutate(fitted = model$fitted.values)\n\npenguins %>% \n  ggplot() + \n  aes(x = bill_depth_mm, y = bill_length_mm) +\n  geom_point() + \n  geom_smooth(method = \"lm\", se = F) + \n  geom_segment(data = penguins_w_fitted,\n             aes(yend = fitted, xend = bill_depth_mm),\n             color = \"blue\")","options":{"output":"true","context":"interactive","editor-font-scale":"1","label":"exercise-setup","classes":"","fig-width":7,"message":"true","warning":"true","editor-word-wrap":"true","out-width":"700px","editor-max-height":"","results":"markup","read-only":"true","out-height":"","fig-height":5,"editor-quick-suggestions":"false","dpi":72,"fig-cap":"","comment":"","autorun":"true"},"id":3},{"code":"# step 1: write your compute_group function (and test)\n\n# step 2: write ggproto with compute_group as an input\n\n# step 3: write your geom_*() function with ggproto as an input\n\n# step 4: enjoy!\n","options":{"output":"true","context":"interactive","editor-font-scale":"1","label":"unnamed-chunk-4","classes":"","fig-width":7,"message":"true","warning":"true","editor-word-wrap":"true","out-width":"700px","editor-max-height":"","results":"markup","read-only":"false","out-height":"","fig-height":5,"editor-quick-suggestions":"false","dpi":72,"fig-cap":"","comment":"","autorun":"false"},"id":4}];
 
 </script>
 <script type="module">
@@ -1602,7 +1602,7 @@ globalThis.qwebrExecuteCode = async function (
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./easy_geom_recipes_compute_panel.html">Tutorial</a></li><li class="breadcrumb-item"><a href="./easy_geom_recipes_compute_group.html">easy geom recipes: compute_group</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./easy_geom_recipes_compute_group.html">Tutorial</a></li><li class="breadcrumb-item"><a href="./easy_geom_recipes_compute_group.html">easy geom recipes: compute_group</a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -1617,7 +1617,7 @@ globalThis.qwebrExecuteCode = async function (
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Easy Geom Recipes</a> 
+      <a href="./">Easy geom recipes 🫖</a> 
         <div class="sidebar-tools-main">
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
@@ -1645,14 +1645,14 @@ globalThis.qwebrExecuteCode = async function (
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./easy_geom_recipes_compute_panel.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">more easy geom recipes: compute panel</span></a>
+  <a href="./easy_geom_recipes_compute_group.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">easy geom recipes: compute_group</span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./easy_geom_recipes_compute_group.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text">easy geom recipes: compute_group</span></a>
+  <a href="./easy_geom_recipes_compute_panel.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">more easy geom recipes: compute panel</span></a>
   </div>
 </li>
       </ul>
@@ -1660,7 +1660,7 @@ globalThis.qwebrExecuteCode = async function (
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
- <span class="menu-text">Research</span></a>
+ <span class="menu-text">Larger Project</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -1672,12 +1672,17 @@ globalThis.qwebrExecuteCode = async function (
  <span class="menu-text">about</span></a>
   </div>
 </li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./2023_easy_geom_recipes.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text">easy geom recipes</span></a>
-  </div>
-</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true">
+ <span class="menu-text">Tutorial Evaluation</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="./survey_results_summary.html" class="sidebar-item-text sidebar-link">
@@ -1708,11 +1713,13 @@ globalThis.qwebrExecuteCode = async function (
  <span class="menu-text">Survey instrument</span></a>
   </div>
 </li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./2023_easy_geom_recipes.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">easy geom recipes</span></a>
+  </div>
+</li>
       </ul>
-  </li>
-        <li class="sidebar-item sidebar-item-section">
-      <span class="sidebar-item-text sidebar-link text-start">
- <span class="menu-text">Survey</span></span>
   </li>
     </ul>
     </div>
@@ -2057,7 +2064,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 }
 </script>
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./easy_geom_recipes_compute_panel.html">Tutorial</a></li><li class="breadcrumb-item"><a href="./easy_geom_recipes_compute_group.html">easy geom recipes: compute_group</a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./easy_geom_recipes_compute_group.html">Tutorial</a></li><li class="breadcrumb-item"><a href="./easy_geom_recipes_compute_group.html">easy geom recipes: compute_group</a></li></ol></nav>
 <div class="quarto-title">
 <h1 class="title">easy geom recipes: compute_group</h1>
 </div>
@@ -2088,11 +2095,7 @@ globalThis.qwebrCreateMonacoEditorInstance = function (cellData) {
 </header>
 
 
-<p>Using ggplot2 has been described as writing ‘graphical poems’. But we may feel at a loss for ‘words’ when functions we’d like to have don’t exist. The ggplot2 extension system allows us to build new ‘vocabulary’ for fluent expression.</p>
-<p>An exciting extension mechanism is that of inheriting from existing, more primitive geoms after performing some calculation.</p>
-<p>To get your feet wet in this world and give you a taste of patterns for geom extension, we provide three basic examples of the geoms_ that inherit from <em>existing</em> geoms (point, text, segment, etc) along with a practice exercise. With such geoms, calculation is done under the hood by the ggplot2 system. We’ll see how to define a ggproto object; in this tutorial we’ll keep things simple by only defining computation at the compute_group stage.</p>
-<p>With new geom, you can write <em>new</em> graphical poems with exciting new graphical ‘words’!</p>
-<p>This tutorial is intended for individuals who already have a working knowledge of the grammar of ggplot2, but may like to build a richer vocabulary for themselves.</p>
+<p>This tutorial is intended for individuals who already have a working knowledge of the grammar of ggplot2, but may like to build a richer vocabulary for themselves via the Stat extension mechanism.</p>
 <section id="preview" class="level1">
 <h1>Preview</h1>
 <p>Our recipes take the form:</p>
