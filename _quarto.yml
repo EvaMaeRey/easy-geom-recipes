@@ -2,10 +2,10 @@ project:
   type: website
   resources:
     - CNAME
-  output-dir: docs
+  output-dir: _site
 
 website:
-  title: "Easy geom recipes"
+  title: "Easy geom recipes 🫖"
   reader-mode: true
   repo-url: https://github.com/EvaMaeRey/easy-geom-recipes
   repo-actions: [edit, issue]
@@ -15,19 +15,22 @@ website:
         contents:
           - href: easy_geom_recipes_compute_group.qmd
           - href: easy_geom_recipes_compute_panel.qmd
-      - section: "Research"
+      - section: "Larger Project"
         contents:
           - href: about.qmd
-          - href: 2023_easy_geom_recipes.qmd
+
+      - section: "Tutorial Evaluation"
+        contents:
           - href: survey_results_summary.qmd
           - href: focus_group_script.qmd
           - href: focus_group_highlights.qmd
           - href: invitation_to_participate.qmd
           - href: survey_instrument.qmd
-      - section: "Survey"
-        contents:
+          - href: 2023_easy_geom_recipes.qmd
+
 format:
   html:
+    theme: theme.scss
     toc: true
 
 filters:

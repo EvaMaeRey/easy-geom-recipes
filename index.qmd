@@ -3,7 +3,9 @@ title: "Easy geom recipes"
 author: Gina Reynolds
 ---
 
-*Easy geom recipes* is a new point of entry for learning *Stat* extension.  The materials are aimed at academics, data analysts, BI professionals, seasoned and new ggplot2 users, statistics educators and their students, journalists, etc. The approach has been tested and evaluated by data science and statistics educators.
+Extending ggplot2 is a powerful way to enhance productivity and make plot coding more enjoyable. Yet employment of some very useful areas of extension is quite limited, even among seasoned ggplot2 users. 
+
+*Easy geom recipes* is a new point of entry for learning ggplot2 *Stat* extension.  The materials are aimed at academics, data analysts, BI professionals, seasoned and new ggplot2 users, statistics educators and their students, journalists, etc. The approach has been tested and evaluated by data science and statistics educators.
 
 The ggplot2 extension system allows us to build new 'vocabulary' for more fluent expression. A particularly powerful mechanism is writing new Stats which can be used in geom_\*() or stat_\*() user-facing functions.
 
@@ -13,7 +15,7 @@ With new Stats, *you* can specify calculation to be done within the ggplot2 plot
 #| eval = F
 ggplot(data = cars,
        aes(x = speed, y = dist)) + 
-  geom_you()  # YOU specify compute
+  geom_yours()  # YOU specify compute
 ```
 
 In the project tutorials, you'll see how to define Stats using ggproto() and how to write user-facing geom_\*() or stat_\*() functions. 
@@ -27,7 +29,6 @@ In the project tutorials, you'll see how to define Stats using ggproto() and how
 [**Tested and evaluated?**: *Why use the recipes*](research){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Research on the new approach"}  
 
 [**'My problem's not that easy.'** *I want even more recipe-like examples*](easy_geom_recipes_compute_group.qmd){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Take me to lesson 1."}
-
 
 
 [**What if I get stuck.**  *Is there a support group?*](https://github.com/teunbrand/ggplot-extension-club/discussions){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Take me to lesson 1."}
