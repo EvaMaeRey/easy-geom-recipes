@@ -38,9 +38,10 @@ knitr::opts_chunk$set(
 #| echo: false
 
 library(magrittr)
-webpages <- fs::dir_ls(type = "file", recurse = T, glob = "*.html") %>% rev()
+webpages <- fs::dir_ls(path = "_site", type = "file", recurse = TRUE, glob = "*.html") %>% rev()
      
-webpages %>%    
+webpages %>%
+         basename(.) %>%
   paste0("- [",
          . ,
          "]",
