@@ -11,28 +11,17 @@
 
 # Study material
 
-\_site/survey_results_summary.html-
-[survey_results_summary.html](https://evamaerey.github.io/easy-geom-recipes/survey_results_summary.html)
-\_site/survey_instrument.html-
-[survey_instrument.html](https://evamaerey.github.io/easy-geom-recipes/survey_instrument.html)
-\_site/invitation_to_participate.html-
-[invitation_to_participate.html](https://evamaerey.github.io/easy-geom-recipes/invitation_to_participate.html)
-\_site/index.html-
-[index.html](https://evamaerey.github.io/easy-geom-recipes/index.html)
-\_site/focus_group_script.html-
-[focus_group_script.html](https://evamaerey.github.io/easy-geom-recipes/focus_group_script.html)
-\_site/focus_group_highlights.html-
-[focus_group_highlights.html](https://evamaerey.github.io/easy-geom-recipes/focus_group_highlights.html)
-\_site/easy_geom_recipes_compute_panel.html-
-[easy_geom_recipes_compute_panel.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_panel.html)
-\_site/easy_geom_recipes_compute_group.html-
-[easy_geom_recipes_compute_group.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html)
-\_site/easy_geom_recipes.html-
-[easy_geom_recipes.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes.html)
-\_site/about.html-
-[about.html](https://evamaerey.github.io/easy-geom-recipes/about.html)
-\_site/2023_easy_geom_recipes.html-
-[2023_easy_geom_recipes.html](https://evamaerey.github.io/easy-geom-recipes/2023_easy_geom_recipes.html)
+- [survey_results_summary.html](https://evamaerey.github.io/easy-geom-recipes/survey_results_summary.html)
+- [survey_instrument.html](https://evamaerey.github.io/easy-geom-recipes/survey_instrument.html)
+- [invitation_to_participate.html](https://evamaerey.github.io/easy-geom-recipes/invitation_to_participate.html)
+- [index.html](https://evamaerey.github.io/easy-geom-recipes/index.html)
+- [focus_group_script.html](https://evamaerey.github.io/easy-geom-recipes/focus_group_script.html)
+- [focus_group_highlights.html](https://evamaerey.github.io/easy-geom-recipes/focus_group_highlights.html)
+- [easy_geom_recipes_compute_panel.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_panel.html)
+- [easy_geom_recipes_compute_group.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes_compute_group.html)
+- [easy_geom_recipes.html](https://evamaerey.github.io/easy-geom-recipes/easy_geom_recipes.html)
+- [about.html](https://evamaerey.github.io/easy-geom-recipes/about.html)
+- [2023_easy_geom_recipes.html](https://evamaerey.github.io/easy-geom-recipes/2023_easy_geom_recipes.html)
 
 ### Abstract
 
