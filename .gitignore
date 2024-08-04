@@ -4,5 +4,6 @@
 .Ruserdata
 survey
 \docs
-\_site
+_site/*
 /.quarto/
+survey_results_summary_files/*
