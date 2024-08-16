@@ -328,13 +328,15 @@ penguins <- remove_missing(penguins)
 ```
 
 
-Next up:  How would you write the function geom_id() which annotates a row number for data points on a scatterplot?
+# Next up: Recipe 2 `geom_id()`
+
+How would you write the function  which annotates a row number for data points on a scatterplot? Go to [Recipe 2]()
 
 
 
 ---
 
-## 'Express' alternative for Step 3's user-facing functions.
+## 'Express' alternative for user-facing functions.
 
 ::: {.callout-note title="Caution"}
 This approach is not fully vetted. Your comments and feedback are welcome. See discussions ['express'](https://github.com/teunbrand/ggplot-extension-club/discussions/26)
