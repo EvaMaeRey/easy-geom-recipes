@@ -9,10 +9,17 @@ webr:
 Creating a new geom_\*() or stat_\*() function is often motivated by the fact that adding a desired layer might require much precomputation using base ggplot2. 
 By using Stat extension, you can define computation to be done concisely within the plotting pipeline. Let's get started.
 
-In this exercise, we'll thinking about a way to add a point at the medians x and y, defining the new extension function `geom_medians()`.
+In this exercise, we'll thinking about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` which could be used as follows:
+
+```{r, eval = F}
+ggplot(data = penguins) + 
+  aes(x = bill_depth_mm,
+      y = bill_length_mm) + 
+  geom_point() + 
+  geom_medians()
+```
 
 
----
 
 ```{r}
 #| label: setup
@@ -196,11 +203,11 @@ stat_medians <- function(mapping = NULL, data = NULL,
 ::: {.callout-note collapse="true"}
 # You may have noticed...
 
-... **`stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
+1. **...that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
 
-... **StatMedians is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+2. **...that StatMedians is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
 
-... **that "point" is specified as the default for the geom argument in the function.**  This means that the ggplot2::GeomPoint will be used in the layer unless otherwise specified by the user. 
+3. **...that "point" is specified as the default for the geom argument in the function.**  This means that the ggplot2::GeomPoint will be used in the layer unless otherwise specified by the user. 
 :::
 
 
@@ -251,6 +258,48 @@ last_plot() +
   labs(subtitle = "and stat_medians()")
 ```
 
+# Done! Time for a review.
+
+Here a quick review of the definitional code we've covered, dropping tests and discussion.
+
+::: {.callout-note collapse="false"}
+# Review
+
+```{r}
+library(tidyverse)
+
+# Step 1. Define compute
+compute_group_means <- function(data, scales){
+  
+  data |>
+    summarise(x = mean(x), y = mean(y))
+  
+}
+
+# Step 2. Define Stat
+StatMeans = ggproto(`_class` = "StatMeans",
+                    `_inherit` = Stat,
+                    required_aes = c("x", "y"),
+                    compute_group = compute_group_means)
+
+# Step 3. Define user-facing functions
+
+## define stat_*()
+stat_medians <- function(mapping = NULL, data = NULL, 
+                         geom = "point", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = StatMedians, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+## define geom_*()
+geom_medians <- stat_medians
+```
+
+::: 
 
 
 # Your Turn: write `geom_means()`
@@ -277,6 +326,10 @@ penguins <- remove_missing(penguins)
 
 
 ```
+
+
+Next up:  How would you write the function geom_id() which annotates a row number for data points on a scatterplot?
+
 
 
 ---

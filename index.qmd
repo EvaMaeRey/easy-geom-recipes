@@ -3,22 +3,24 @@ title: "Easy geom recipes"
 author: Gina Reynolds
 ---
 
-Extending ggplot2 is a powerful way to enhance productivity and make plot coding more enjoyable. Yet employment of some very useful areas of extension is quite limited, even among seasoned ggplot2 users. 
+Extending ggplot2 is a powerful way to enhance productivity and make coding plots more enjoyable. The ggplot2 extension system allows us to build new 'vocabulary' for more fluent expression.
 
-*Easy geom recipes* is a new point of entry for learning ggplot2 *Stat* extension.  The materials are aimed at academics, data analysts, BI professionals, seasoned and new ggplot2 users, statistics educators and their students, journalists, etc. The approach has been tested and evaluated by data science and statistics educators.
+Yet some useful areas of extension not in mainstream use, even among seasoned ggplot2 users.
 
-The ggplot2 extension system allows us to build new 'vocabulary' for more fluent expression. A particularly powerful mechanism is writing new Stats which can be used in geom_\*() or stat_\*() user-facing functions.
+*Easy geom recipes* is a new point of entry for learning ggplot2 *Stat* extension, a particularly powerful mechanism which allows users to define computation to be used in new geom\_\*() or stat\_\*() functions.
 
-With new Stats, *you* can specify calculation to be done within the ggplot2 plot pipeline: 
+With new Stats, *you* can specify calculation to be done within the ggplot2 plot pipeline:
 
 ```{r}
 #| eval = F
 ggplot(data = cars,
        aes(x = speed, y = dist)) + 
-  geom_mine()  # YOU specify compute
+  geom_customized()  # YOU specify compute
 ```
 
-In the project tutorials, you'll see how to define Stats using ggproto() and how to write user-facing geom_\*() or stat_\*() functions. 
+In this project's tutorials, you'll see how to define Stats your own stats and write new user-facing geom\_\*() or stat\_\*() functions.
+
+The materials are aimed at academics, data analysts, BI professionals, seasoned and new ggplot2 users, statistics educators and their students, journalists, etc. The approach has been tested and evaluated by data science and statistics educators.
 
 # Where to next:
 
@@ -26,48 +28,11 @@ In the project tutorials, you'll see how to define Stats using ggproto() and how
 
 [**Taste without cooking?**: *Leaf through some recipes*](https://evamaerey.github.io/mytidytuesday/2022-01-03-easy-geom-recipes/easy_geom_recipes_flipbook_2024.html){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Take me to lesson 1."}
 
-[**Tested and evaluated?**: *Why use the recipes*](\research.html){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Research on the new approach"}  
+[**Tested and evaluated?**: *Why use the recipes*](\research.html){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Research on the new approach"}
 
 [**'My problem's not that easy.'** *I want even more recipe-like examples*](easy_geom_recipes_compute_group.qmd){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Take me to lesson 1."}
 
-
-[**What if I get stuck.**  *Is there a support group?*](https://github.com/teunbrand/ggplot-extension-club/discussions){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Take me to lesson 1."}
+[**What if I get stuck.** *Is there a support group?*](https://github.com/teunbrand/ggplot-extension-club/discussions){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Take me to lesson 1."}
 
 [**Why so hungry?** *What's motivating all this*](https://evamaerey.github.io/everyday_ggplot2_extension/){.btn .btn-outline-primary .btn role="button" data-toggle="tooltip" title="Take me to lesson 1."}
-
-# So much talk, and not much code/plots...
-
-Are Stat's really so powerful?  And can they really be so easy to make and use?  A small taste before you go ...
-
-```{r, warning=F, message = F}
-library(tidyverse)
-
-# Step 1. Define compute
-compute_group_means <- function(data, scales){
-  
-  data |>
-    summarise(x = mean(x), y = mean(y))
-  
-}
-
-# Step 2.a Define Stat with ggproto
-StatMeans = ggproto(`_class` = "StatMeans",
-                    `_inherit` = Stat,
-                    required_aes = c("x", "y"),
-                    compute_group = compute_group_means)
-
-# Step 2.b Try out Stat
-ggplot(palmerpenguins::penguins) + 
-  aes(bill_length_mm, bill_depth_mm) +
-  geom_point(alpha = .8) + 
-  geom_point(stat = StatMeans, size = 6)
-
-last_plot() + 
-  aes(color = species)
-
-last_plot() + 
-  facet_wrap(facets = vars(island), ncol = 2)
-
-```
-
 
