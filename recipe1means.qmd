@@ -46,11 +46,11 @@ penguins %>%
 ```
 
 
-### Pro tip: use ggplot2::layer_data() to inspect the render-ready data ggplot2 prepared in the background
+### Pro tip: use ggplot2::layer_data() to inspect the render-ready data for the layer which you'd like to write an easy-to-use function to creat.
 
 ```{r}
 layer_data(plot = last_plot(), 
-           i = 2) # indicate which layer from the last plot
+           i = 2) # data from which layer?
 ```
 
 ## Step 1: Define compute. Test.
@@ -130,7 +130,8 @@ Things to notice:
 
 ```{r}
 #| label: geom_point_medians
- 
+
+# Define stat_*() user-facing function
 stat_medians <- function(mapping = NULL, data = NULL, geom = GeomPoint, position = "identity", ..., show.legend = NA, inherit.aes = TRUE) 
 {
     layer(data = data, mapping = mapping, stat = StatMedians, 
@@ -140,13 +141,11 @@ stat_medians <- function(mapping = NULL, data = NULL, geom = GeomPoint, position
 }
 
 
-# consider alias to something even more user-facing -- users love geom_*() functions
+# Define geom_*() user-facing function via aliasing (optional)
 geom_medians <- stat_medians
 
 
-## Test, Enjoy!
-
-#| label: enjoy_penguins
+## Test user-facing.
 penguins %>%
   ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
@@ -162,7 +161,7 @@ last_plot() +
 
 #### Pro tip: Use `stat_identity()`'s definition as scaffolding to write your own layer. i.e. type `stat_identity` in your console and copy-paste. Switch out StatIdentity with your Stat. Final touch, list2 will error without export from rlang, so update to rlang::list2.
 
-## Step 3. Alternate, express approach, user-facing function. (unvetted)
+## Step 3. Alternate, express approach, user-facing function. (not fully unvetted; comments welcome)
 
 An alternate ['express'](https://github.com/teunbrand/ggplot-extension-club/discussions/26) route below may be helpful in some settings (i.e. in-script use).  A down-sides is that the geom is hard coded, so you haven't created as flexible a user-facing function as stat_medians(). Also, not as many arguments will be spelled out for the user when using the function.  
 
@@ -198,6 +197,11 @@ Using the medians Recipe #1 as a reference, try to create a `geom_means()` funct
 
 
 ```{webr-r}
+# Step 00: libraries, data
+library(tidyverse)
+library(palmerpenguins)
+penguins <- remove_missing(penguins) 
+
 # Step 0: Use base ggplot2.
 
 # Step 1: Write compute function. Test.
