@@ -5,6 +5,12 @@ project:
   output-dir: _site
 
 website:
+  announcement:
+    icon: info-circle
+    dismissable: true
+    content: "**Easy geom recipes** - is open for comment. Please feel free to be in touch about issues (report and issue/edit this page/email). Thank you! Recipe #1 is close to final form, and I will use that as a model - incorporating your excellent feedback as needed."
+    type: primary
+    position: below-navbar
   title: "Easy geom recipes 🫖"
   reader-mode: true
   repo-url: https://github.com/EvaMaeRey/easy-geom-recipes
@@ -17,9 +23,7 @@ website:
           - href: recipe1means.qmd
           - href: recipe2coordinates.qmd
           - href: recipe3residuals.qmd
-      - section: "Larger Project"
-        contents:
-          - href: about.qmd
+
 
       - section: "Tutorial Evaluation"
         contents:

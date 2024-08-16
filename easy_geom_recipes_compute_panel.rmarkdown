@@ -1,0 +1,886 @@
+---
+title: "more easy geom recipes: compute panel"
+author: "Evangeline Reynolds"
+date: "3/16/2023"
+---
+
+```{r}
+#| label: setup
+#| include: false 
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+
+
+
+
+
+In 'Easy Geom Recipes' the computation we did was within groups, specifying the compute_group parameter within ggproto.  
+
+Grouping variables in ggplot2 are character, factor or logical variables.
+
+If we use the compute_group parameter in our ggproto function to define our stat, computation will happen in a group-wise basis if aesthetics-variable pairing happens with such variables.  
+
+In other words, our target layer geom_* will divide up our data set by any character, factor, or logical categories, and then do computation before returning a data frame for plotting.  
+
+This is not always the desired behavior.  Sometimes computation has to happen across groups.  The examples that follow are such cases.  
+
+First we'll see a regression model that has an indicator variable as one of its inputs.  We want the model to be computed holistically; geom_smooth(), which you may have used, computes groupwise; i.e. one model for each group.  We'll use panel-level computation to display across group model results.
+
+The second example is circle packing.  We can use the {circlepack} library to visualize quantities for entities. To wrap this work up into a geom function, we need the computation that positions the circles to happen at the panel level -- it shouldn't do the computation within groups. 
+
+Finally, we look at a join of sf geometries as our computation.  Here, I think it may be possible to use set compute_group or compute_panel and get similar visual results.  However, computing and plotting a panel (we'll do this with an inner join of an input data set and an sf reference data frame) is much faster than computing  group-wise.  (just some guesses, need to try with sf w/ fewer geometries than fips.)
+
+# Recipe 1
+
+## Indicator: `geom_lm_indicator()`
+
+- This will be a layer that which by default shows the ols model y = x + indicator
+
+
+## [Step 0: use base ggplot2 to get the job done]{.inverse .middle .center}
+
+
+
+
+
+
+
+
+```{r}
+#| label: penguins
+library(tidyverse)
+library(palmerpenguins)
+
+penguins <- remove_missing(penguins)
+
+model <- lm(body_mass_g ~ flipper_length_mm + species, data = penguins)
+
+penguins %>% 
+  mutate(fitted = model$fitted.values) ->
+penguins_w_fitted
+
+penguins_w_fitted %>% 
+  ggplot() + 
+  aes(x = flipper_length_mm) + 
+  aes(y = body_mass_g) + 
+  aes(color = species) +
+  geom_point() + 
+  geom_line(aes(y = fitted, group = species))
+```
+
+
+
+
+
+
+
+
+
+## Step 1: computation
+
+
+
+- define computation that ggplot2 should do for you, before plotting
+  - here it's computing a variable with labels for each observation
+- test that functionality!
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#| label: compute_panel_ols_ind
+compute_panel_ols_ind <- function(data, scales, formula = y ~ x + indicator) {
+
+  model <- lm(formula = formula,
+              data = data)
+
+  data.frame(x = data$x,
+             y = model$fitted.values,
+             indicator = data$indicator,
+             xend = data$x, # for residuals geom
+             yend = data$y  # for residuals geom
+             )
+
+}
+
+penguins %>% 
+  rename(x = bill_length_mm, 
+         y = bill_depth_mm,
+         indicator = species) %>%
+  select(x, y, indicator) %>% 
+  remove_missing() %>% # ggplot2
+  compute_panel_ols_ind() %>% 
+  tibble() # for nicer display
+  
+```
+
+
+
+
+
+
+
+
+
+## Step 2: define ggproto
+
+--
+
+- what's the naming convention for the proto object?
+- which aesthetics are required as inputs?
+- where does the function from above go?
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#| label: StatXYMedians
+StatLmindicator <- ggplot2::ggproto("StatLmindicator",
+                                      ggplot2::Stat,
+                                      compute_panel = compute_panel_ols_ind,
+                                      required_aes = c("x", "y", "indicator"),
+                                      default_aes = ggplot2::aes(group = ggplot2::after_stat(indicator)
+                                    ))
+```
+
+
+
+
+
+
+
+
+
+## Step 3: define geom_* function
+
+
+--
+
+- define the stat and geom for your layer
+
+
+
+
+
+
+
+
+
+
+
+
+```{r} 
+#| label: geom_point_xy_medians
+geom_lm_indicator <- function(mapping = NULL, data = NULL,
+                                position = "identity", na.rm = FALSE,
+                                show.legend = NA,
+                                inherit.aes = TRUE, ...) {
+  ggplot2::layer(
+    stat = StatLmindicator, # proto object from Step 2
+    geom = ggplot2::GeomLine, # inherit other behavior
+    data = data,
+    mapping = mapping,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...)
+  )
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+## Step 4: Enjoy! Use your function
+
+
+---
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+#| label: enjoy_penguins
+ggplot(palmerpenguins::penguins) +
+  aes(x = flipper_length_mm ) +
+  aes(y = body_mass_g ) +
+  geom_point() + 
+  aes(color = species) +
+  aes(indicator = species) +
+  geom_lm_indicator()
+
+ggplot(palmerpenguins::penguins) +
+  aes(x = flipper_length_mm ) +
+  aes(y = body_mass_g ) +
+  geom_point() + 
+  aes(color = species) +
+  aes(indicator = species) +
+  geom_lm_indicator(formula = y ~ x * indicator)
+
+ggplot(palmerpenguins::penguins) +
+  aes(x = flipper_length_mm ) +
+  aes(y = body_mass_g ) +
+  geom_point() + 
+  aes(color = species) +
+  aes(indicator = species) +
+  geom_lm_indicator(formula = y ~ I(x^3) + I(x^2) + x + indicator)
+```
+
+
+
+
+
+
+
+
+
+### Explain: What will the in-facet behavior be?
+
+
+
+
+
+
+
+
+```{r}
+ggplot(palmerpenguins::penguins) +
+  aes(x = flipper_length_mm ) +
+  aes(y = body_mass_g ) +
+  geom_point() + 
+  aes(color = species) +
+  aes(indicator = species) +
+  geom_lm_indicator(formula = y ~ x + indicator) + 
+  facet_wrap(~sex)
+```
+
+
+
+
+
+
+
+
+# Now you 
+
+Create a residuals layer analogue. 
+
+
+# Recipe #2: circle pack
+
+## Step 0: Use base ggplot2 to get the job done
+
+
+
+
+
+
+
+
+```{r}
+#| label: cars
+library(tidyverse)
+library(gapminder)
+gapminder %>%  
+  filter(continent == "Americas") %>%  
+  filter(year == 2002) %>%  
+  select(country, pop) ->  
+prep  
+
+packcircles::circleProgressiveLayout(prep$pop,  
+                                         sizetype = 'area') ->  
+pack  
+
+cbind(prep, pack) %>%
+  mutate(id = row_number()) %>% 
+  tibble() # for nicer display
+
+pack %>%  
+  packcircles::circleLayoutVertices(npoints = 50) ->  
+circle_outlines  
+
+circle_outlines %>%  
+  ggplot() +  
+  aes(x = x, y = y) +  
+  geom_polygon(colour = "black", alpha = 0.6) +  
+  aes(group = id) +  
+  aes(fill = factor(id)) +  
+  geom_text(data = cbind(prep, pack),  
+            aes(x, y, size = pop, label = country,  
+                group = NULL, fill = NULL)) +  
+  theme(legend.position = "none") +  
+  coord_equal()
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+## Step 1: computation
+
+- define computation that ggplot2 should do for you, before plotting
+  - here it's computing a variable with labels for each observation
+- test that functionality!
+
+
+
+
+
+
+
+
+```{r}
+# you won't use the scales argument, but ggplot will later
+compute_panel_circle_pack <- function(data, scales){
+ 
+  data %>%
+    mutate(id = row_number()) ->
+  data1
+ 
+  if(is.null(data$area)){
+    
+    data1 %>% 
+      mutate(area = 1) ->
+    data1
+    
+  }
+  
+  data1 %>%  
+    pull(area) %>%
+    packcircles::circleProgressiveLayout(
+                                         sizetype = 'area') %>%
+    packcircles::circleLayoutVertices(npoints = 300) %>%
+    left_join(data1) #%>%
+    # rename(group = id)
+   
+}
+```
+
+
+
+
+
+
+
+
+## Step 1.b Test computation
+
+
+
+
+
+
+
+
+```{r}
+# step 1b test the computation function
+gapminder::gapminder %>%
+  filter(continent == "Americas") %>%  
+  filter(year == 2002) %>%  
+  # input must have required aesthetic inputs as columns
+  rename(area = pop) %>%
+  compute_panel_circle_pack() %>%
+  head()
+
+
+gapminder::gapminder %>%
+  filter(continent == "Americas") %>%  
+  filter(year == 2002) %>%  
+  # input must have required aesthetic inputs as columns
+  rename(area = pop) %>%
+  compute_panel_circle_pack() %>% 
+  str()
+
+# step 1b test the computation function
+gapminder::gapminder %>%
+  filter(continent == "Americas") %>%  
+  filter(year == 2002) %>%  
+  # input must have required aesthetic inputs as columns
+  rename(area = pop) %>%
+  compute_panel_circle_pack() %>% 
+  ggplot() + 
+  aes(x = x, y = y, fill = country) + 
+  geom_polygon()
+
+# my_setup_data <- function(data, params){
+#                                     if(data$group[1] == -1){
+#                                       nrows <- nrow(data)
+#                                       data$group <- seq_len(nrows)
+#                                     }
+#                                     data
+#                                   }
+
+```
+
+
+
+
+
+
+
+
+---
+
+## Step 2: define ggproto
+
+- what's the naming convention for the proto object?
+- which aesthetics are required as inputs?
+- where does the function from above go?
+
+
+
+
+
+
+
+
+```{r}
+StatCirclepack <- ggplot2::ggproto(`_class` = "StatCirclepack",
+                                  `_inherit` = ggplot2::Stat,
+                                  required_aes = c("id"),
+                                  compute_panel = compute_panel_circle_pack,
+                                  # setup_data = my_setup_data,
+                                  default_aes = aes(group = after_stat(id))
+                                  )
+```
+
+
+
+
+
+
+
+
+
+---
+
+## Step 3: define geom_* function
+
+
+
+
+
+
+
+
+```{r}
+geom_polygon_circlepack <- function(mapping = NULL, data = NULL,
+                           position = "identity", na.rm = FALSE,
+                           show.legend = NA,
+                           inherit.aes = TRUE, ...) {
+  ggplot2::layer(
+    stat = StatCirclepack, # proto object from Step 2
+    geom = ggplot2::GeomPolygon, # inherit other behavior
+    data = data,
+    mapping = mapping,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...)
+  )
+}
+```
+
+
+
+
+
+
+
+
+
+
+---
+
+## Step 4: Enjoy! Use your function
+
+
+
+
+
+
+
+
+```{r}
+gapminder::gapminder %>%
+  filter(year == 2002) %>%
+  ggplot() +
+  aes(id = country) + 
+  geom_polygon_circlepack(alpha = .5, size = .002)
+
+last_plot() + 
+  aes(fill = continent)
+
+last_plot() + 
+  aes(area = pop)
+
+last_plot() +
+  aes(color = continent) +
+  facet_wrap(facets = vars(continent)) 
+
+```
+
+
+
+
+
+
+
+
+---
+
+# Now you... Create a layer that labels the packed circles...
+
+
+
+Notes:
+
+
+
+- This might be a good example where compute group and compute panel could be applied?  What if we just wanted to show the count of countries within continents as the size of the bubble for example, and the bubble i.d. is continent.  We could prepare that ahead of time, but what would it look like if ggplot2 does the count and then the circle pack algorithm for us?
+
+
+
+---
+
+## Recipe #3. sf geometries
+
+# Step 0: get it done with base ggplot2
+
+# Example simple feature to data frame...
+
+
+
+
+
+
+
+
+```{r}
+library(tidyverse)
+library(sf)
+
+fips_geometries <- readRDS(url("https://wilkelab.org/SDS375/datasets/US_counties.rds")) %>%
+  rename(FIPS = GEOID)
+
+US_census <- read_csv("https://wilkelab.org/SDS375/datasets/US_census.csv",
+                      col_types = cols(FIPS = "c")
+          )
+
+# from Claus Wilke on ggplot2
+
+fips_geometries %>%
+  left_join(US_census, by = "FIPS") %>%
+  ggplot() +
+  geom_sf(aes(fill = mean_work_travel), linewidth = .1) + 
+  scale_fill_viridis_c(option = "magma") ->
+classic_plot_sf_layer
+
+classic_plot_sf_layer
+
+
+
+```
+
+
+
+
+
+
+
+
+# Step 1: computation
+
+
+
+
+
+
+
+
+
+
+```{r}
+layer_data(classic_plot_sf_layer) %>% 
+  select(geometry, xmin, xmax, ymin, ymax) %>% 
+  bind_cols(tibble(FIPS = fips_geometries$FIPS)) %>% 
+  rename(fips = FIPS) ->
+reference
+
+compute_panel_county <- function(data, scales){
+ 
+  data %>% 
+    # inner_join(fips_ggplot2_reference) 
+    inner_join(reference, multiple = "all") %>% 
+    mutate(group = -1)
+
+}
+
+
+```
+
+
+
+
+
+
+
+
+
+# Step 2: pass to ggproto
+
+
+
+
+
+
+
+
+```{r}
+StatCounty <- ggplot2::ggproto(`_class` = "StatCounty",
+                                  `_inherit` = ggplot2::Stat,
+                                  # required_aes = c("fips"),
+                                  # setup_data = my_setup_data,
+                                  compute_panel = compute_panel_county,
+                                  default_aes = aes(geometry = after_stat(geometry))
+                                  )
+```
+
+
+
+
+
+
+
+
+
+# Step 3: write geom_* function
+
+
+
+
+
+
+
+
+```{r}
+geom_sf_county <- function(
+  mapping = NULL,
+  data = NULL,
+  position = "identity",
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE, ...) {
+  ggplot2::layer(
+    stat = StatCounty,  # proto object from step 2
+    geom = ggplot2::GeomSf,  # inherit other behavior
+    data = data,
+    mapping = mapping,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...)
+  )
+}
+```
+
+
+
+
+
+
+
+
+# step 4: test geom_* function, celebrate!
+
+
+
+
+
+
+
+
+```{r}
+#| eval: true
+read_csv("https://wilkelab.org/SDS375/datasets/US_census.csv",
+                      col_types = cols(FIPS = "c")) %>%  
+  ggplot() + 
+  aes(fips = FIPS) +
+  geom_sf_county(linewidth = .02, 
+                      color = "darkgrey") +
+  aes(fill = mean_work_travel) + 
+  coord_sf() +
+  scale_fill_viridis_c(option = "magma")
+```
+
+
+
+
+
+
+
+
+# Now you, create geom_sf_state
+
+We give you step 0
+
+
+
+
+
+
+
+
+```{r}
+#| eval: false
+library(sf)
+
+my_states_df <- tibble(state.name, row = 1:50)
+
+# https://www.census.gov/geographies/mapping-files/time-series/geo/carto-boundary-file.html
+states_geometries <- read_sf("cb_2018_us_state_20m/cb_2018_us_state_20m.shp") %>%   
+  filter(NAME != "Puerto Rico",
+         NAME != "Alaska",
+         NAME != "Hawaii") %>% 
+  select(STUSPS, NAME, geometry)
+
+
+my_states_df %>% 
+  rename(NAME = state.name) %>% 
+  left_join(states_geometries) %>% 
+ggplot() + 
+  geom_sf(aes(geometry = geometry, state = state.name)) + 
+  coord_sf()
+```
+
+
+
+
+
+
+
+
+
+Step 1. 
+
+
+
+
+
+
+
+
+```{r}
+#| eval: false
+layer_data(last_plot()) %>% 
+  select(state, geometry, xmin, xmax, ymin, ymax) ->
+states_reference
+
+compute_panel_states <- function(data, scales){
+  
+  data %>% 
+    inner_join(states_reference, multiple = "all") %>% 
+    mutate(group = -1)
+
+  
+}
+
+
+## Step 2. 
+StatState <- ggplot2::ggproto(`_class` = "StatState",
+                                  `_inherit` = ggplot2::Stat,
+                                  required_aes = c("state"),
+                                  # setup_data = my_setup_data,
+                                  compute_panel = compute_panel_states,
+                                  default_aes = aes(geometry = after_stat(geometry))
+                                  )
+
+## Step 3.
+geom_sf_state <- function(
+  mapping = NULL,
+  data = NULL,
+  position = "identity",
+  na.rm = FALSE,
+  show.legend = NA,
+  inherit.aes = TRUE, ...) {
+  ggplot2::layer(
+    stat = StatState,  # proto object from step 2
+    geom = ggplot2::GeomSf,  # inherit other behavior
+    data = data,
+    mapping = mapping,
+    position = position,
+    show.legend = show.legend,
+    inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...)
+  )
+}
+
+
+
+```
+
+```{r}
+#| eval: false
+my_states_df %>% 
+  mutate(state.name = as.factor(state.name)) %>% 
+  ggplot() +
+  aes(state = state.name) %>% 
+  geom_sf_state() + 
+  aes(fill = row) +
+  coord_sf()
+```
+
+
+
+
+
+
+
+`
+
+
