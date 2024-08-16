@@ -5,7 +5,7 @@ date: "4/20/2023"
 ---
 
 
-```{r}
+```{r, e}
 knitr::opts_chunk$set(echo = F)
 
 ```
@@ -32,6 +32,8 @@ Single choice.
 
 
 ```{r}
+#| results: 'asis'
+
 q06_levels <- c("Almost every day",
 "Several times a week",
 "Several times a month",
@@ -50,6 +52,8 @@ Single choice.
 
 
 ```{r}
+#| results: 'asis'
+
 q07_levels <- 
   c('Almost every day',
 'Several times a week',
@@ -69,6 +73,8 @@ Single choice.
 
 
 ```{r}
+#| results: 'asis'
+#| 
 q08_levels <- 
   c('Almost every day',
 'Several times a week',
@@ -86,6 +92,7 @@ cat(paste('-', q08_levels), sep = '\n')
 Multiple choice.
 
 ```{r}
+#| results: 'asis'
 q09_levels <- 
   c('Teaching',
     'Academic Research',
@@ -101,6 +108,7 @@ cat(paste('-', q09_levels), sep = '\n')
 Single choice.
 
 ```{r}
+#| results: 'asis'
 q10_levels <- c("I didn't know about any extension mechanisms!",
                       "I knew about extension system and ggplot2 extension packages but haven't created any extension myself",
                       "I've tried to write extensions (new themes, scales, geoms, facets), but was not successful.",
@@ -117,6 +125,7 @@ cat(paste('-', q10_levels), sep = '\n')
 Multiple choice.
 
 ```{r}
+#| results: 'asis'
 c('theme_*(), successful',
 'theme_*(), unsuccessful',
 'scales_*(), successful',
@@ -146,6 +155,7 @@ Single line text.
 Multiple choice.
 
 ```{r}
+#| results: 'asis'
 q13_levels <- 
   c("I'd used ggproto for ggplot2 extension",
     "I'd used one of the following R OOP systems: S3, R6, S4, S7/R7",
@@ -164,6 +174,7 @@ Multiple choice.
 
 
 ```{r}
+#| results: 'asis'
 q14_levels <- 
   c('geom_point_xy_means() which used geom_point_xy_medians() as a reference',
     'geom_text_coordinates() which used geom_text_id() as a reference',
@@ -180,6 +191,7 @@ cat(paste('-', q14_levels), sep = '\n')
 Multiple choice.
 
 ```{r}
+#| results: 'asis'
 q15_levels <- c(
   'geom_point_xy_means()',
   'geom_text_coordinates()',
@@ -197,6 +209,7 @@ cat(paste('-', q15_levels), sep = '\n')
  on average?Single choice.
 
 ```{r}
+#| results: 'asis'
 q16_levels <- 
   c('5-15 minutes',
     '15-30 minutes',
@@ -215,6 +228,7 @@ cat(paste('-', q16_levels), sep = '\n')
 Single choice.
 
 ```{r}
+#| results: 'asis'
 q17_levels <- c("The tutorial length was about right", 
                      "The tutorial was too long", 
                      "The tutorial was too short")
@@ -229,6 +243,7 @@ cat(paste('-', q17_levels), sep = '\n')
 ## 14. What would you say about the clarity of the examples and contentSingle choice.
 
 ```{r}
+#| results: 'asis'
 q18_levels <- c("The examples were easy to follow",
                 "The examples weren't always initially clear, but I ultimately managed to understand intent.",
                     "I didn't follow the examples.")
@@ -245,6 +260,7 @@ cat(paste('-', q18_levels), sep = '\n')
 Single choice.
 
 ```{r}
+#| results: 'asis'
 q19_levels <- c("In general, I did not find the examples interesting or engaging",
                         "In general, I did find the examples interesting or engaging")
 
@@ -269,6 +285,7 @@ Single line text.
 Multiple choice.
 
 ```{r}
+#| results: 'asis'
 q21_levels <- 
   c("frustration", 
     "satisfaction", 
@@ -289,6 +306,7 @@ cat(paste('-', q21_levels), sep = '\n')
 ## 18. How likely are you to use the extension mechanism demonstrated in the tutorial in the future.Single choice.
 
 ```{r}
+#| results: 'asis'
 q22_levels <- c('Very likely - I already have ideas for how to use!',
                        'Somewhat likely',
                        'Neither likely nor unlikely',
@@ -305,6 +323,7 @@ cat(paste('-', q22_levels), sep = '\n')
 ## 19. How likely would you be to use extension functions like the ones in the tutorial, if already in a package (e.g. functions in ggxmean, many demoed here:  https://evamaerey.github.io/ggxmean/flipbook.html)Single choice.
 
 ```{r}
+#| results: 'asis'
 
 q23_levels <- c('Very likely', 
                        'Somewhat likely', 
@@ -335,6 +354,7 @@ Single choice.
 
 
 ```{r}
+#| results: 'asis'
 q26_levels <- 
   c("One to two years", 
     "Three to five years", 
@@ -358,9 +378,9 @@ Multiple choice.
 
 
 ```{r}
+#| results: 'asis'
 q27_levels <- 
   c("Yes;", "No;")
-
 
 cat(paste('-', q27_levels), sep = '\n')
 

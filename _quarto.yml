@@ -13,8 +13,10 @@ website:
     contents:
       - section: "Tutorial"
         contents:
-          - href: easy_geom_recipes_compute_group.qmd
-          - href: easy_geom_recipes_compute_panel.qmd
+          - href: preview.qmd
+          - href: recipe1means.qmd
+          - href: recipe2coordinates.qmd
+          - href: recipe3residuals.qmd
       - section: "Larger Project"
         contents:
           - href: about.qmd

@@ -1,0 +1,210 @@
+---
+title: "Recipe 3: geom_residuals()"
+author: "Gina Reynolds, Morgan Brown"
+date: "1/3/2022"
+webr: 
+  packages:
+    - tidyverse
+    - palmerpenguins
+---
+
+
+
+
+This tutorial is intended for individuals who already have a working knowledge of the grammar of ggplot2, but may like to build a richer vocabulary for themselves via the Stat extension mechanism.
+
+# Preview
+
+Our recipes take the form:
+
+- *Step 0. Get the job done with 'base' ggplot2.* 
+It's a good idea to clarify what needs to happen without getting into the extension architecture
+- *Step 1. Write a computation function.* 
+Wrap the necessary computation into a function that your target geom_*() function will perform. We focus on 'compute_group' computation only in this tutorial.
+- *Step 2. Define a ggproto object.* 
+ggproto objects allow your extension to work together with base ggplot2 functions!  You'll use the computation function from step 1 to help define it.  
+- *Step 3. Write your geom function!* 
+You're ready to write your function.  You will incorporate the ggproto from step 2 and also define which more primitive geom (point, text, segment etc) you want other behaviors to inherit from. 
+- *Step 4. Test/Enjoy!*
+Take your new geom for a spin! Check out group-wise computation behavior!
+
+Below, you'll see a completely worked example (example recipes) and then a invitation to build a related target geom_*().
+
+
+
+
+---
+
+# Example recipe #3:  `geom_point_lm_fitted()`
+
+---
+
+## Step 0: use base ggplot2 to get the job done
+
+```{r}
+#| label: fitted_1
+
+library(tidyverse)
+penguins <- remove_missing(palmerpenguins::penguins)
+
+model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
+            data = penguins) 
+
+penguins_w_fitted <- penguins %>% 
+  mutate(fitted = model$fitted.values)
+
+penguins %>% 
+  ggplot() + 
+  aes(x = bill_depth_mm, y = bill_length_mm) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = F) + 
+  geom_point(data = penguins_w_fitted,
+             aes(y = fitted),
+             color = "blue")
+```
+
+
+## Step 1: computation
+
+```{r}
+#| label: fitted_2
+
+compute_group_lm_fitted<- function(data, scales){
+  model<-lm(formula= y ~ x, data = data)
+  data %>% 
+    mutate(y=model$fitted.values)
+}
+
+# test out the function
+penguins %>%
+  # rename to explicitly state the x and y inputs
+  rename(x = bill_depth_mm, y = bill_length_mm)%>%
+  compute_group_lm_fitted()
+```
+
+
+## Step 2: define ggproto
+
+```{r}
+#| label: fitted_3
+StatLmFitted<-ggplot2::ggproto(`_class` = "StatLmFitted",
+                                  `_inherit` = ggplot2::Stat,
+                                  required_aes = c("x", "y"),
+                                  compute_group = compute_group_lm_fitted)
+
+# test 
+penguins %>% 
+  ggplot() + 
+  aes(x = bill_depth_mm, y = bill_length_mm) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = F) + 
+  geom_point(stat = StatLmFitted, color = "blue")
+```
+
+
+## Step 3: define geom_* function
+
+
+```{r}
+#| label: fitted_4
+
+geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
+                           position = "identity", na.rm = FALSE,
+                           show.legend = NA,
+                           inherit.aes = TRUE, ...) {
+  ggplot2::layer(
+    stat = StatLmFitted, # proto object from step 2
+    geom = ggplot2::GeomPoint, # inherit other behavior
+    data = data, 
+    mapping = mapping,
+    position = position, 
+    show.legend = show.legend, 
+    inherit.aes = inherit.aes,
+    params = list(na.rm = na.rm, ...)
+  )
+}
+```
+
+## Step 4: Enjoy! Use your function
+
+```{r}
+#| label: fitted_5
+penguins %>% 
+  ggplot() + 
+  aes(x = bill_depth_mm, y = bill_length_mm) +
+  geom_point() + 
+  geom_smooth(method="lm", se= F)+
+  geom_point_lm_fitted(color="blue")
+```
+
+### And check out conditionality
+
+```{r}
+#| label: fitted_6
+penguins %>% 
+  ggplot() + 
+  aes(x = bill_depth_mm, y = bill_length_mm) +
+  geom_point() + 
+  geom_smooth(method="lm", se= F) +
+  geom_point_lm_fitted() + 
+  facet_wrap(facets = vars(species))
+```
+
+---
+
+# Task #3 create `geom_segment_lm_residuals()`
+
+Create the function `geom_segment_lm_residuals()`. 
+
+### Hint: consider what aesthetics are required for segments.  We'll give you Step 0 this time...
+
+## Step 0: use base ggplot2 to get the job done
+
+```{webr-r}
+#| label: exercise-setup
+#| autorun: true
+#| read-only: true
+library(tidyverse)
+library(palmerpenguins)
+# handling missingness is not a discussion of this tutorial, so we'll only use complete cases
+penguins <- ggplot2::remove_missing(penguins) 
+
+# step 0: use base ggplot2
+model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
+            data = penguins) 
+
+penguins_w_fitted <- penguins %>% 
+  mutate(fitted = model$fitted.values)
+
+penguins %>% 
+  ggplot() + 
+  aes(x = bill_depth_mm, y = bill_length_mm) +
+  geom_point() + 
+  geom_smooth(method = "lm", se = F) + 
+  geom_segment(data = penguins_w_fitted,
+             aes(yend = fitted, xend = bill_depth_mm),
+             color = "blue")
+```
+
+```{webr-r}
+# step 1: write your compute_group function (and test)
+
+# step 2: write ggproto with compute_group as an input
+
+# step 3: write your geom_*() function with ggproto as an input
+
+# step 4: enjoy!
+
+
+```
+
+---
+
+Not interested in writing your own geoms?  
+
+Check out some ready-to-go geoms that might be of interest in the ggxmean package... or other extension packages.
+
+Interested in working a bit more with geoms and making them available to more folks, but not interested in writing your own package?
+
+Join in on the development and validation of the ggxmean package for statistical educators and everyday analysis!
+

@@ -1,0 +1,210 @@
+---
+title: "Recipe #1, `geom_medians() and geom_means()`"
+webr: 
+  packages:
+    - tidyverse
+    - palmerpenguins
+---
+
+
+
+---
+
+```{r}
+#| label: setup
+#| include: false 
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
+
+## Step 00: Loading packages and prepping data
+
+Handling missingness is not a discussion of this tutorial, so we'll only use complete cases.
+
+```{r, message = F, warning=F}
+library(tidyverse)
+library(palmerpenguins)
+penguins <- remove_missing(penguins) 
+```
+
+## Step 0: use base ggplot2 to get the job done
+
+```{r}
+#| label: penguins
+penguins_medians <- penguins %>% 
+  summarize(bill_length_mm_median = median(bill_length_mm),
+            bill_depth_mm_median = median(bill_depth_mm))
+
+penguins %>% 
+  ggplot() + 
+  aes(x = bill_depth_mm) + 
+  aes(y = bill_length_mm) + 
+  geom_point() + 
+  geom_point(data = penguins_medians,
+             aes(x = bill_depth_mm_median,
+                 y = bill_length_mm_median),
+             size = 8)
+```
+
+
+### Pro tip: use ggplot2::layer_data() to inspect the render-ready data ggplot2 prepared in the background
+
+```{r}
+layer_data(plot = last_plot(), 
+           i = 2) # indicate which layer from the last plot
+```
+
+## Step 1: Define compute. Test.
+
+- define computation that ggplot2 should do for you, before plotting
+- test that functionality Step 1.b
+
+```{r}
+#| label: compute_group_xy_medians
+
+# Define compute.
+compute_group_xy_medians <- function(data, scales){ #  scales is used internally in ggplot2
+  data %>% 
+    summarize(x = median(x),
+            y = median(y))
+}
+
+# Test compute. 
+penguins %>%
+  # prep data to state as seen within plot pipeline
+  select(x = bill_depth_mm,  
+         y = bill_length_mm) %>%  
+  compute_group_xy_medians()
+```
+
+
+## Step 2: Define Stat. Test.
+
+In the background, when you build ggplot2 plots, you are defining a plot specification.  The `+` in ggplot2 and the proto system allows you to update your specification (changing the aesthetic mapping, adding layers, changing scales to be used, etc).  
+
+
+The ggproto function allows you to define a new class that's usable within the ggplot2 ecosystem.
+
+https://ggplot2.tidyverse.org/reference/ggproto.html
+
+
+Things to notice:
+
+- **What's the naming convention for the proto object?** *The name of your class is the same as the object you create; also, it is convention to use camel case for ggproto objects.*
+- **What is the inherited class?**  *In fact, your ggproto object is a subclass and you aren't fully defining it.  You inherit the class properties of ggplot2::Stat.*
+- **Which aesthetics are required as inputs?** *Generally, you will have required aesthetics; in this case, you specify that one must define the variable that goes on the x and y axis.*
+- **Where does the function from above go?** *We input the computational function defined above at the compute_group argument.*
+
+```{r}
+#| label: StatMedians
+# Define Stat. 
+StatMedians <- 
+  ggplot2::ggproto(`_class` = "StatMedians", 
+                   `_inherit` = ggplot2::Stat,
+                   required_aes = c("x", "y"),
+                   compute_group = compute_group_xy_medians)
+
+# Test Stat.
+penguins %>% 
+  ggplot() + 
+  aes(x = bill_depth_mm) + 
+  aes(y = bill_length_mm) + 
+  geom_point() + 
+  geom_point(stat = StatMedians, size = 7) 
+
+last_plot() + 
+  aes(color = species)
+```
+
+
+## Step 3: Define user-facing functions. Test.
+
+
+
+
+Things to notice:
+
+- *Where does our Stat enter in?* **We see the stat used in the layer function**
+- *What Geom defines the layer by default?* **We use GeomPoint to defining the layer.  The mark we will get for our layer will be a point.**
+
+
+
+```{r}
+#| label: geom_point_medians
+ 
+stat_medians <- function(mapping = NULL, data = NULL, geom = GeomPoint, position = "identity", ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = StatMedians, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+
+# consider alias to something even more user-facing -- users love geom_*() functions
+geom_medians <- stat_medians
+
+
+## Test, Enjoy!
+
+#| label: enjoy_penguins
+penguins %>%
+  ggplot() +
+  aes(x = bill_depth_mm, y = bill_length_mm) +
+  geom_point() +
+  geom_medians(size = 8, alpha = .8) # using `stat_medians()` will have same result
+
+last_plot() + 
+  aes(color = species) 
+
+last_plot() + 
+  stat_medians(geom = "label", aes(label = species))
+```
+
+#### Pro tip: Use `stat_identity()`'s definition as scaffolding to write your own layer. i.e. type `stat_identity` in your console and copy-paste. Switch out StatIdentity with your Stat. Final touch, list2 will error without export from rlang, so update to rlang::list2.
+
+## Step 3. Alternate, express approach, user-facing function. (unvetted)
+
+An alternate ['express'](https://github.com/teunbrand/ggplot-extension-club/discussions/26) route below may be helpful in some settings (i.e. in-script use).  A down-sides is that the geom is hard coded, so you haven't created as flexible a user-facing function as stat_medians(). Also, not as many arguments will be spelled out for the user when using the function.  
+
+Note that you might choose a different name for your function - you don't have to name the layer after the Geom and Stat. geom_medians() and geom_medians_test() is probably what I'd go with below, since point is a pretty natural choice for showing medians (x and y).
+
+```{r error = T}
+geom_medians_point <- function(...){geom_point(stat = StatMedians, ...)}
+geom_medians_label <- function(...){geom_label(stat = StatMedians, ...)}
+
+penguins %>%
+  ggplot() +
+  aes(x = bill_depth_mm, 
+      y = bill_length_mm) +
+  geom_point() +
+  geom_medians_point(size = 8)
+
+last_plot() + 
+  aes(color = species) 
+
+last_plot() + 
+  aes(label = species) +
+  geom_medians_label()
+```
+
+
+
+
+
+
+# Task #1: create the function `geom_means()`
+
+Using the medians Recipe #1 as a reference, try to create a `geom_means()` function that draws a point at the means of x and y. 
+
+
+```{webr-r}
+# Step 0: Use base ggplot2.
+
+# Step 1: Write compute function. Test.
+
+# Step 2: Write Stat. Test.
+
+# Step 3: Write user-facing functions. Test.
+
+```
+
