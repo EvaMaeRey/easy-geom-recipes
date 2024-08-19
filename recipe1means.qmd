@@ -96,10 +96,10 @@ compute_group_medians <- function(data, scales){
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. ** that our function uses a `scales` argument.** 
+1. **that our function uses a `scales` argument.** 
 The scales argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step.
 
-2. ** the compute function assumes that variables x and y are present.**  These are aesthetic variables names, relevant for building the plot, generally not found in the raw data inputs for ggplots.
+2. **that the compute function assumes that variables x and y are present.**  These are aesthetic variables names, relevant for building the plot, generally not found in the raw data inputs for ggplots.
 :::
 
 
@@ -116,13 +116,13 @@ penguins %>%
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-**... that we prepare the data to have columns with names x and y via `select` before testing `compute_group_medians`.** Computation will fail if they names x and y are not present given the function definition.  Internally in a plot, columns are renamed when mapping aesthetics: `aes(x = bill_depth, y = bill_length)`.
+**that we prepare the data to have columns with names x and y before testing `compute_group_medians`.** Computation will fail if they names x and y are not present given the function definition.  Internally in a plot, columns are renamed when mapping aesthetics: `aes(x = bill_depth, y = bill_length)`.
 :::
 
 
 ## Step 2: Define new Stat. Test.
 
-Next, we use the ggplot2::ggproto function which allows you to define a new Stat - which will let us do computation under the hood while building our plot. 
+Next, we use the ggplot2::ggproto function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
 
 <!-- https://ggplot2.tidyverse.org/reference/ggproto.html -->
 
@@ -141,10 +141,10 @@ StatMedians <-
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **... that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians" 
-2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You inherit  class properties from ggplot2::Stat.
-3. **... that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified
-4. **... `required_aes` set to 'x' and 'y' makes sense.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Inputting appropriate 'required_aes' will improve your user interface by providing error messages that required aes mappings are missing.
+1. **that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians" 
+2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You inherit  class properties from ggplot2::Stat.
+3. **that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified
+4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Inputting appropriate 'required_aes' will improve your user interface by providing error messages that required aes mappings are missing.
 :::
 
 
@@ -163,6 +163,7 @@ penguins %>%
 ```
 
 
+
 ### Test Stat group-wise behavior
 
 
@@ -175,6 +176,15 @@ last_plot() +
   aes(color = species)
 ```
 
+:::  {.callout-tip collapse="true"}
+# Pro tip: Think about an early exit
+
+You might be thinking, what we've done has a lot of merit itself.  Can I just use my Stat as-is within geom_*() functions?  
+
+The answer probably depends a lot on audience.  If you just want to use the Stat yourself, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
+
+
+:::
 
 ## Step 3: Define user-facing functions. Test.
 
@@ -203,18 +213,18 @@ stat_medians <- function(mapping = NULL, data = NULL,
 ::: {.callout-note collapse="true"}
 # You may have noticed...
 
-1. **...that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
+1. **that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
 
-2. **...that StatMedians is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+2. **that `StatMedians` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
 
-3. **...that "point" is specified as the default for the geom argument in the function.**  This means that the ggplot2::GeomPoint will be used in the layer unless otherwise specified by the user. 
+3. **that `"point"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomPoint` will be used in the layer unless otherwise specified by the user. 
 :::
 
 
 ::: {.callout-tip collapse="true"}
 ## Pro tip
 
-Use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
+You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to get right from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
 
 - Type `stat_identity` in your console and copy-paste. 
 - Switch out StatIdentity with your Stat. 
@@ -330,7 +340,7 @@ penguins <- remove_missing(penguins)
 
 # Next up: Recipe 2 `geom_id()`
 
-How would you write the function  which annotates a row number for data points on a scatterplot? Go to [Recipe 2]()
+How would you write the function which annotates a row number for data points on a scatterplot? Go to [Recipe 2]().
 
 
 
