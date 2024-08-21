@@ -6,10 +6,13 @@ webr:
     - palmerpenguins
 ---
 
-Creating a new geom_\*() or stat_\*() function is often motivated by the fact that adding a desired layer might require much precomputation using base ggplot2. 
-By using Stat extension, you can define computation to be done concisely within the plotting pipeline. Let's get started.
+Creating a new geom_\*() or stat_\*() function is often motivated when much precomputation using base ggplot2 is required otherwise. 
 
-In this exercise, we'll thinking about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` which could be used as follows:
+By using Stat extension, you can pre-define computation to be performed on-the-fly, *within* the plotting pipeline. 
+
+Let's get started.
+
+In this exercise, we'll think about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` which could be used as follows:
 
 ```{r, eval = F}
 ggplot(data = penguins) + 
@@ -40,7 +43,7 @@ penguins <- remove_missing(penguins)
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's good look at how you'd get things done without Stat extension first, just using base R. The computational moves you do here will serve as an important reference for building our new functionality.  
+It's good look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you do here can serve a reference for building our new extension functionality.  
 
 
 ```{r}
@@ -73,12 +76,12 @@ use ggplot2::layer_data() to inspect the render-ready data for the layer which y
 
 ```{r}
 layer_data(plot = last_plot(), 
-           i = 2) # data from which layer?
+           i = 2) # layer 2, the computed means, is of interest
 ```
 
 ## Step 1: Define compute. Test.
 
-Now you are ready to begin building your extension function. The first step is to define the compute that should be done under when your function is used.  Well define this in a function called `compute_group_medians()`.  The input is the plot data.  You will also need to use the scales argument, internally used by ggplot2. 
+Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  Well define this in a function called `compute_group_medians()`.  The input is the plot data.  You will also need to use the scales argument, which ggplot2 uses internally. 
 
 ### Define compute.
 
@@ -99,7 +102,7 @@ compute_group_medians <- function(data, scales){
 1. **that our function uses a `scales` argument.** 
 The scales argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step.
 
-2. **that the compute function assumes that variables x and y are present.**  These are aesthetic variables names, relevant for building the plot, generally not found in the raw data inputs for ggplots.
+2. **that the compute function assumes that variables x and y are present.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
 :::
 
 
@@ -116,7 +119,7 @@ penguins %>%
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-**that we prepare the data to have columns with names x and y before testing `compute_group_medians`.** Computation will fail if they names x and y are not present given the function definition.  Internally in a plot, columns are renamed when mapping aesthetics: `aes(x = bill_depth, y = bill_length)`.
+**that we prepare the data to have columns with names x and y before testing `compute_group_medians`.** Computation will fail if the names x and y are not present given our function definition.  Internally in a plot, columns are renamed when mapping aesthetics, e.g. `aes(x = bill_depth, y = bill_length)`.
 :::
 
 
@@ -141,9 +144,9 @@ StatMedians <-
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians" 
-2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You inherit  class properties from ggplot2::Stat.
-3. **that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified
+1. **that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
+2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat.
+3. **that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
 4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Inputting appropriate 'required_aes' will improve your user interface by providing error messages that required aes mappings are missing.
 :::
 
@@ -177,12 +180,11 @@ last_plot() +
 ```
 
 :::  {.callout-tip collapse="true"}
-# Pro tip: Think about an early exit
+# Pro tip: Think about an early exit ...
 
 You might be thinking, what we've done has a lot of merit itself.  Can I just use my Stat as-is within geom_*() functions?  
 
 The answer probably depends a lot on audience.  If you just want to use the Stat yourself, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
-
 
 :::
 
@@ -224,7 +226,7 @@ stat_medians <- function(mapping = NULL, data = NULL,
 ::: {.callout-tip collapse="true"}
 ## Pro tip
 
-You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to get right from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
+You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
 
 - Type `stat_identity` in your console and copy-paste. 
 - Switch out StatIdentity with your Stat. 
@@ -279,18 +281,18 @@ Here a quick review of the definitional code we've covered, dropping tests and d
 library(tidyverse)
 
 # Step 1. Define compute
-compute_group_means <- function(data, scales){
+compute_group_medians <- function(data, scales){
   
   data |>
-    summarise(x = mean(x), y = mean(y))
+    summarise(x = median(x), y = median(y))
   
 }
 
 # Step 2. Define Stat
-StatMeans = ggproto(`_class` = "StatMeans",
-                    `_inherit` = Stat,
-                    required_aes = c("x", "y"),
-                    compute_group = compute_group_means)
+StatMedians = ggproto(`_class` = "StatMedians",
+                      `_inherit` = Stat,
+                      required_aes = c("x", "y"),
+                      compute_group = compute_group_medians)
 
 # Step 3. Define user-facing functions
 
@@ -340,13 +342,13 @@ penguins <- remove_missing(penguins)
 
 # Next up: Recipe 2 `geom_id()`
 
-How would you write the function which annotates a row number for data points on a scatterplot? Go to [Recipe 2]().
+How would you write the function which annotates a row number for data points on a scatterplot? Go to Recipe 2.
 
 
 
 ---
 
-## 'Express' alternative for user-facing functions.
+## Express alternative for user-facing functions (Step 3).
 
 ::: {.callout-note title="Caution"}
 This approach is not fully vetted. Your comments and feedback are welcome. See discussions ['express'](https://github.com/teunbrand/ggplot-extension-club/discussions/26)

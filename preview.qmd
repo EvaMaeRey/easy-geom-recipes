@@ -5,18 +5,20 @@ title: "Preview"
 
 
 
-This tutorial is intended for individuals who already have a working knowledge of the grammar of ggplot2, but may like to build a richer vocabulary for themselves via the Stat extension mechanism.
+These recipe tutorials are intended for individuals who already have a working knowledge of the grammar of ggplot2, but would like to build a richer vocabulary for themselves via the Stat extension mechanism.
 
 Our recipes take the form:
 
-- **Step 0. Get the job done with 'base' ggplot2.** 
+**Step 0. Get the job done with 'base' ggplot2.** 
 It's a good idea to clarify what needs to happen without getting into the extension architecture
-- **Step 1. Write a computation function.  Test.** 
-Wrap the necessary computation into a function that your target geom_*() function will perform. We focus on 'compute_group' computation only in this tutorial.
-- **Step 2. Define a Stat. Test.** 
-ggproto objects allow your extension to work together with base ggplot2 functions!  You'll use the computation function from step 1 to help define it.  
-- **Step 3. Write user-facing function. Test.** 
-You're ready to write your function.  You will incorporate the ggproto from step 2 and also define which more primitive geom (point, text, segment etc) you want other behaviors to inherit from. 
 
-In the recipes, you'll see a completely worked example (example recipes) and then a invitation to build a new geom_*() function.
+**Step 1. Define compute.  Test.** 
+Wrap the necessary computation into a function that your target geom_*() function will perform. We focus on 'compute_group' computation only in this tutorial.
+
+**Step 2. Define Stat. Test.** 
+ggproto objects allow your extension to work together with base ggplot2 functions.  You'll use the computation function from step 1 to help define a new Stat.  
+
+**Step 3. Define user-facing functions. Test.** 
+You're ready to write your function for use in ggplot2 pipelines, using the Stat you wrote in Step 2. 
+
 
