@@ -8,7 +8,7 @@ website:
   announcement:
     icon: info-circle
     dismissable: true
-    content: "**Easy geom recipes** - is open for comment. Please feel free to be in touch about issues (report and issue/edit this page/email/[discuss](https://github.com/EvaMaeRey/easy-geom-recipes/discussions)). Thank you! Recipe #1 is close to final form, and I will use that as a model - incorporating your excellent feedback as needed."
+    content: "Easy geom recipes is open for comment. Please feel free to be in touch about issues (report an issue/edit this page/email/[discuss](https://github.com/EvaMaeRey/easy-geom-recipes/discussions)). Recipe #1 is close to final form, and I will use that as a model - incorporating your feedback."
     type: primary
     position: below-navbar
   title: "Easy geom recipes 🫖"

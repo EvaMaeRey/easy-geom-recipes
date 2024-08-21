@@ -6,23 +6,20 @@ webr:
     - palmerpenguins
 ---
 
-Creating a new geom_\*() or stat_\*() function is often motivated when much precomputation using base ggplot2 is required otherwise. 
+Creating a new geom_\*() or stat_\*() function is often motivated when plotting would requires precomputation otherwise. 
 
-By using Stat extension, you can pre-define computation to be performed on-the-fly, *within* the plotting pipeline. 
+By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as shown in the code that follows: 
 
-Let's get started.
-
-In this exercise, we'll think about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` which could be used as follows:
 
 ```{r, eval = F}
 ggplot(data = penguins) + 
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
   geom_point() + 
-  geom_medians()
+  geom_means(size = 8) # large point at means of x and y
 ```
 
-
+In this exercise, we'll think about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` and then you'll be prompted to define `geom_means()` based on what you've learned.
 
 ```{r}
 #| label: setup
@@ -188,6 +185,31 @@ The answer probably depends a lot on audience.  If you just want to use the Stat
 
 :::
 
+
+:::   {.callout-tip collapse="true"}
+# Pro tip: use layer() function to test ...
+
+Instead of using a `geom_*()` function, you might prefer to use the more flexible `layer()` function in your testing step.  This is in fact, sometimes necessary, when user facing functions contain no `stat` argument like `geom_vline()` for example.
+
+A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
+
+```{r}
+penguins %>% 
+  ggplot() + 
+  aes(x = bill_depth_mm,
+      y = bill_length_mm) + 
+  geom_point() + 
+  layer(geom = "point", 
+        stat = StatMedians, 
+        position = "identity",
+        params = list(size = 7)) + 
+  labs(title = "Testing StatMedians")
+```
+
+
+:::
+
+
 ## Step 3: Define user-facing functions. Test.
 
 
@@ -272,7 +294,7 @@ last_plot() +
 
 # Done! Time for a review.
 
-Here a quick review of the definitional code we've covered, dropping tests and discussion.
+Here is a quick review of the definitional code we've covered, dropping tests and discussion.
 
 ::: {.callout-note collapse="false"}
 # Review
@@ -346,9 +368,9 @@ How would you write the function which annotates a row number for data points on
 
 
 
----
 
-## Express alternative for user-facing functions (Step 3).
+
+# Express alternative for user-facing functions (Step 3).
 
 ::: {.callout-note title="Caution"}
 This approach is not fully vetted. Your comments and feedback are welcome. See discussions ['express'](https://github.com/teunbrand/ggplot-extension-club/discussions/26)
