@@ -298,15 +298,14 @@ last_plot() +
 ```
 
 ::: {.callout-tip collapse="true"}
-# Pro-tip: *Caution, needs vetting* Express alternative for user-facing functions ... 
+# Pro-tip: *Caution, needs vetting* 'Express' alternative for user-facing functions ... 
 
 *This approach is not fully vetted. Your comments and feedback are welcome. See discussions [26](https://github.com/teunbrand/ggplot-extension-club/discussions/26) and [31](https://github.com/teunbrand/ggplot-extension-club/discussions/31)*
 
 An alternate 'express' route below may be helpful in some settings (i.e. in-script definitions and exploratory work).  
 
-### Write user-facing function
 
-```{r error = T}
+```{r error = T, eval = F}
 geom_medians <- function(...){geom_point(stat = StatMedians, ...)}
 geom_medians_label <- function(...){geom_label(stat = StatMedians, ...)}
 
