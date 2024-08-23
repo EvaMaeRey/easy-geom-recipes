@@ -40,7 +40,7 @@ penguins <- remove_missing(penguins)
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's good look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you do here can serve a reference for building our new extension functionality.  
+It's good to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you do here can serve a reference for building our new extension functionality.  
 
 
 ```{r}
@@ -80,7 +80,7 @@ layer_data(plot = last_plot(),
 
 ## Step 1: Define compute. Test.
 
-Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  Well define this in a function called `compute_group_medians()`.  The input is the plot data.  You will also need to use the scales argument, which ggplot2 uses internally. 
+Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_group_medians()`.  The input is the plot data.  You will also need to use the scales argument, which ggplot2 uses internally. 
 
 ### Define compute.
 
@@ -332,7 +332,7 @@ last_plot() +
   geom_medians_label()
 ```
 
-A down-sides is that the geom is hard-coded, so they are not flexible in this regard compared with stat_*() counterparts defined using the layer() function. 
+A downside is that the geom is hard-coded, so it is not flexible in this regard compared with the stat_*() counterpart defined using the layer() function. 
 
 Also, not as many arguments will be spelled out for the user when using the function.  
 
