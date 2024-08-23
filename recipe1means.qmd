@@ -6,9 +6,9 @@ webr:
     - palmerpenguins
 ---
 
-Creating a new geom_\*() or stat_\*() function is often motivated when plotting would requires precomputation otherwise. 
+Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. 
 
-By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as shown in the code that follows: 
+By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
 
 
 ```{r, eval = F}
@@ -63,18 +63,20 @@ penguins |>
 ```
 
 
-::: {.callout-tip}
-### Pro tip
+::: {.callout-tip  collapse="true"}
+### Pro tip.  Use `layer_data()` to inspect ggplot's internal data ...
 
-use ggplot2::layer_data() to inspect the render-ready data for the layer which you'd like to write an easy-to-use function to create.
-:::
-
-
+Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your Stat will help prep data to look something like this.
 
 ```{r}
 layer_data(plot = last_plot(), 
            i = 2) # layer 2, the computed means, is of interest
 ```
+:::
+
+
+
+
 
 ## Step 1: Define compute. Test.
 
@@ -144,7 +146,9 @@ StatMedians <-
 1. **that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
 2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat.
 3. **that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
-4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Inputting appropriate 'required_aes' will improve your user interface by providing error messages that required aes mappings are missing.
+4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_medians()` requires the following missing
+  aesthetics: x.'
+
 :::
 
 
@@ -165,7 +169,7 @@ penguins |>
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-**that we don't use "medians" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, you can refer to your newly created Stat this way if you prefer in this test step, i.e. `geom_point(stat = "medians", size = 7)`
+**that we don't use "medians" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "medians", size = 7)`
 
 :::
 
@@ -215,6 +219,8 @@ penguins |>
 :::
 
 
+
+
 ## Step 3: Define user-facing functions. Test.
 
 
@@ -251,12 +257,14 @@ stat_medians <- function(mapping = NULL, data = NULL,
 
 
 ::: {.callout-tip collapse="true"}
-## Pro tip
+## Pro tip.  Use `stat_identity` definition for code reference ...
+...
 
 You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
 
-- Type `stat_identity` in your console and copy-paste the function definition. 
+- Type `stat_identity` in your console to print function contents; copy-paste the function definition. 
 - Switch out `StatIdentity` with your Stat, e.g. `StatMedian`. 
+- Switch out `"point"` other geom ('rect', 'text', 'line' etc) if needed
 - Final touch, `list2` will error without export from rlang, so update to `rlang::list2`.
 :::
 
@@ -298,7 +306,7 @@ last_plot() +
 ```
 
 ::: {.callout-tip collapse="true"}
-# Pro-tip: *Caution, needs vetting* 'Express' alternative for user-facing functions ... 
+# Pro-tip: 'Express' alternative for user-facing functions ... (*Caution, needs vetting*)
 
 *This approach is not fully vetted. Your comments and feedback are welcome. See discussions [26](https://github.com/teunbrand/ggplot-extension-club/discussions/26) and [31](https://github.com/teunbrand/ggplot-extension-club/discussions/31)*
 
