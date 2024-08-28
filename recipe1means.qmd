@@ -19,6 +19,10 @@ ggplot(data = penguins) +
   geom_means(size = 8, color = "red") # large point at means of x and y
 ```
 
+```{r, code = knitr::knit_code$get("status-quo"), echo = F, eval = T}
+
+```
+
 In this exercise, we'll think about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` and then you'll be prompted to define `geom_means()` based on what you've learned.
 
 ```{r}
@@ -38,13 +42,15 @@ penguins_clean <- remove_missing(penguins)
 glimpse(penguins_clean)
 ```
 
+
+
 ## Step 0: use base ggplot2 to get the job done
 
 
 It's good to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you do here can serve a reference for building our new extension functionality.  
 
 
-```{r}
+```{r status-quo}
 #| label: penguins
 # Compute.
 penguins_medians <- penguins_clean |> 
@@ -149,9 +155,8 @@ StatMedians <-
 2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
 
 ```{r}
-str(ggplot2::Stat)
-ggplot2::Stat$required_aes
-ggplot2::Stat$compute_group
+names(ggplot2::Stat) # which elements exist in Stat
+ggplot2::Stat$required_aes # generic some kind of NULL behaivor
 ```
 
 3. **that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
