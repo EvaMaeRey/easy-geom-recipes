@@ -16,7 +16,7 @@ ggplot(data = penguins) +
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
   geom_point() + 
-  geom_means(size = 8) # large point at means of x and y
+  geom_means(size = 8, color = "red") # large point at means of x and y
 ```
 
 In this exercise, we'll think about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` and then you'll be prompted to define `geom_means()` based on what you've learned.
@@ -34,7 +34,8 @@ Handling missingness is not a discussion of this tutorial, so we'll only use com
 ```{r, message = F, warning=F}
 library(tidyverse)
 library(palmerpenguins)
-penguins <- remove_missing(penguins) 
+penguins_clean <- remove_missing(penguins) 
+glimpse(penguins_clean)
 ```
 
 ## Step 0: use base ggplot2 to get the job done
@@ -46,19 +47,19 @@ It's good to look at how you'd get things done without Stat extension first, jus
 ```{r}
 #| label: penguins
 # Compute.
-penguins_medians <- penguins |> 
+penguins_medians <- penguins_clean |> 
   summarize(bill_length_mm_median = median(bill_length_mm),
             bill_depth_mm_median = median(bill_depth_mm))
 
 # Plot.
-penguins |> 
+penguins_clean |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() + 
   geom_point(data = penguins_medians,
              aes(x = bill_depth_mm_median,
                  y = bill_length_mm_median),
-             size = 8) + 
+             size = 8, color = "red") + 
   labs(title = "Created with base ggplot2")
 ```
 
@@ -88,7 +89,7 @@ Now you are ready to begin building your extension function. The first step is t
 #| label: compute_group_medians
 
 # Define compute.
-compute_group_medians <- function(data, scales){ 
+compute_group_medians <- function(data, ...){ 
   data |> 
     summarize(x = median(x),
               y = median(y))
@@ -98,8 +99,9 @@ compute_group_medians <- function(data, scales){
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **that our function uses a `scales` argument.** 
-The scales argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step.
+1. **that our function uses a `...` argument.** 
+Other things get passed alongside the data, like scales, params, ... 
+<!-- in the ggp argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step. -->
 
 2. **that the compute function assumes that variables x and y are present.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
 :::
@@ -109,7 +111,7 @@ The scales argument is used internally in ggplot2.  So while it won't be used in
 
 ```{r}
 # Test compute. 
-penguins |>
+penguins_clean |>
   select(x = bill_depth_mm,  
          y = bill_length_mm) |>  
   compute_group_medians()
@@ -134,20 +136,31 @@ Next, we use the ggplot2::ggproto function which allows you to define a new Stat
 ```{r}
 #| label: StatMedians
 StatMedians <- 
-  ggplot2::ggproto(`_class` = "StatMedians", 
-                   `_inherit` = ggplot2::Stat,
-                   required_aes = c("x", "y"),
-                   compute_group = compute_group_medians)
+  ggplot2::ggproto(`_class` = "StatMedians",              # <1>
+                   `_inherit` = ggplot2::Stat,            # <2>
+                   compute_group = compute_group_medians, # <3>
+                   required_aes = c("x", "y"))            # <4>
 ```
 
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
 1. **that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
-2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat.
+2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
+
+```{r}
+str(ggplot2::Stat)
+ggplot2::Stat$required_aes
+ggplot2::Stat$compute_group
+```
+
 3. **that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
 4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_medians()` requires the following missing
   aesthetics: x.'
+  
+
+
+<!-- https://yjunechoe.github.io/posts/2022-07-06-ggplot2-delayed-aes-2/#ggproto-minus-the-gg-and-the-proto  -->
 
 :::
 
@@ -157,7 +170,7 @@ StatMedians <-
 You can test out your Stat with many base ggplot2 geom_()* functions.  
 
 ```{r}
-penguins |> 
+penguins_clean |> 
   ggplot() + 
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
@@ -170,6 +183,8 @@ penguins |>
 # You may have noticed ...
 
 **that we don't use "medians" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "medians", size = 7)`
+
+
 
 :::
 
@@ -203,7 +218,7 @@ Instead of using a `geom_*()` function, you might prefer to use the more flexibl
 A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
 ```{r}
-penguins |> 
+penguins_clean |> 
   ggplot() + 
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
@@ -224,7 +239,7 @@ penguins |>
 ## Step 3: Define user-facing functions. Test.
 
 
-In this next section, we define user-facing functions.  It is a bit of a mouthful, but see the tip that follows.
+In this next section, we define user-facing functions.  It is a bit of a mouthful, *but see the tip that follows.*
 
 
 ### Define stat_*() function
@@ -257,7 +272,7 @@ stat_medians <- function(mapping = NULL, data = NULL,
 
 
 ::: {.callout-tip collapse="true"}
-## Pro tip.  Use `stat_identity` definition for code reference ...
+## Pro tip.  Use `stat_identity` definition as a template in this step ...
 ...
 
 You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
@@ -266,6 +281,11 @@ You may be thinking, defining a new stat_\*() function is a mouthful that's prob
 - Switch out `StatIdentity` with your Stat, e.g. `StatMedian`. 
 - Switch out `"point"` other geom ('rect', 'text', 'line' etc) if needed
 - Final touch, `list2` will error without export from rlang, so update to `rlang::list2`.
+
+```{r}
+stat_identity
+```
+
 :::
 
 
@@ -281,7 +301,7 @@ geom_medians <- stat_medians
 
 ```{r}
 ## Test user-facing.
-penguins |>
+penguins_clean |>
   ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() +
@@ -317,7 +337,7 @@ An alternate 'express' route below may be helpful in some settings (i.e. in-scri
 geom_medians <- function(...){geom_point(stat = StatMedians, ...)}
 geom_medians_label <- function(...){geom_label(stat = StatMedians, ...)}
 
-penguins |>
+penguins_clean |>
   ggplot() +
   aes(x = bill_depth_mm, 
       y = bill_length_mm) +
@@ -392,7 +412,7 @@ Using the medians Recipe #1 as a reference, try to create a `stat_means()` funct
 # Step 00: libraries, data
 library(tidyverse)
 library(palmerpenguins)
-penguins <- remove_missing(penguins) 
+penguins_clean <- remove_missing(penguins) 
 
 # Step 0: Use base ggplot2 to get the job done.
 
