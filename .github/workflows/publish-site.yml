@@ -55,7 +55,10 @@ jobs:
 
       # Render the Quarto file
       - name: "Render working directory"
-        uses: quarto-dev/quarto-actions/render@v2
+        run: |
+          quarto render
+          echo "QUARTO_OUTPUT=_site" >> $GITHUB_ENV
+        #uses: quarto-dev/quarto-actions/render@v2
 
       # Upload a tar file that will work with GitHub Pages
       # Make sure to set a retention day to avoid running into a cap
