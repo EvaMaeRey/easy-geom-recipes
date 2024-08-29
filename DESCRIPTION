@@ -9,4 +9,5 @@ Imports:
     palmerpenguins,
     gapminder,
     sf,
-    packcircles
+    packcircles,
+    github::EvaMaeRey/ggstamp
