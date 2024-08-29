@@ -441,7 +441,16 @@ How would you write the function which annotates a row number for data points on
 
 
 
+```{r}
+library(tidyverse)
+ggplot(cars) + 
+  aes(speed, dist) + 
+  geom_bin_2d() 
 
+last_plot() + 
+  scale_fill_continuous()
+
+```
 
 
 
