@@ -2,6 +2,24 @@
 title: "Easy geom recipes"
 ---
 
+```{r, echo = F, warning=F, fig.height=3.5}
+download.file("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Ggplot2_hex_logo.png/800px-Ggplot2_hex_logo.png", destfile = "800px-Ggplot2_hex_logo.png")  
+  
+
+library(ggstamp)
+library(ggplot2)
+ggcanvas() + 
+  stamp_polygon(x0y0 = pos_honeycomb(n = 50, ncol = 10), 
+                fill = "whitesmoke") + 
+  ggstamp::stamp_wash(fill = "whitesmoke") +
+  ggstamp::theme_void_fill("whitesmoke") + 
+  ggstamp::stamp_png(png = "800px-Ggplot2_hex_logo.png", x0 = 6,
+                     y0 = -3, width = 4
+                    )
+
+
+```
+
 Extending ggplot2 is a powerful way to enhance productivity and make coding plots more enjoyable. The ggplot2 extension system allows us to build new 'vocabulary' for more fluent expression.
 
 <!-- Yet some useful areas of extension are not in mainstream use even among seasoned ggplot2 users. -->
