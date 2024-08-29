@@ -106,7 +106,7 @@ compute_group_medians <- function(data, ...){
 # You may have noticed ...
 
 1. **that our function uses a `...` argument.** 
-Other things get passed alongside the data, like scales, params, ... 
+Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats.
 <!-- in the ggp argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step. -->
 
 2. **that the compute function assumes that variables x and y are present.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
