@@ -6,9 +6,7 @@ webr:
     - palmerpenguins
 ---
 
-Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. 
-
-By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
+Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
 
 
 ```{r, eval = F}
