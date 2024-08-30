@@ -10,4 +10,6 @@ Imports:
     gapminder,
     sf,
     packcircles,
+    ggstamp
+Remotes:
     github::EvaMaeRey/ggstamp
