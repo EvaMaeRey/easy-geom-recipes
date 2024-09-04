@@ -7,442 +7,23 @@ format: html
 ```{r}
 #| include: false
 knitr::opts_chunk$set(
-  eval = FALSE,
+  eval = T,
   warning = FALSE, echo = FALSE, include = FALSE,
   fig.width = 8, fig.height = 5.5, 
   out.width = "85%",
   fig.path = "_site/survey_results_figures/")
 ```
 
-Analyzing survey results
-
-> [!NOTE]
-> 
-> The following code cells are disabled as the data
-> `'Easy Geom Recipes' Feedback Survey(1-10).xlsx` 
-> is not available in this repository.
-> 
-> Change `eval` to `TRUE` in the above code cell.
 
 
 ```{r}
-#| include: false
+#| eval: false
 library(tidyverse)
-load("survey_instrument.Rdata")
 
-readxl::read_xlsx("../easy-geom-recipes-raw-data/'Easy Geom Recipes' Feedback Survey(1-10).xlsx", na = "NA") %>% 
-  slice(-1) -> # removing test with my responses
-survey_raw  
+file.copy(from = "../easy-geom-recipes-raw-data/survey_results_figures/",
+          to = "_site/survey_results_figures/", overwrite = T)
 
-survey_raw <- survey_raw %>% 
-  select(-starts_with("Points")) %>% 
-  select(-starts_with("Feedback")) %>% 
-  select(-5,-6, -7)
 
-q_long <- names(survey_raw)
-survey <- survey_raw
-names(survey) <- paste0("q", str_pad(1:28, 2, "left", "0"))
-survey
-theme_set(theme_minimal(base_size = 23))
-
-```
-
-
-
-```{r q05r_length_user}
-str_wrap_w_levels <- function(x, width, levels){
-  
-  wrapped <- str_wrap(x, width)
-  levels_wrapped <- str_wrap(levels, width)
-  
-  factor(wrapped, levels_wrapped)
-  
-}
-
-
-theme_minimal_bar <- function(...){
-  
-  
-  list(ggplot2::theme_minimal(...), # %+replace%   ##<< we'll piggy back on an existing theme
-    ggplot2::theme(
-        panel.grid.minor.x = element_blank(),
-        panel.grid.major.x = element_blank(),
-        panel.grid.minor.y = element_blank(),
-        plot.title.position = "plot",
-  
-        #complete = TRUE   ##<< important, see 20.1.2 Complete themes in ggplot2 book
-      
-        )
-  )
-  
-}
-
-
-
-# dist_plot <- function(var = q05, levels = q05_levels, title = q_long[5], var_wrap = 10, base_size = 23, title_wrap = 40){
-ggplot(survey) + 
-  theme_minimal_bar(base_size = 23) + 
-  aes(x = fct_rev(str_wrap_w_levels(q05, 10, q05_levels))) + 
-  scale_x_discrete(drop = F) +
-  labs(title = q_long[5] %>% str_wrap(40)) + 
-  labs(x = NULL) + 
-  labs(y = NULL) + 
-  stat_count(geom = "label", 
-             size = 6, 
-             aes(label = after_stat(count)),
-             vjust = 0, label.size = NA, 
-             label.padding = unit(0.05, "lines"),
-             alpha = .9, fill = NA) + 
-  geom_bar(alpha = .9) + 
-  scale_y_continuous(limits = c(0,10), breaks = c(0,3,6,9)) + 
-  aes(fill = I("midnightblue")) ->
-dist_plot_q5; dist_plot_q5
-```
-
-
-
-
-
-```{r q06r_frequency}
-dist_plot_q5 + 
-  aes(x = fct_rev(str_wrap_w_levels(q06, 10, q06_levels))) + 
-  labs(x = NULL) +
-  labs(title = q_long[6] %>% str_wrap(40))
-
-
-```
-
-
-
-
-
-```{r q07ggplot2_frequency}
-dist_plot_q5 + 
-  aes(x = fct_rev(str_wrap_w_levels(q07, 10, q07_levels))) + 
-  labs(x = NULL) +
-  labs(title = q_long[7] %>% str_wrap(40))
-
-```
-
-
-
-```{r q08r_frequency}
-dist_plot_q5 + 
-  aes(x = fct_rev(str_wrap_w_levels(q08, 10, q08_levels))) + 
-  labs(x = NULL) +
-  labs(title = q_long[8] %>% str_wrap(40))
-```
-
-
-
-
-```{r, eval = F}
-library(tidyverse)
-compute_panel_multi_response <- function(data, 
-                                         scales, 
-                                         cat_levels, 
-                                         sep = ";"){
-  
-  # data = data.frame(responses = survey$q09)
-  nrespondents <- nrow(data)
-
-  data %>%
-    summarise(responses = paste0(responses, collapse = sep)) %>% 
-    mutate(response = str_split(responses, sep)) %>% 
-    select(-responses) %>% 
-    unnest(response) %>% 
-    filter(response != "NA") %>% 
-    count(response) %>%
-    mutate(x = factor(response, cat_levels) %>% 
-             as.numeric %>% as.double()) %>%
-    mutate(y = as.double(n)) %>% 
-    mutate(num_respondents = nrespondents)
-  
-}
-
-
-fruit_cats <- c("apple", "banana", "pear", "orange" )
-
-
-data.frame(selected_fruit = 
-             c("banana;apple;pear", 
-               "apple;pear", 
-               "banana;pear")) %>%
-  select(responses = selected_fruit) %>% 
-  compute_panel_multi_response(cat_levels = fruit_cats)
-
-StatMulticat <- ggplot2::ggproto(`_class` = "StatMulticat",
-                        `_inherit` = ggplot2::Stat,  
-                        compute_panel = compute_panel_multi_response,
-                        default_aes = aes(label = ggplot2::after_stat(paste0(n, "/", num_respondents))))
-
-
-
-data.frame(fruit_selections = c("banana;apple;pear", "apple;pear", "pear")) %>% 
-  ggplot() +  
-  aes(responses = fruit_selections) + 
-  layer(geom = "col", stat = StatMulticat, position = "identity",
-         params = list(cat_levels = fruit_cats)) + 
-  layer(geom = "label", stat = StatMulticat, position = "identity",
-        params = list(cat_levels = fruit_cats, 
-                      hjust = 0,
-                      alpha = 0,
-                      label.size = 0)) +
-  aes(fill = after_scale(x)) +
-  coord_flip() + 
-  labs(title = "Number of respondents selecting each fruit when asked\n'Which of the following fruits do you like to eat?'",
-       subtitle = "Three people were surveyed")
-
-last_plot() +
-  scale_x_continuous(breaks = 1:length(fruit_cats), 
-                     labels = fruit_cats, 
-                     limits = c(1-.5, length(fruit_cats) + .5)
-                    ) 
-
-layer_data(i = 1)
-```
-
-
-
-```{r, eval = F}
-survey %>%
-  select(responses = q09) %>% 
-  compute_panel_multi_response(scales, cat_levels = q09_levels)
-
-
-ggplot(data = survey) +
-  aes(responses = q09) +
-  layer(geom = "bar", 
-        stat = StatMulticat, 
-        position = "identity",
-        params = list(cat_levels = q09_levels)) +
-  scale_x_continuous(breaks = 1:length(q09_levels), 
-                     labels = q09_levels) +
-  coord_flip() 
-
-
-layer_data()
-
-
-
-```
-
-
-```{r}
-plot_multi_responses <- function(data = survey, var = q11, levels = q11_levels, var_title = q_long[11], var_wrap = 15, base_size = 18, title_wrap = 40){
-data %>%
-  pull({{var}}) %>%
-  paste(collapse = ";") %>%
-  str_split_1(";") %>%
-  data.frame(x = .) %>%
-  filter(x != "") %>% 
-  filter(x != "NA") %>% 
-  filter(!is.na(x)) %>% 
-  count(x) %>%
-  mutate(x = x %>% str_wrap(var_wrap)  %>% 
-           factor(levels = levels %>% str_wrap(var_wrap) )) %>% 
-  mutate(y = n) %>%
-  ggplot() +
-    theme_minimal(base_size = base_size) + 
-  aes(x = x , y = y) + 
-  labs(x = NULL, y = NULL) +
-  geom_col(na.rm = TRUE) + 
-  geom_text(aes(label = paste0(y, "/", 9)), hjust = -0.2) + 
-  aes(fill = x) +
-      scale_x_discrete(drop = F) +
-  theme(plot.title.position = "plot") + 
-  # theme(axis.text.x = element_blank()) + 
-  theme(panel.grid.minor.y = element_blank(),
-        panel.grid.major.y = element_blank(),
-        panel.grid.minor.x = element_blank())+  
-  scale_y_continuous(limits = c(0,10), breaks = c(0,3,6,9)) + 
-  scale_fill_viridis_d(guide = "none") + 
-  labs(fill = NULL) + 
-  coord_flip() + 
-  labs(title = var_title %>% str_wrap(title_wrap)) + 
-  labs(caption = "Number of respondents indicating each option")
-
-}
-# plot_multi_responses()
-```
-
-```{r q09ggplot2_contexts}
-plot_multi_responses(survey, q09, q09_levels, q_long[9])
-```
-
-
-
-```{r q10_previous_ext_experience}
-dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q10, 15, q10_levels)) + 
-  labs(x = NULL) +
-  labs(title = q_long[10] %>% str_wrap(65)) + 
-  theme_minimal_bar(base_size = 15) 
-```
-
-
-
-```{r q11_previous_ext_attempt}
-plot_multi_responses(survey, 
-                     q11, 
-                     q11_levels, q_long[11], base_size = 12, var_wrap = 40, title_wrap = 70)
-```
-
-
-
-<!-- ### r q_long[12]` -->
-
-<!-- r paste(survey$q12, collapse = "------------------")`  -->
-
-<!-- --- -->
-
-<!-- --- -->
-
-```{r q13_oop_experience}
-plot_multi_responses(survey, q13, q13_levels, var_title = q_long[13], base_size = 18, title_wrap = 50, var_wrap = 35)
-```
-
-
-
-```{r q14which_completed}
-plot_multi_responses(survey, q14, q14_levels, var_title = q_long[14]) + 
-  scale_fill_viridis_d(option = "C", guide = "none")
-```
-
-
-
-
-```{r q15number_completed}
-# checkbox
-plot_multi_responses(survey, q15, q15_levels, q_long[15]) + 
-  scale_fill_viridis_d(option = "C", guide = "none")
-```
-
-```{r q16tutorial_time_taken}
-dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q16, 12, q16_levels)) + 
-  labs(x = NULL) +
-  labs(title = q_long[16] %>% str_wrap(50)) + 
-  theme_minimal(base_size = 17) + 
-  theme(panel.grid.minor.y = element_blank(),
-        panel.grid.major.x = element_blank()) + 
-  aes(fill = I("blue4"))
-```
-
-
-
-```{r q17tutorial_length}
-q17_levels <- q17_levels[c(3,1,2)]
-
-dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q17, 12, q17_levels)) + 
-  labs(x = NULL) +
-  labs(title = q_long[17] %>% str_wrap(40))  + 
-  aes(fill = I("blue4"))
-```
-
-
-
-
-```{r q18example_clarity}
-dist_plot_q5 + 
-  aes(x = fct_rev(str_wrap_w_levels(q18, 25, q18_levels))) + 
-  labs(x = NULL) +
-  labs(title = q_long[18] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15) + 
-  aes(fill = I("blue4"))
-```
-
-
-
-```{r q19examples_engaging}
-dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q19, 25, q19_levels)) + 
-  labs(x = NULL) +
-  labs(title = q_long[19] %>% str_wrap(45)) + 
-  aes(fill = I("blue4"))
-```
-
-
-
-
-
-
-<!-- ### r q_long[20]` -->
-
-<!-- r paste(survey$q20, collapse = "------------------")`  -->
-
-
-<!-- --- -->
-
-```{r q21emotion}
-survey$q21temp <- str_remove(survey$q21, ";$")
-
-plot_multi_responses(survey, q21temp, 
-                     levels = q21_levels, 
-                     var_title = q_long[21]) + 
-  scale_y_discrete(breaks = q21_levels, limits = c(1,8)) + 
-  scale_fill_viridis_d(option = "C", guide = "none")
-
-
-```
-
-
-```{r q22futureuse}
-dist_plot_q5 + 
-  aes(x = fct_rev(str_wrap_w_levels(q22, 17, q22_levels))) + 
-  labs(x = NULL) +
-  labs(title = q_long[22] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15) + 
-  aes(fill = I("blue4"))
-```
-
-
-
-```{r q5usepackaged}
-dist_plot_q5 + 
-  aes(x = fct_rev(str_wrap_w_levels(q23, 17, q23_levels))) + 
-  labs(x = NULL) +
-  labs(title = q_long[23] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15) + 
-  aes(fill = I("blue4"))
-```
-
-
-
-
-<!-- ### r q_long[25]` -->
-
-<!-- r paste(survey$q25, collapse = "------------------")` -->
-
-
-
-
-
-<!-- ### r q_long[25]` -->
-
-<!-- r paste(survey$q25, collapse = "------------------")`  -->
-
-
-
-```{r q26longtaught}
-dist_plot_q5 + 
-  aes(x = str_wrap_w_levels(q26, 17, q26_levels)) + 
-  labs(x = NULL) +
-  labs(title = q_long[26] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15)  + 
-  aes(fill = I("blue4"))
-```
-
-
-
-```{r q27accessiblestudents, eval = F}
-dist_plot_q5 + 
-  aes(x = str_remove(q27, ";")) + 
-  labs(x = NULL) +
-  labs(title = q_long[27] %>% str_wrap(60)) + 
-  theme_minimal_bar(base_size = 15) + 
-  aes(fill = I("blue4"))
 ```
 
 
@@ -454,12 +35,12 @@ dist_plot_q5 +
 #| out.width: "99%"
 #| fig.show: 'hold'
 #| include: true
-knitr::include_graphics(c("survey_results_figures/q05r_length_user-1.png",
-                        "survey_results_figures/q06r_frequency-1.png",
-                        "survey_results_figures/q07ggplot2_frequency-1.png",
-                        "survey_results_figures/q08r_frequency-1.png",
-                        "survey_results_figures/q09ggplot2_contexts-1.png",
-                        "survey_results_figures/q26longtaught-1.png"))
+knitr::include_graphics(c("_site/survey_results_figures/q05r_length_user-1.png",
+                        "_site/survey_results_figures/q06r_frequency-1.png",
+                        "_site/survey_results_figures/q07ggplot2_frequency-1.png",
+                        "_site/survey_results_figures/q08r_frequency-1.png",
+                        "_site/survey_results_figures/q09ggplot2_contexts-1.png",
+                        "_site/survey_results_figures/q26longtaught-1.png"))
 ```                        
                         
 # Questions related to ggplot2 extension experience and object oriented programming                     
@@ -470,9 +51,9 @@ knitr::include_graphics(c("survey_results_figures/q05r_length_user-1.png",
 #| include: true
 knitr::include_graphics(
   c(
-    "survey_results_figures/q10_previous_ext_experience-1.png",                       
-    "survey_results_figures/q11_previous_ext_attempt-1.png",
-    "survey_results_figures/q13_oop_experience-1.png"
+    "_site/survey_results_figures/q10_previous_ext_experience-1.png",                       
+    "_site/survey_results_figures/q11_previous_ext_attempt-1.png",
+    "_site/survey_results_figures/q13_oop_experience-1.png"
   )
 )
 ```
@@ -484,14 +65,14 @@ knitr::include_graphics(
 #| out.width: "99%"
 #| fig.show: 'hold'
 knitr::include_graphics(c(
-                        "survey_results_figures/q14which_completed-1.png",
-                        "survey_results_figures/q15number_completed-1.png",
-                        "survey_results_figures/q16tutorial_time_taken-1.png",
-                        "survey_results_figures/q17tutorial_length-1.png",
-                        "survey_results_figures/q18example_clarity-1.png",
-                        "survey_results_figures/q19examples_engaging-1.png",
-                        "survey_results_figures/q21emotion-1.png",
-                        "survey_results_figures/q22futureuse-1.png"))
+                        "_site/survey_results_figures/q14which_completed-1.png",
+                        "_site/survey_results_figures/q15number_completed-1.png",
+                        "_site/survey_results_figures/q16tutorial_time_taken-1.png",
+                        "_site/survey_results_figures/q17tutorial_length-1.png",
+                        "_site/survey_results_figures/q18example_clarity-1.png",
+                        "_site/survey_results_figures/q19examples_engaging-1.png",
+                        "_site/survey_results_figures/q21emotion-1.png",
+                        "_site/survey_results_figures/q22futureuse-1.png"))
 
 ```
 
