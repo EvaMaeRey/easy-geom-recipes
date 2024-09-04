@@ -436,6 +436,7 @@ Using the medians Recipe #1 as a reference, try to create a `stat_means()` funct
 library(tidyverse)
 library(palmerpenguins)
 penguins_clean <- remove_missing(penguins) 
+glimpse(penguins_clean)
 ```
 
 ### Step 0: Use base ggplot2 to get the job done
@@ -461,7 +462,7 @@ penguins_clean |>
 
 ```{webr}
 #| exercise: geom_means
-
+# Define. 
 compute_group_means <- function(data, ...){
   
   data %>% 
@@ -469,12 +470,8 @@ compute_group_means <- function(data, ...){
               y = ____(____))
   
 }
-```
 
-#### Test.
-
-```{webr}
-#| exercise: geom_means
+# Test.
 penguins_clean |> 
   select(x = bill_depth_mm, 
          ____ = bill_length_mm) |>
@@ -486,18 +483,13 @@ penguins_clean |>
 
 ```{webr}
 #| exercise: geom_means
-
+# Define.
 StatMeans <- ggproto(`_class` = "____",
                      `_inherit` = Stat,
                      compute_group = ____,
                      required_aes = c("x", "____"))
-```
 
-#### Test.
-
-```{webr}
-#| exercise: geom_means
-
+# Test.
 penguins_clean |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
@@ -512,7 +504,7 @@ penguins_clean |>
 
 ```{webr}
 #| exercise: geom_means
-
+# Define.
 stat_means <- function (mapping = NULL, data = NULL, geom = "point", position = "identity", 
     ..., show.legend = NA, inherit.aes = TRUE){
     layer(data = data, mapping = mapping, stat = ____, 
@@ -522,14 +514,10 @@ stat_means <- function (mapping = NULL, data = NULL, geom = "point", position = 
 }
 
 
-# aliasing
+# Alias.
 geom_means <- ____
-```
 
-#### Test.
 
-```{webr}
-#| exercise: geom_means
 # Test.
 penguins_clean |> 
   ggplot() + 
