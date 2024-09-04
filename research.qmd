@@ -104,7 +104,7 @@ To test the tutorial, we approached statistics and data analytics educators that
 
 Recruited participants generally had substantial experience teaching data analytics. 
 
-![](survey_results_summary_files/survey_results_figures/q26longtaught-1.png)
+![](survey_results_figures/q26longtaught-1.png)
 
 
 Study participants all had substantial experience.  All had at least five years programming in the R statistical language, with the majority having more than ten years of experience.  
@@ -112,55 +112,55 @@ Study participants all had substantial experience.  All had at least five years 
 
 
 
-![](survey_results_summary_files/survey_results_figures/q05r_length_user-1.png){width=50%}
+![](survey_results_figures/q05r_length_user-1.png){width=50%}
 
 All but one of the participants use the R language several times a week, with 
 many using the language 'almost every day'. 
 
-![](survey_results_summary_files/survey_results_figures/q06r_frequency-1.png)
+![](survey_results_figures/q06r_frequency-1.png)
 
 With respect to writing functions, most of the group had experience writing functions, though the frequency was not as great as with using R and ggplot2. 
 
-![](survey_results_summary_files/survey_results_figures/q08r_frequency-1.png)
+![](survey_results_figures/q08r_frequency-1.png)
 
 The respondents use ggplot2 in a variety of contexts; notably they all use it in academic research and eight of nine used it in teaching. 
 
-![](survey_results_summary_files/survey_results_figures/q09ggplot2_contexts-1.png)
+![](survey_results_figures/q09ggplot2_contexts-1.png)
 
 However, participants in general had little or no with writing ggplot2 extensions.  Seven of the nine participants were aware of extension packages but had not attempted to write their own extension. One participant had written ggplot2 extensions prior to the tutorial. 
     
-![](survey_results_summary_files/survey_results_figures/q10_previous_ext_experience-1.png)
+![](survey_results_figures/q10_previous_ext_experience-1.png)
 
 The following figure shows attempts and successes or failures in the different ggplot2 extension areas.  
 
-![](survey_results_summary_files/survey_results_figures/q11_previous_ext_attempt-1.png)
+![](survey_results_figures/q11_previous_ext_attempt-1.png)
 
 The participants had a variety of experiences with object oriented programming.  About half had experience with OOP in R in general, but only one had used the ggproto OOP system.
 
-![](survey_results_summary_files/survey_results_figures/q13_oop_experience-1.png)
+![](survey_results_figures/q13_oop_experience-1.png)
 
 # Tutorial assessment
 
 Most participants indicated the tutorial taking them a short amount of time.  Six of nine said that on average, each of the recipes took less than 15 minutes to complete.  The remaining three participants responded that the recipes took between 15 and 30 minutes on average. 
 
 
-![](survey_results_summary_files/survey_results_figures/q16tutorial_time_taken-1.png)
+![](survey_results_figures/q16tutorial_time_taken-1.png)
 
 The first prompt `geom_point_xy_means` exercise was completed by all participants; and all but one completed the `geom_text_coordinates()` exercise.  Several participants failed complete the last recipe (residuals).
 
-![](survey_results_summary_files/survey_results_figures/q14which_completed-1.png)
+![](survey_results_figures/q14which_completed-1.png)
 
 
-![](survey_results_summary_files/survey_results_figures/q18example_clarity-1.png)
+![](survey_results_figures/q18example_clarity-1.png)
 
 
-![](survey_results_summary_files/survey_results_figures/q19examples_engaging-1.png)
+![](survey_results_figures/q19examples_engaging-1.png)
 
 
-![](survey_results_summary_files/survey_results_figures/q21emotion-1.png)
+![](survey_results_figures/q21emotion-1.png)
 
 
-![](survey_results_summary_files/survey_results_figures/q22futureuse-1.png)
+![](survey_results_figures/q22futureuse-1.png)
 
 
 
