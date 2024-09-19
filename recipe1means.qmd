@@ -10,38 +10,46 @@ Creating a new geom_\*() or stat_\*() function is often motivated when plotting 
 
 
 ```{r, eval = F}
-ggplot(data = penguins) + 
-  aes(x = bill_depth_mm,
-      y = bill_length_mm) + 
-  geom_point() + 
+ggplot(data = penguins) +
+  aes(
+    x = bill_depth_mm,
+    y = bill_length_mm
+  ) +
+  geom_point() +
   geom_means(size = 8, color = "red") # new function
 ```
 
 ```{r, echo = F, message=F, warning=F}
 library(tidyverse)
 library(palmerpenguins)
-penguins_clean <- remove_missing(penguins) 
+penguins_clean <- remove_missing(penguins)
 
-penguins_medians <- penguins_clean |> 
-  summarize(bill_length_mm_median = median(bill_length_mm),
-            bill_depth_mm_median = median(bill_depth_mm))
+penguins_medians <- penguins_clean |>
+  summarize(
+    bill_length_mm_median = median(bill_length_mm),
+    bill_depth_mm_median = median(bill_depth_mm)
+  )
 
 # Plot.
-penguins_clean |> 
-  ggplot() + 
-  aes(x = bill_depth_mm, y = bill_length_mm) + 
-  geom_point() + 
-  geom_point(data = penguins_medians,
-             aes(x = bill_depth_mm_median,
-                 y = bill_length_mm_median),
-             size = 8, color = "red")
+penguins_clean |>
+  ggplot() +
+  aes(x = bill_depth_mm, y = bill_length_mm) +
+  geom_point() +
+  geom_point(
+    data = penguins_medians,
+    aes(
+      x = bill_depth_mm_median,
+      y = bill_length_mm_median
+    ),
+    size = 8, color = "red"
+  )
 ```
 
 In this exercise, we'll think about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` and then you'll be prompted to define `geom_means()` based on what you've learned.
 
 ```{r}
 #| label: setup
-#| include: false 
+#| include: false
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
@@ -52,7 +60,7 @@ Handling missingness is not a discussion of this tutorial, so we'll only use com
 ```{r, message = F, warning=F}
 library(tidyverse)
 library(palmerpenguins)
-penguins_clean <- remove_missing(penguins) 
+penguins_clean <- remove_missing(penguins)
 glimpse(penguins_clean)
 ```
 
@@ -67,19 +75,25 @@ It's good to look at how you'd get things done without Stat extension first, jus
 ```{r status-quo}
 #| label: penguins
 # Compute.
-penguins_medians <- penguins_clean |> 
-  summarize(bill_length_mm_median = median(bill_length_mm),
-            bill_depth_mm_median = median(bill_depth_mm))
+penguins_medians <- penguins_clean |>
+  summarize(
+    bill_length_mm_median = median(bill_length_mm),
+    bill_depth_mm_median = median(bill_depth_mm)
+  )
 
 # Plot.
-penguins_clean |> 
-  ggplot() + 
-  aes(x = bill_depth_mm, y = bill_length_mm) + 
-  geom_point() + 
-  geom_point(data = penguins_medians,
-             aes(x = bill_depth_mm_median,
-                 y = bill_length_mm_median),
-             size = 8, color = "red") + 
+penguins_clean |>
+  ggplot() +
+  aes(x = bill_depth_mm, y = bill_length_mm) +
+  geom_point() +
+  geom_point(
+    data = penguins_medians,
+    aes(
+      x = bill_depth_mm_median,
+      y = bill_length_mm_median
+    ),
+    size = 8, color = "red"
+  ) +
   labs(title = "Created with base ggplot2")
 ```
 
@@ -90,8 +104,10 @@ penguins_clean |>
 Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your Stat will help prep data to look something like this.
 
 ```{r}
-layer_data(plot = last_plot(), 
-           i = 2) # layer 2, the computed means, is of interest
+layer_data(
+  plot = last_plot(),
+  i = 2
+) # layer 2, the computed means, is of interest
 ```
 :::
 
@@ -109,10 +125,12 @@ Now you are ready to begin building your extension function. The first step is t
 #| label: compute_group_medians
 
 # Define compute.
-compute_group_medians <- function(data, ...){ 
-  data |> 
-    summarize(x = median(x),
-              y = median(y))
+compute_group_medians <- function(data, ...) {
+  data |>
+    summarize(
+      x = median(x),
+      y = median(y)
+    )
 }
 ```
 
@@ -130,10 +148,12 @@ Other things get passed alongside the data, like `scales`, `params`, through `..
 ### Test compute.
 
 ```{r}
-# Test compute. 
+# Test compute.
 penguins_clean |>
-  select(x = bill_depth_mm,  
-         y = bill_length_mm) |>  
+  select(
+    x = bill_depth_mm,
+    y = bill_length_mm
+  ) |>
   compute_group_medians()
 ```
 
@@ -155,11 +175,13 @@ Next, we use the ggplot2::ggproto function which allows you to define a new Stat
 
 ```{r}
 #| label: StatMedians
-StatMedians <- 
-  ggplot2::ggproto(`_class` = "StatMedians",              # <1>
-                   `_inherit` = ggplot2::Stat,            # <2>
-                   compute_group = compute_group_medians, # <3>
-                   required_aes = c("x", "y"))            # <4>
+StatMedians <-
+  ggplot2::ggproto(
+    `_class` = "StatMedians", # <1>
+    `_inherit` = ggplot2::Stat, # <2>
+    compute_group = compute_group_medians, # <3>
+    required_aes = c("x", "y")
+  ) # <4>
 ```
 
 ::: {.callout-note collapse="true"}
@@ -189,12 +211,14 @@ ggplot2::Stat$required_aes # generic some kind of NULL behaivor
 You can test out your Stat with many base ggplot2 geom_()* functions.  
 
 ```{r}
-penguins_clean |> 
-  ggplot() + 
-  aes(x = bill_depth_mm,
-      y = bill_length_mm) + 
-  geom_point() + 
-  geom_point(stat = StatMedians, size = 7) + 
+penguins_clean |>
+  ggplot() +
+  aes(
+    x = bill_depth_mm,
+    y = bill_length_mm
+  ) +
+  geom_point() +
+  geom_point(stat = StatMedians, size = 7) +
   labs(title = "Testing StatMedians")
 ```
 
@@ -215,7 +239,7 @@ Test group-wise behavior by using a discrete variable with an group-triggering a
 
 
 ```{r}
-last_plot() + 
+last_plot() +
   aes(color = species)
 ```
 
@@ -237,15 +261,19 @@ Instead of using a `geom_*()` function, you might prefer to use the more flexibl
 A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
 ```{r}
-penguins_clean |> 
-  ggplot() + 
-  aes(x = bill_depth_mm,
-      y = bill_length_mm) + 
-  geom_point() + 
-  layer(geom = GeomPoint, 
-        stat = StatMedians, 
-        position = "identity", 
-        params = list(size = 7)) + 
+penguins_clean |>
+  ggplot() +
+  aes(
+    x = bill_depth_mm,
+    y = bill_length_mm
+  ) +
+  geom_point() +
+  layer(
+    geom = GeomPoint,
+    stat = StatMedians,
+    position = "identity",
+    params = list(size = 7)
+  ) +
   labs(title = "Testing StatMedians with layer() function")
 ```
 
@@ -267,14 +295,17 @@ In this next section, we define user-facing functions.  It is a bit of a mouthfu
 #| label: geom_point_medians
 
 # user-facing function
-stat_medians <- function(mapping = NULL, data = NULL, 
-                         geom = "point", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(data = data, mapping = mapping, stat = StatMedians, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
+stat_medians <- function(mapping = NULL, data = NULL,
+                         geom = "point", position = "identity",
+                         ..., show.legend = NA, inherit.aes = TRUE) {
+  layer(
+    data = data, mapping = mapping, stat = StatMedians,
+    geom = geom, position = position, show.legend = show.legend,
+    inherit.aes = inherit.aes, params = rlang::list2(
+      na.rm = FALSE,
+      ...
+    )
+  )
 }
 ```
 
@@ -324,7 +355,7 @@ penguins_clean |>
   ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() +
-  geom_medians(size = 8)  + 
+  geom_medians(size = 8) +
   labs(title = "Testing geom_medians()")
 ```
 
@@ -332,15 +363,15 @@ penguins_clean |>
 
 
 ```{r}
-last_plot() + 
-  aes(color = species) 
+last_plot() +
+  aes(color = species)
 ```
 
 ### Test geom flexibility of stat_*() function.
 
 ```{r}
-last_plot() + 
-  stat_medians(geom = "label", aes(label = species))  + 
+last_plot() +
+  stat_medians(geom = "label", aes(label = species)) +
   labs(subtitle = "and stat_medians()")
 ```
 
@@ -353,20 +384,26 @@ An alternate 'express' route below may be helpful in some settings (i.e. in-scri
 
 
 ```{r error = T, eval = F}
-geom_medians <- function(...){geom_point(stat = StatMedians, ...)}
-geom_medians_label <- function(...){geom_label(stat = StatMedians, ...)}
+geom_medians <- function(...) {
+  geom_point(stat = StatMedians, ...)
+}
+geom_medians_label <- function(...) {
+  geom_label(stat = StatMedians, ...)
+}
 
 penguins_clean |>
   ggplot() +
-  aes(x = bill_depth_mm, 
-      y = bill_length_mm) +
+  aes(
+    x = bill_depth_mm,
+    y = bill_length_mm
+  ) +
   geom_point() +
   geom_medians(size = 8)
 
-last_plot() + 
-  aes(color = species) 
+last_plot() +
+  aes(color = species)
 
-last_plot() + 
+last_plot() +
   aes(label = species) +
   geom_medians_label()
 ```
@@ -389,30 +426,33 @@ Here is a quick review of the definitional code we've covered, dropping tests an
 library(tidyverse)
 
 # Step 1. Define compute
-compute_group_medians <- function(data, scales){
-  
+compute_group_medians <- function(data, scales) {
   data |>
     summarise(x = median(x), y = median(y))
-  
 }
 
 # Step 2. Define Stat
-StatMedians = ggproto(`_class` = "StatMedians",
-                      `_inherit` = Stat,
-                      required_aes = c("x", "y"),
-                      compute_group = compute_group_medians)
+StatMedians <- ggproto(
+  `_class` = "StatMedians",
+  `_inherit` = Stat,
+  required_aes = c("x", "y"),
+  compute_group = compute_group_medians
+)
 
 # Step 3. Define user-facing functions
 
 ## define stat_*()
-stat_medians <- function(mapping = NULL, data = NULL, 
-                         geom = "point", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(data = data, mapping = mapping, stat = StatMedians, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
+stat_medians <- function(mapping = NULL, data = NULL,
+                         geom = "point", position = "identity",
+                         ..., show.legend = NA, inherit.aes = TRUE) {
+  layer(
+    data = data, mapping = mapping, stat = StatMedians,
+    geom = geom, position = position, show.legend = show.legend,
+    inherit.aes = inherit.aes, params = rlang::list2(
+      na.rm = FALSE,
+      ...
+    )
+  )
 }
 
 ## define geom_*()
@@ -445,17 +485,24 @@ glimpse(penguins_clean)
 #| exercise: geom_means
 # Step 0: Use base ggplot2 to get the job done.
 penguins_means <- penguins_clean %>% 
-  summarise(mean_bill_depth_mm = ____(bill_depth_mm),
-            ____ = mean(bill_length_mm))
+  summarise(
+    mean_bill_depth_mm = ____(bill_depth_mm),
+    ____ = mean(bill_length_mm)
+  )
 
 penguins_clean |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() + 
-  geom_point(data = penguins_means,
-             aes(x = mean_bill_depth_mm,
-                 y = ____),
-                 size = 8, color = "red")
+  geom_point(
+    data = penguins_means,
+    aes(
+      x = mean_bill_depth_mm,
+      y = ____
+    ),
+    size = 8,
+    color = "red"
+  )
 ```
 
 ### Step 1: Write compute function. Test.
@@ -466,15 +513,19 @@ penguins_clean |>
 compute_group_means <- function(data, ...){
   
   data %>% 
-    summarise(x = mean(x),
-              y = ____(____))
+    summarise(
+      x = mean(x),
+      y = ____(____)
+    )
   
 }
 
 # Test.
 penguins_clean |> 
-  select(x = bill_depth_mm, 
-         ____ = bill_length_mm) |>
+  select(
+    x = bill_depth_mm, 
+    ____ = bill_length_mm
+  ) |>
   compute_group_means()
 ```
 
@@ -494,9 +545,11 @@ penguins_clean |>
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
-  geom_point(stat = ____,
-             size = 8, color = "red")
-
+  geom_point(
+    stat = ____,
+    size = 8,
+    color = "red"
+  )
 ```
 
 ### Step 3: Write user-facing functions. 
@@ -505,12 +558,18 @@ penguins_clean |>
 ```{webr}
 #| exercise: geom_means
 # Define.
-stat_means <- function (mapping = NULL, data = NULL, geom = "point", position = "identity", 
-    ..., show.legend = NA, inherit.aes = TRUE){
-    layer(data = data, mapping = mapping, stat = ____, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
+stat_means <- function (mapping = NULL, data = NULL,
+                        geom = "point", position = "identity", 
+                        ..., show.legend = NA, inherit.aes = TRUE){
+    layer(
+      data = data, mapping = mapping, stat = ____, 
+      geom = geom, position = position, show.legend = show.legend, 
+      inherit.aes = inherit.aes,
+      params = rlang::list2(
+        na.rm = FALSE, 
+        ...
+      )
+    )
 }
 
 

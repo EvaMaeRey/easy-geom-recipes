@@ -7,7 +7,6 @@ date: "4/20/2023"
 
 ```{r, e}
 knitr::opts_chunk$set(echo = F)
-
 ```
 
 
@@ -17,13 +16,15 @@ Single choice.
 
 ```{r}
 #| results: 'asis'
-q05_levels <- c("For more than ten years",
-"Between five and ten years",
-"Between two and five years",
-"Between one and two years",
-"Less than a year")
+q05_levels <- c(
+  "For more than ten years",
+  "Between five and ten years",
+  "Between two and five years",
+  "Between one and two years",
+  "Less than a year"
+)
 
-cat(paste('-', q05_levels), sep = '\n')
+cat(paste("-", q05_levels), sep = "\n")
 ```
 <!-- `r cat(paste(q05_levels, "\\n-"))` -->
 
@@ -34,14 +35,15 @@ Single choice.
 ```{r}
 #| results: 'asis'
 
-q06_levels <- c("Almost every day",
-"Several times a week",
-"Several times a month",
-"Several times a year",
-"Never")
+q06_levels <- c(
+  "Almost every day",
+  "Several times a week",
+  "Several times a month",
+  "Several times a year",
+  "Never"
+)
 
-cat(paste('-', q06_levels), sep = '\n')
-
+cat(paste("-", q06_levels), sep = "\n")
 ```
 
 
@@ -54,15 +56,16 @@ Single choice.
 ```{r}
 #| results: 'asis'
 
-q07_levels <- 
-  c('Almost every day',
-'Several times a week',
-'Several times a month',
-'Several times a year',
-'Never')
+q07_levels <-
+  c(
+    "Almost every day",
+    "Several times a week",
+    "Several times a month",
+    "Several times a year",
+    "Never"
+  )
 
-cat(paste('-', q07_levels), sep = '\n')
-
+cat(paste("-", q07_levels), sep = "\n")
 ```
 
 
@@ -74,16 +77,17 @@ Single choice.
 
 ```{r}
 #| results: 'asis'
-#| 
-q08_levels <- 
-  c('Almost every day',
-'Several times a week',
-'Several times a month',
-'Several times a year',
-'Never')
+#|
+q08_levels <-
+  c(
+    "Almost every day",
+    "Several times a week",
+    "Several times a month",
+    "Several times a year",
+    "Never"
+  )
 
-cat(paste('-', q08_levels), sep = '\n')
-
+cat(paste("-", q08_levels), sep = "\n")
 ```
 
 
@@ -93,14 +97,15 @@ Multiple choice.
 
 ```{r}
 #| results: 'asis'
-q09_levels <- 
-  c('Teaching',
-    'Academic Research',
-    'Analytics for my employer',
-    'Personal Projects')
+q09_levels <-
+  c(
+    "Teaching",
+    "Academic Research",
+    "Analytics for my employer",
+    "Personal Projects"
+  )
 
-cat(paste('-', q09_levels), sep = '\n')
-
+cat(paste("-", q09_levels), sep = "\n")
 ```
 
 
@@ -109,14 +114,14 @@ Single choice.
 
 ```{r}
 #| results: 'asis'
-q10_levels <- c("I didn't know about any extension mechanisms!",
-                      "I knew about extension system and ggplot2 extension packages but haven't created any extension myself",
-                      "I've tried to write extensions (new themes, scales, geoms, facets), but was not successful.",
-                      "I've successfully written ggplot2 extensions")
+q10_levels <- c(
+  "I didn't know about any extension mechanisms!",
+  "I knew about extension system and ggplot2 extension packages but haven't created any extension myself",
+  "I've tried to write extensions (new themes, scales, geoms, facets), but was not successful.",
+  "I've successfully written ggplot2 extensions"
+)
 
-cat(paste('-', q10_levels), sep = '\n')
-
-
+cat(paste("-", q10_levels), sep = "\n")
 ```
 
 
@@ -126,22 +131,23 @@ Multiple choice.
 
 ```{r}
 #| results: 'asis'
-c('theme_*(), successful',
-'theme_*(), unsuccessful',
-'scales_*(), successful',
-'scales_*(), unsuccessful',
-'position, successful',
-'position, unsuccessful',
-'geom_*()/stat_*(), successful',
-'geom_*()/stat_*(), unsuccessful',
-'coord_*(), successful',
-'coord_*(), unsuccessful',
-'facet_*(), successful',
-'facet_*(), unsuccessful') ->
+c(
+  "theme_*(), successful",
+  "theme_*(), unsuccessful",
+  "scales_*(), successful",
+  "scales_*(), unsuccessful",
+  "position, successful",
+  "position, unsuccessful",
+  "geom_*()/stat_*(), successful",
+  "geom_*()/stat_*(), unsuccessful",
+  "coord_*(), successful",
+  "coord_*(), unsuccessful",
+  "facet_*(), successful",
+  "facet_*(), unsuccessful"
+) ->
 q11_levels
 
-cat(paste('-', q11_levels), sep = '\n')
-
+cat(paste("-", q11_levels), sep = "\n")
 ```
 
 
@@ -156,14 +162,15 @@ Multiple choice.
 
 ```{r}
 #| results: 'asis'
-q13_levels <- 
-  c("I'd used ggproto for ggplot2 extension",
+q13_levels <-
+  c(
+    "I'd used ggproto for ggplot2 extension",
     "I'd used one of the following R OOP systems: S3, R6, S4, S7/R7",
     "I'd used object oriented programming techniques in programming languages other than R",
-    "I had no prior OOP experience.")
+    "I had no prior OOP experience."
+  )
 
-cat(paste('-', q13_levels), sep = '\n')
-
+cat(paste("-", q13_levels), sep = "\n")
 ```
 
 
@@ -175,13 +182,14 @@ Multiple choice.
 
 ```{r}
 #| results: 'asis'
-q14_levels <- 
-  c('geom_point_xy_means() which used geom_point_xy_medians() as a reference',
-    'geom_text_coordinates() which used geom_text_id() as a reference',
-    'geom_segment_lm_residuals() which used geom_point_lm_fitted() as a reference')
+q14_levels <-
+  c(
+    "geom_point_xy_means() which used geom_point_xy_medians() as a reference",
+    "geom_text_coordinates() which used geom_text_id() as a reference",
+    "geom_segment_lm_residuals() which used geom_point_lm_fitted() as a reference"
+  )
 
-cat(paste('-', q14_levels), sep = '\n')
-
+cat(paste("-", q14_levels), sep = "\n")
 ```
 
 
@@ -193,14 +201,12 @@ Multiple choice.
 ```{r}
 #| results: 'asis'
 q15_levels <- c(
-  'geom_point_xy_means()',
-  'geom_text_coordinates()',
-  'geom_segment_lm_residuals()'
+  "geom_point_xy_means()",
+  "geom_text_coordinates()",
+  "geom_segment_lm_residuals()"
 )
 
-cat(paste('-', q15_levels), sep = '\n')
-
-
+cat(paste("-", q15_levels), sep = "\n")
 ```
 
 
@@ -210,16 +216,17 @@ cat(paste('-', q15_levels), sep = '\n')
 
 ```{r}
 #| results: 'asis'
-q16_levels <- 
-  c('5-15 minutes',
-    '15-30 minutes',
-    '30-45 minutes',
-    '45-60 minutes',
-    '1-2 hours',
-    'more than 2 hours')
+q16_levels <-
+  c(
+    "5-15 minutes",
+    "15-30 minutes",
+    "30-45 minutes",
+    "45-60 minutes",
+    "1-2 hours",
+    "more than 2 hours"
+  )
 
-cat(paste('-', q16_levels), sep = '\n')
-
+cat(paste("-", q16_levels), sep = "\n")
 ```
 
 
@@ -229,13 +236,13 @@ Single choice.
 
 ```{r}
 #| results: 'asis'
-q17_levels <- c("The tutorial length was about right", 
-                     "The tutorial was too long", 
-                     "The tutorial was too short")
+q17_levels <- c(
+  "The tutorial length was about right",
+  "The tutorial was too long",
+  "The tutorial was too short"
+)
 
-cat(paste('-', q17_levels), sep = '\n')
-
-
+cat(paste("-", q17_levels), sep = "\n")
 ```
 
 
@@ -244,12 +251,13 @@ cat(paste('-', q17_levels), sep = '\n')
 
 ```{r}
 #| results: 'asis'
-q18_levels <- c("The examples were easy to follow",
-                "The examples weren't always initially clear, but I ultimately managed to understand intent.",
-                    "I didn't follow the examples.")
+q18_levels <- c(
+  "The examples were easy to follow",
+  "The examples weren't always initially clear, but I ultimately managed to understand intent.",
+  "I didn't follow the examples."
+)
 
-cat(paste('-', q18_levels), sep = '\n')
-
+cat(paste("-", q18_levels), sep = "\n")
 ```
 
 
@@ -261,14 +269,13 @@ Single choice.
 
 ```{r}
 #| results: 'asis'
-q19_levels <- c("In general, I did not find the examples interesting or engaging",
-                        "In general, I did find the examples interesting or engaging")
+q19_levels <- c(
+  "In general, I did not find the examples interesting or engaging",
+  "In general, I did find the examples interesting or engaging"
+)
 
 
-cat(paste('-', q19_levels), sep = '\n')
-
-
-
+cat(paste("-", q19_levels), sep = "\n")
 ```
 
 
@@ -286,18 +293,19 @@ Multiple choice.
 
 ```{r}
 #| results: 'asis'
-q21_levels <- 
-  c("frustration", 
-    "satisfaction", 
-    "indifference", 
-    "gloom", 
-    "delight", 
-    "skepticism", 
-    "excitement", 
-    "curiosity")
+q21_levels <-
+  c(
+    "frustration",
+    "satisfaction",
+    "indifference",
+    "gloom",
+    "delight",
+    "skepticism",
+    "excitement",
+    "curiosity"
+  )
 
-cat(paste('-', q21_levels), sep = '\n')
-
+cat(paste("-", q21_levels), sep = "\n")
 ```
 
 
@@ -307,14 +315,15 @@ cat(paste('-', q21_levels), sep = '\n')
 
 ```{r}
 #| results: 'asis'
-q22_levels <- c('Very likely - I already have ideas for how to use!',
-                       'Somewhat likely',
-                       'Neither likely nor unlikely',
-                       'Somewhat unlikely',
-                       'Very unlikely')
+q22_levels <- c(
+  "Very likely - I already have ideas for how to use!",
+  "Somewhat likely",
+  "Neither likely nor unlikely",
+  "Somewhat unlikely",
+  "Very unlikely"
+)
 
-cat(paste('-', q22_levels), sep = '\n')
-
+cat(paste("-", q22_levels), sep = "\n")
 ```
 
 
@@ -325,14 +334,15 @@ cat(paste('-', q22_levels), sep = '\n')
 ```{r}
 #| results: 'asis'
 
-q23_levels <- c('Very likely', 
-                       'Somewhat likely', 
-                       'Neither likely nor unlikely', 
-                       'Somewhat unlikely', 
-                       'Very unlikely')
+q23_levels <- c(
+  "Very likely",
+  "Somewhat likely",
+  "Neither likely nor unlikely",
+  "Somewhat unlikely",
+  "Very unlikely"
+)
 
-cat(paste('-', q23_levels), sep = '\n')
-
+cat(paste("-", q23_levels), sep = "\n")
 ```
 
 
@@ -355,15 +365,16 @@ Single choice.
 
 ```{r}
 #| results: 'asis'
-q26_levels <- 
-  c("One to two years", 
-    "Three to five years", 
-    "Five to ten years", 
-    "More than ten years", 
-    "Not applicable")
+q26_levels <-
+  c(
+    "One to two years",
+    "Three to five years",
+    "Five to ten years",
+    "More than ten years",
+    "Not applicable"
+  )
 
-cat(paste('-', q26_levels), sep = '\n')
-
+cat(paste("-", q26_levels), sep = "\n")
 ```
 
 
@@ -379,11 +390,10 @@ Multiple choice.
 
 ```{r}
 #| results: 'asis'
-q27_levels <- 
+q27_levels <-
   c("Yes;", "No;")
 
-cat(paste('-', q27_levels), sep = '\n')
-
+cat(paste("-", q27_levels), sep = "\n")
 ```
 
 

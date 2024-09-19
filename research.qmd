@@ -25,12 +25,11 @@ knitr::opts_chunk$set(
  
 ```{r}
 #| include: false
-knitr::opts_chunk$set(      
+knitr::opts_chunk$set(
   collapse = TRUE,
   warning = FALSE,
-  comment = "#>"          
-)       
- 
+  comment = "#>"
+)
 ```
 
 <!-- # Study material -->
@@ -40,13 +39,15 @@ knitr::opts_chunk$set(
 #| echo: false
 library(magrittr)
 webpages <- fs::dir_ls(type = "file", recurse = T, glob = "*.html") %>% rev()
-     
-webpages %>%    
-  paste0("- [",
-         . ,
-         "]",
-         "(https://evamaerey.github.io/easy-geom-recipes/", ., ")\n") %>% 
-  cat()     
+
+webpages %>%
+  paste0(
+    "- [",
+    .,
+    "]",
+    "(https://evamaerey.github.io/easy-geom-recipes/", ., ")\n"
+  ) %>%
+  cat()
 ```
 
 
@@ -185,16 +186,17 @@ Thanks to Claus Wilke, June Choe, Teun van der Brand, Isabella Velasquez, Cosima
 ```{r}
 #| label: cars
 # step 0.a
-cars %>% 
-  mutate(id_number = 1:n()) %>% 
-  ggplot() + 
-  aes(x = speed, y = dist) + 
-  geom_point() + 
-  geom_label(aes(label = id_number), 
-             hjust = 1.2)
+cars %>%
+  mutate(id_number = 1:n()) %>%
+  ggplot() +
+  aes(x = speed, y = dist) +
+  geom_point() +
+  geom_label(aes(label = id_number),
+    hjust = 1.2
+  )
 
 # step 0.b
-layer_data(last_plot(), i = 2) %>% 
+layer_data(last_plot(), i = 2) %>%
   head()
 ```
 
@@ -208,20 +210,18 @@ layer_data(last_plot(), i = 2) %>%
 ```{r}
 #| label: compute_group_row_number
 # you won't use the scales argument, but ggplot will later
-compute_group_row_number <- function(data, scales){
-  
-  data %>% 
+compute_group_row_number <- function(data, scales) {
+  data %>%
     # add an additional column called label
     # the geom we inherit from requires the label aesthetic
     mutate(label = 1:n())
-  
 }
 
-# step 1b test the computation function 
-cars %>% 
+# step 1b test the computation function
+cars %>%
   # input must have required aesthetic inputs as columns
-  rename(x = speed, y = dist) %>% 
-  compute_group_row_number() %>% 
+  rename(x = speed, y = dist) %>%
+  compute_group_row_number() %>%
   head()
 ```
 
@@ -233,10 +233,12 @@ cars %>%
 
 ```{r}
 #| label: StatRownumber
-StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
-                                  `_inherit` = ggplot2::Stat,
-                                  required_aes = c("x", "y"),
-                                  compute_group = compute_group_row_number)
+StatRownumber <- ggplot2::ggproto(
+  `_class` = "StatRownumber",
+  `_inherit` = ggplot2::Stat,
+  required_aes = c("x", "y"),
+  compute_group = compute_group_row_number
+)
 ```
 
 
@@ -252,16 +254,16 @@ StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
 ```{r}
 #| label: geom_label_row_number
 geom_label_row_number <- function(mapping = NULL, data = NULL,
-                           position = "identity", na.rm = FALSE,
-                           show.legend = NA,
-                           inherit.aes = TRUE, ...) {
+                                  position = "identity", na.rm = FALSE,
+                                  show.legend = NA,
+                                  inherit.aes = TRUE, ...) {
   ggplot2::layer(
     stat = StatRownumber, # proto object from Step 2
     geom = ggplot2::GeomLabel, # inherit other behavior, this time Label
-    data = data, 
+    data = data,
     mapping = mapping,
-    position = position, 
-    show.legend = show.legend, 
+    position = position,
+    show.legend = show.legend,
     inherit.aes = inherit.aes,
     params = list(na.rm = na.rm, ...)
   )
@@ -278,10 +280,10 @@ geom_label_row_number <- function(mapping = NULL, data = NULL,
 
 ```{r}
 #| label: enjoy_again
-cars %>% 
-  ggplot() + 
-  aes(x = speed, y = dist) + 
-  geom_point() + 
+cars %>%
+  ggplot() +
+  aes(x = speed, y = dist) +
+  geom_point() +
   geom_label_row_number(hjust = 1.2) # function in action
 ```
 
@@ -289,7 +291,7 @@ cars %>%
 
 ```{r}
 #| label: conditional_compute
-last_plot() + 
+last_plot() +
   aes(color = dist > 60) # Computation is within group
 ```
 
@@ -311,7 +313,7 @@ Using recipe #2 as a reference, can you create the function `geom_text_coordinat
 Hint:
 
 ```{r}
-paste0("(", 1, ", ",3., ")")
+paste0("(", 1, ", ", 3., ")")
 ```
 
 
@@ -327,8 +329,6 @@ paste0("(", 1, ", ",3., ")")
 # step 3: write your geom_*() function with ggproto as an input
 
 # step 4: enjoy!
-
-
 ```
 
 
