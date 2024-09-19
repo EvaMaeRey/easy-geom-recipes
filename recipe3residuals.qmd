@@ -47,20 +47,24 @@ Below, you'll see a completely worked example (example recipes) and then a invit
 library(tidyverse)
 penguins <- remove_missing(palmerpenguins::penguins)
 
-model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
-            data = penguins) 
+model <- lm(
+  formula = bill_length_mm ~ bill_depth_mm,
+  data = penguins
+)
 
-penguins_w_fitted <- penguins %>% 
+penguins_w_fitted <- penguins %>%
   mutate(fitted = model$fitted.values)
 
-penguins %>% 
-  ggplot() + 
+penguins %>%
+  ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
-  geom_point() + 
-  geom_smooth(method = "lm", se = F) + 
-  geom_point(data = penguins_w_fitted,
-             aes(y = fitted),
-             color = "blue")
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
+  geom_point(
+    data = penguins_w_fitted,
+    aes(y = fitted),
+    color = "blue"
+  )
 ```
 
 
@@ -69,16 +73,16 @@ penguins %>%
 ```{r}
 #| label: fitted_2
 
-compute_group_lm_fitted<- function(data, scales){
-  model<-lm(formula= y ~ x, data = data)
-  data %>% 
-    mutate(y=model$fitted.values)
+compute_group_lm_fitted <- function(data, scales) {
+  model <- lm(formula = y ~ x, data = data)
+  data %>%
+    mutate(y = model$fitted.values)
 }
 
 # test out the function
 penguins %>%
   # rename to explicitly state the x and y inputs
-  rename(x = bill_depth_mm, y = bill_length_mm)%>%
+  rename(x = bill_depth_mm, y = bill_length_mm) %>%
   compute_group_lm_fitted()
 ```
 
@@ -87,17 +91,19 @@ penguins %>%
 
 ```{r}
 #| label: fitted_3
-StatLmFitted<-ggplot2::ggproto(`_class` = "StatLmFitted",
-                                  `_inherit` = ggplot2::Stat,
-                                  required_aes = c("x", "y"),
-                                  compute_group = compute_group_lm_fitted)
+StatLmFitted <- ggplot2::ggproto(
+  `_class` = "StatLmFitted",
+  `_inherit` = ggplot2::Stat,
+  required_aes = c("x", "y"),
+  compute_group = compute_group_lm_fitted
+)
 
-# test 
-penguins %>% 
-  ggplot() + 
+# test
+penguins %>%
+  ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
-  geom_point() + 
-  geom_smooth(method = "lm", se = F) + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
   geom_point(stat = StatLmFitted, color = "blue")
 ```
 
@@ -109,16 +115,16 @@ penguins %>%
 #| label: fitted_4
 
 geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
-                           position = "identity", na.rm = FALSE,
-                           show.legend = NA,
-                           inherit.aes = TRUE, ...) {
+                                 position = "identity", na.rm = FALSE,
+                                 show.legend = NA,
+                                 inherit.aes = TRUE, ...) {
   ggplot2::layer(
     stat = StatLmFitted, # proto object from step 2
     geom = ggplot2::GeomPoint, # inherit other behavior
-    data = data, 
+    data = data,
     mapping = mapping,
-    position = position, 
-    show.legend = show.legend, 
+    position = position,
+    show.legend = show.legend,
     inherit.aes = inherit.aes,
     params = list(na.rm = na.rm, ...)
   )
@@ -129,24 +135,24 @@ geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
 
 ```{r}
 #| label: fitted_5
-penguins %>% 
-  ggplot() + 
+penguins %>%
+  ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
-  geom_point() + 
-  geom_smooth(method="lm", se= F)+
-  geom_point_lm_fitted(color="blue")
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
+  geom_point_lm_fitted(color = "blue")
 ```
 
 ### And check out conditionality
 
 ```{r}
 #| label: fitted_6
-penguins %>% 
-  ggplot() + 
+penguins %>%
+  ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
-  geom_point() + 
-  geom_smooth(method="lm", se= F) +
-  geom_point_lm_fitted() + 
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
+  geom_point_lm_fitted() +
   facet_wrap(facets = vars(species))
 ```
 
@@ -167,23 +173,27 @@ Create the function `geom_segment_lm_residuals()`.
 library(tidyverse)
 library(palmerpenguins)
 # handling missingness is not a discussion of this tutorial, so we'll only use complete cases
-penguins <- ggplot2::remove_missing(penguins) 
+penguins <- ggplot2::remove_missing(penguins)
 
 # step 0: use base ggplot2
-model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
-            data = penguins) 
+model <- lm(
+  formula = bill_length_mm ~ bill_depth_mm,
+  data = penguins
+)
 
-penguins_w_fitted <- penguins %>% 
+penguins_w_fitted <- penguins %>%
   mutate(fitted = model$fitted.values)
 
-penguins %>% 
-  ggplot() + 
+penguins %>%
+  ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
-  geom_point() + 
-  geom_smooth(method = "lm", se = F) + 
-  geom_segment(data = penguins_w_fitted,
-             aes(yend = fitted, xend = bill_depth_mm),
-             color = "blue")
+  geom_point() +
+  geom_smooth(method = "lm", se = F) +
+  geom_segment(
+    data = penguins_w_fitted,
+    aes(yend = fitted, xend = bill_depth_mm),
+    color = "blue"
+  )
 ```
 
 ```{webr-r}
@@ -194,8 +204,6 @@ penguins %>%
 # step 3: write your geom_*() function with ggproto as an input
 
 # step 4: enjoy!
-
-
 ```
 
 ---

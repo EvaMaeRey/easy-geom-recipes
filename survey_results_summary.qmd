@@ -9,9 +9,10 @@ format: html
 knitr::opts_chunk$set(
   eval = T,
   warning = FALSE, echo = FALSE, include = FALSE,
-  fig.width = 8, fig.height = 5.5, 
+  fig.width = 8, fig.height = 5.5,
   out.width = "85%",
-  fig.path = "survey_results_summary_files/")
+  fig.path = "survey_results_summary_files/"
+)
 ```
 
 
@@ -20,10 +21,10 @@ knitr::opts_chunk$set(
 #| eval: false
 library(tidyverse)
 
-file.copy(from = "../easy-geom-recipes-raw-data/survey_results_figures/",
-          to = "survey_results_summary_files", overwrite = T, recursive = T)
-
-
+file.copy(
+  from = "../easy-geom-recipes-raw-data/survey_results_figures/",
+  to = "survey_results_summary_files", overwrite = T, recursive = T
+)
 ```
 
 
@@ -35,12 +36,14 @@ file.copy(from = "../easy-geom-recipes-raw-data/survey_results_figures/",
 #| out.width: "99%"
 #| fig.show: 'hold'
 #| include: true
-knitr::include_graphics(c("survey_results_figures/q05r_length_user-1.png",
-                        "survey_results_figures/q06r_frequency-1.png",
-                        "survey_results_figures/q07ggplot2_frequency-1.png",
-                        "survey_results_figures/q08r_frequency-1.png",
-                        "survey_results_figures/q09ggplot2_contexts-1.png",
-                        "survey_results_figures/q26longtaught-1.png"))
+knitr::include_graphics(c(
+  "survey_results_figures/q05r_length_user-1.png",
+  "survey_results_figures/q06r_frequency-1.png",
+  "survey_results_figures/q07ggplot2_frequency-1.png",
+  "survey_results_figures/q08r_frequency-1.png",
+  "survey_results_figures/q09ggplot2_contexts-1.png",
+  "survey_results_figures/q26longtaught-1.png"
+))
 ```                        
                         
 # Questions related to ggplot2 extension experience and object oriented programming                     
@@ -51,7 +54,7 @@ knitr::include_graphics(c("survey_results_figures/q05r_length_user-1.png",
 #| include: true
 knitr::include_graphics(
   c(
-    "survey_results_figures/q10_previous_ext_experience-1.png",                
+    "survey_results_figures/q10_previous_ext_experience-1.png",
     "survey_results_figures/q11_previous_ext_attempt-1.png",
     "survey_results_figures/q13_oop_experience-1.png"
   )
@@ -65,15 +68,15 @@ knitr::include_graphics(
 #| out.width: "99%"
 #| fig.show: 'hold'
 knitr::include_graphics(c(
-                        "survey_results_figures/q14which_completed-1.png",
-                        "survey_results_figures/q15number_completed-1.png",
-                        "survey_results_figures/q16tutorial_time_taken-1.png",
-                        "survey_results_figures/q17tutorial_length-1.png",
-                        "survey_results_figures/q18example_clarity-1.png",
-                        "survey_results_figures/q19examples_engaging-1.png",
-                        "survey_results_figures/q21emotion-1.png",
-                        "survey_results_figures/q22futureuse-1.png"))
-
+  "survey_results_figures/q14which_completed-1.png",
+  "survey_results_figures/q15number_completed-1.png",
+  "survey_results_figures/q16tutorial_time_taken-1.png",
+  "survey_results_figures/q17tutorial_length-1.png",
+  "survey_results_figures/q18example_clarity-1.png",
+  "survey_results_figures/q19examples_engaging-1.png",
+  "survey_results_figures/q21emotion-1.png",
+  "survey_results_figures/q22futureuse-1.png"
+))
 ```
 
 
