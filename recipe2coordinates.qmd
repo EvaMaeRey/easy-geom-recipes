@@ -1,199 +1,529 @@
 ---
-title: "recipe 2: `geom_coords()`"
-author: "Gina Reynolds, Morgan Brown"
-date: "1/3/2022"
+title: "Recipe #2, `geom_index() and geom_coordinates()`"
 webr: 
   packages:
     - tidyverse
     - palmerpenguins
 ---
 
+Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
 
 
+```{r, eval = F}
+ggplot(data = cars) + 
+  aes(x = speed,
+      y = dist) + 
+  geom_point() + 
+  geom_coordinates(hjust = 1, # new function
+                   vjust = 1, 
+                   check_overlap = T) 
+```
 
-This tutorial is intended for individuals who already have a working knowledge of the grammar of ggplot2, but may like to build a richer vocabulary for themselves via the Stat extension mechanism.
+```{r, echo = F, message=F, warning=F}
+library(tidyverse)
 
-# Preview
+cars |> 
+  mutate(coordinates = 
+           paste0("(", speed,", ", 
+                  dist, ")")) |>
+  ggplot() + 
+  aes(x = speed, 
+      y = dist, 
+      label = coordinates) + 
+  geom_point() + 
+  geom_text(vjust = 1, hjust = 1, 
+            check_overlap = T)
+```
 
-Our recipes take the form:
-
-- *Step 0. Get the job done with 'base' ggplot2.* 
-It's a good idea to clarify what needs to happen without getting into the extension architecture
-- *Step 1. Write a computation function.* 
-Wrap the necessary computation into a function that your target geom_*() function will perform. We focus on 'compute_group' computation only in this tutorial.
-- *Step 2. Define a ggproto object.* 
-ggproto objects allow your extension to work together with base ggplot2 functions!  You'll use the computation function from step 1 to help define it.  
-- *Step 3. Write your geom function!* 
-You're ready to write your function.  You will incorporate the ggproto from step 2 and also define which more primitive geom (point, text, segment etc) you want other behaviors to inherit from. 
-- *Step 4. Test/Enjoy!*
-Take your new geom for a spin! Check out group-wise computation behavior!
-
-Below, you'll see a completely worked example (example recipes) and then a invitation to build a related target geom_*().
+In this exercise, we'll think about a way to annotate the row number at x and y, defining the new extension function `geom_index()` and then you'll be prompted to define `geom_coordinates()` based on what you've learned.
 
 
-# Example recipe #2:  `geom_label_id()`
+```{r}
+#| label: setup
+#| include: false 
+knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
+```
 
----
+## Step 00: Loading packages and cleaning data
+
+We'll use the tidyverse's tibble to convert the cars data frame into a tibble.  This is mostly so we'll have nicer, redacted print of the data. 
+
+```{r, message = F, warning=F}
+library(tidyverse)
+cars <- tibble(cars)
+cars
+```
+
+
 
 ## Step 0: use base ggplot2 to get the job done
 
 
-```{r}
-#| label: cars
-# step 0.a
-library(tidyverse)
-cars %>% 
-  mutate(id_number = 1:n()) %>% 
+It's good to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you do here can serve a reference for building our new extension functionality.  
+
+
+```{r status-quo}
+#| label: penguins
+# Compute.
+cars |> 
+  mutate(index = row_number()) |>
+  # Plot
   ggplot() + 
-  aes(x = speed, y = dist) + 
+  aes(x = speed, y = dist, 
+      label = index) + 
   geom_point() + 
-  geom_label(aes(label = id_number), 
-             hjust = 1.2)
+  geom_label(vjust = 1, hjust = 1) + 
+  labs(title = "Created with base ggplot2")
+```
 
-# step 0.b
-layer_data(last_plot(), i = 2) %>% 
+
+::: {.callout-tip  collapse="true"}
+### Pro tip.  Use `layer_data()` to inspect ggplot's internal data ...
+
+Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your Stat will help prep data to look something like this.
+
+```{r}
+layer_data(plot = last_plot(), 
+           i = 2) |> # layer 2, the computed means, is of interest
   head()
+
 ```
+:::
 
----
 
-## Step 1: computation
 
+
+
+## Step 1: Define compute. Test.
+
+Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_group_index()`.  The input is the plot data.  You will also need to use the scales argument, which ggplot2 uses internally. 
+
+### Define compute.
 
 ```{r}
-#| label: compute_group_row_number
+#| label: compute_group_index
 
-# you won't use the scales argument, but ggplot will later
-compute_group_row_number <- function(data, scales){
-  
-  data %>% 
-    # add an additional column called label
-    # the geom we inherit from requires the label aesthetic
-    mutate(label = 1:n())
-  
-}
-
-# step 1b test the computation function 
-cars %>% 
-  # input must have required aesthetic inputs as columns
-  rename(x = speed, y = dist) %>% 
-  compute_group_row_number() %>% 
-  head()
-```
-
----
-
-## Step 2: define ggproto
-
-
-
-```{r}
-#| label: StatRownumber
-
-StatRownumber <- ggplot2::ggproto(`_class` = "StatRownumber",
-                                  `_inherit` = ggplot2::Stat,
-                                  required_aes = c("x", "y"),
-                                  compute_group = compute_group_row_number)
-
-# test
-cars %>% 
-  mutate(id_number = 1:n()) %>% 
-  ggplot() + 
-  aes(x = speed, y = dist) + 
-  geom_point() + 
-  geom_label(stat = StatRownumber, 
-             hjust = 1.2)
-```
-
-
----
-
-## Step 3: define geom_* function
-
-
-```{r}
-#| label: geom_label_row_number
-
-geom_label_row_number <- function(mapping = NULL, data = NULL,
-                           position = "identity", na.rm = FALSE,
-                           show.legend = NA,
-                           inherit.aes = TRUE, ...) {
-  ggplot2::layer(
-    stat = StatRownumber, # proto object from Step 2
-    geom = ggplot2::GeomLabel, # inherit other behavior, this time Label
-    data = data, 
-    mapping = mapping,
-    position = position, 
-    show.legend = show.legend, 
-    inherit.aes = inherit.aes,
-    params = list(na.rm = na.rm, ...)
-  )
+# Define compute.
+compute_group_index <- function(data, ...){ 
+  data |> 
+    mutate(label = row_number())
 }
 ```
 
+::: {.callout-note collapse="true"}
+# You may have noticed ...
+
+1. **that our function uses a `...` argument.** 
+Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats.
+<!-- in the ggp argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step. -->
+
+2. **that the compute function adds a column of data called 'label'**  We assume that x and y will be present in our data as the user will declare them.  However, the `label` aes, which is required for Geoms like Text and Label will be computed *internally* in our layer.
+:::
 
 
-
-
----
-
-## Step 4: Enjoy! Use your function
+### Test compute.
 
 ```{r}
-#| label: enjoy_again
-
-cars %>% 
-  ggplot() + 
-  aes(x = speed, y = dist) + 
-  geom_point() + 
-  geom_label_row_number(hjust = 1.2) # function in action
+# Test compute. 
+cars |>
+  select(x = speed,  
+         y = dist) |>  
+  compute_group_index()
 ```
 
-### And check out conditionality!
+::: {.callout-note collapse="true"}
+# You may have noticed ...
+
+**that we prepare the data to have columns with names x and y before testing `compute_group_index`.** We just do this to be more consistent with how data will look internally in a ggplot --- columns are renamed when mapping aesthetics, e.g. `aes(x = speed, y = dist)`.  
+:::
+
+
+## Step 2: Define new Stat. Test.
+
+Next, we use the ggplot2::ggproto function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
+
+<!-- https://ggplot2.tidyverse.org/reference/ggproto.html -->
+
+### Define Stat.
+
 
 ```{r}
-#| label: conditional_compute
+#| label: StatIndex
+StatIndex <- 
+  ggplot2::ggproto(`_class` = "StatIndex",              # <1>
+                   `_inherit` = ggplot2::Stat,            # <2>
+                   compute_group = compute_group_index)            # <4>
+```
+
+::: {.callout-note collapse="true"}
+# You may have noticed ...
+
+1. **that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
+2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
+
+```{r}
+names(ggplot2::Stat) # which elements exist in Stat
+ggplot2::Stat$required_aes # generic some kind of NULL behavior
+```
+
+3. **that the compute_group_index function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
+4. **that setting `required_aes` isn't necessary for this Stat** The compute assumes data to be a dataframe but doesn't rely on columns named x and y, for example, for computation.  In general, specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_index()` requires the following missing aesthetics: x.'
+  
+
+
+<!-- https://yjunechoe.github.io/posts/2022-07-06-ggplot2-delayed-aes-2/#ggproto-minus-the-gg-and-the-proto  -->
+
+:::
+
+
+### Test Stat.
+
+You can test out your Stat with many base ggplot2 geom_()* functions.  
+
+```{r}
+cars |> 
+  ggplot() + 
+  aes(x = speed,
+      y = dist) + 
+  geom_point() + 
+  geom_text(stat = StatIndex, hjust = 1, vjust = 1) + 
+  labs(title = "Testing StatIndex")
+```
+
+::: {.callout-note collapse="true"}
+# You may have noticed ...
+
+**that we don't use "index" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "index", size = 7)`
+
+:::
+
+### Test Stat group-wise behavior
+
+Test group-wise behavior by using a discrete variable with an group-triggering aesthetic like color, fill, or group, or by faceting.
+
+
+```{r}
+last_plot() + 
+  aes(color = speed > 15)
+```
+
+::: {.callout-note collapse="true"}
+# You may have noticed ...
+
+**that some indices change with color mapping.**  Because compute is defined by `compute_group`, the row_number() computation and therefore index is within group. 
+:::
+
+
+
+:::  {.callout-tip collapse="true"}
+# Pro tip: Think about an early exit ...
+
+You might be thinking, what we've done has a lot of merit itself.  Can I just use my Stat as-is within geom_*() functions?  
+
+The answer probably depends a lot on audience.  If you just want to use the Stat yourself, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
+
+:::
+
+
+:::   {.callout-tip collapse="true"}
+# Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
+
+Instead of using a `geom_*()` function, you might prefer to use the more flexible `layer()` function in your testing step.  In fact, it's sometimes necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline.
+
+A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
+
+```{r}
+cars |> 
+  ggplot() + 
+  aes(x = speed,
+      y = dist) + 
+  geom_point() + 
+  layer(geom = GeomLabel, 
+        stat = StatIndex, 
+        position = "identity", 
+        params = list(size = 7)) + 
+  labs(title = "Testing StatIndex with layer() function")
+```
+
+
+:::
+
+
+
+
+## Step 3: Define user-facing functions. Test.
+
+
+In this next section, we define user-facing functions.  It is a bit of a mouthful, *but see the tip that follows.*
+
+
+### Define stat_*() function
+
+```{r}
+#| label: geom_point_medians
+
+# user-facing function
+stat_index <- function(mapping = NULL, data = NULL, 
+                         geom = "label", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = StatIndex, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+```
+
+
+::: {.callout-note collapse="true"}
+# You may have noticed...
+
+1. **that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
+
+2. **that `StatIndex` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+
+3. **that `"label"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomLabel` will be used in the layer unless otherwise specified by the user. 
+:::
+
+
+::: {.callout-tip collapse="true"}
+## Pro tip.  Use `stat_identity` definition as a template in this step ...
+...
+
+You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
+
+- Type `stat_identity` in your console to print function contents; copy-paste the function definition. 
+- Switch out `StatIdentity` with your Stat, e.g. `StatIndex`. 
+- Switch out `"point"` other geom ('rect', 'text', 'line' etc) if needed
+- Final touch, `list2` will error without export from rlang, so update to `rlang::list2`.
+
+```{r}
+stat_identity
+```
+
+:::
+
+
+### Define geom_*() function
+
+You can also define geom with identical properties via aliasing. 
+
+```{r}
+geom_index <- stat_index
+```
+
+### Test user-facing functions
+
+```{r}
+## Test user-facing.
+cars |>
+  ggplot() +
+  aes(x = speed, y = dist) +
+  geom_point() +
+  geom_index(hjust = 1, vjust = 1)  + 
+  labs(title = "Testing geom_index()")
+```
+
+### Test group-wise behavior
+
+
+```{r}
+last_plot() + 
+  aes(color = speed > 15) 
+```
+
+### Test geom flexibility of stat_*() function.
+
+```{r}
+cars |>
+  ggplot() +
+  aes(x = speed, y = dist) + 
+  geom_point() + 
+  stat_index(geom = "text", hjust = 1, vjust = 1)  + 
+  labs(subtitle = "and stat_index()")
+```
+
+::: {.callout-tip collapse="true"}
+# Pro-tip: 'Express' alternative for user-facing functions ... (*Caution, needs vetting*)
+
+*This approach is not fully vetted. Your comments and feedback are welcome. See discussions [26](https://github.com/teunbrand/ggplot-extension-club/discussions/26) and [31](https://github.com/teunbrand/ggplot-extension-club/discussions/31)*
+
+An alternate 'express' route below may be helpful in some settings (i.e. in-script definitions and exploratory work).  
+
+
+```{r error = T, eval = F}
+geom_index <- function(...){geom_label(stat = StatIndex, ...)}
+
+cars |>
+  ggplot() +
+  aes(x = speed, 
+      y = dist) +
+  geom_point() +
+  geom_index(vjust = 1)
 
 last_plot() + 
-  aes(color = dist > 60) # Computation is within group
+  aes(color = speed > 15) 
 ```
 
+A downside is that the geom is hard-coded, so it is not flexible in this regard compared with the stat_*() counterpart defined using the layer() function. 
+
+Also, not as many arguments will be spelled out for the user when using the function.  
+
+:::
 
 
+# Done! Time for a review.
 
----
+Here is a quick review of the definitional code we've covered, dropping tests and discussion.
 
-# Task #2: create `geom_text_coordinates()`
-
-Using recipe #2 as a reference, can you create the function `geom_text_coordinates()`.  
-
---
-
-- geom should label point with its coordinates '(x, y)'
-- geom should have behavior of geom_text (not geom_label)
-
-
-Hint:
+::: {.callout-note collapse="false"}
+# Review
 
 ```{r}
-paste0("(", 1, ", ",3., ")")
+library(tidyverse)
+
+# Step 1. Define compute
+compute_group_index <- function(data, scales){
+  
+  data |>
+    mutate(label = row_number())
+  
+}
+
+# Step 2. Define Stat
+StatIndex = ggproto(`_class` = "StatIndex",
+                      `_inherit` = Stat,
+                      required_aes = c("x", "y"),
+                      compute_group = compute_group_index)
+
+# Step 3. Define user-facing functions
+
+## define stat_*()
+stat_index <- function(mapping = NULL, data = NULL, 
+                         geom = "label", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = StatIndex, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+## define geom_*()
+geom_index <- stat_index
+```
+
+::: 
+
+
+# Your Turn: write `geom_coordinates()`
+
+Using the `geom_index()` Recipe #2 as a reference, try to create a `stat_coordinates()` function that draws a point at the means of x and y. You may also write convenience geom_*() function. 
+
+### Step 00: load libraries, data
+
+```{webr}
+#| setup: true
+#| exercise: geom_coordinates
+#| warning: false
+
+library(tidyverse)
+glimpse(cars)
+```
+
+### Step 0: Use base ggplot2 to get the job done
+
+```{webr}
+#| exercise: geom_coordinates
+# Step 0: Use base ggplot2 to get the job done.
+cars |>
+  mutate(coordinates = 
+           paste0("(", speed, ", ", dist, ")" )) |>
+  ggplot() + 
+  aes(x = speed, y = dist, label = coordinates) + 
+  geom_point() + 
+  geom_text(hjust = 1, vjust = 1, check_overlap = T)
+```
+
+### Step 1: Write compute function. Test.
+
+```{webr}
+#| exercise: geom_means
+# Define. 
+compute_group_coordinates <- function(data, ...){
+  
+  data %>% 
+    # which aes are you defining x, color, label, linewidth?
+    mutate(____ = 
+             paste0("(", speed, ", ", dist, ")" ))
+  
+}
+
+# Test.
+cars |> 
+  select(x = speed, 
+         ____ = dist) |>
+  compute_group_coordinates()
+```
+
+### Step 2: Write Stat.
+
+
+```{webr}
+#| exercise: geom_means
+# Define.
+StatCoordinates <- ggproto(`_class` = "____",
+                           `_inherit` = Stat,
+                            compute_group = ____,
+                            required_aes = c("x", "____"))
+
+# Test.
+cars |> 
+  ggplot() + 
+  aes(x = speed, y = dist) + 
+  geom_point() +
+  geom_text(stat = ____, hjust = 1, vjust = 1)
+
+```
+
+### Step 3: Write user-facing functions. 
+
+
+```{webr}
+#| exercise: geom_means
+# Define.
+stat_coordinates <- function (mapping = NULL, data = NULL, geom = "____", position = "identity", 
+    ..., show.legend = NA, inherit.aes = TRUE){
+    layer(data = data, mapping = mapping, stat = ____, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+
+# Alias.
+geom_coordinates <- ____
+
+
+# Test.
+cars |> 
+  ggplot() + 
+  aes(x = speed, y = dist) + 
+  geom_point() +
+  ____(hjust = 1, vjust = 1)
 ```
 
 
+# Next up: Recipe 3 `geom_lm_residuals()`
+
+How would you write the function draws residuals based on a linear model fit lm(y ~ x)? Go to Recipe 3.
 
 
-```{webr-r}
-# step 0: use base ggplot2
-
-# step 1: write your compute_group function (and test)
-
-# step 2: write ggproto with compute_group as an input
-
-# step 3: write your geom_*() function with ggproto as an input
-
-# step 4: enjoy!
 
 
-```
+
+
+
+
 
 
