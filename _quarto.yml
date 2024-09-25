@@ -23,6 +23,9 @@ website:
         text: Tutorials
       - href: research.qmd
         text: Research
+    right:
+      - icon: github
+        href: https://github.com/evamaerey/easy-geom-recipes
   sidebar:
     contents:
       - section: "Tutorial"
@@ -49,3 +52,5 @@ format:
 
 filters:
  - webr
+
+
