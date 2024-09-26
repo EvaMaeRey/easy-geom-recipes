@@ -529,7 +529,7 @@ penguins_clean |>
 
 # Next up: Recipe 2 `geom_id()`
 
-How would you write the function which annotates a row number for data points on a scatterplot? Go to Recipe 2.
+How would you write the function which annotates coordinates (x,y) for data points on a scatterplot? Go to [Recipe 2](./recipe2coordinates.qmd).
 
 
 
