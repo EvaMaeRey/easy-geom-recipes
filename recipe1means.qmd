@@ -6,8 +6,11 @@ webr:
     - palmerpenguins
 ---
 
-Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
+# The Goal
 
+Welcome to 'Easy `geom` recipes' Recipe #1: creating geom_means and geom_medians.
+
+Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
 
 ```{r, eval = F}
 ggplot(data = penguins) + 
@@ -37,7 +40,9 @@ penguins_clean |>
              size = 8, color = "red")
 ```
 
-In this exercise, we'll think about a way to add a point at the medians x and y, defining the new extension function `geom_medians()` and then you'll be prompted to define `geom_means()` based on what you've learned.
+In this exercise, we'll demonstrate how to add a point at the medians x and y by defining the new extension function `geom_medians()` and then you'll be prompted to define `geom_means()` based on what you've learned.
+
+---
 
 ```{r}
 #| label: setup
@@ -61,7 +66,7 @@ glimpse(penguins_clean)
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's good to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you do here can serve a reference for building our new extension functionality.  
+It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension.
 
 
 ```{r status-quo}
@@ -84,8 +89,8 @@ penguins_clean |>
 ```
 
 
-::: {.callout-tip  collapse="true"}
-### Pro tip.  Use `layer_data()` to inspect ggplot's internal data ...
+::: {.callout-tip collapse="true"}
+### Pro tip.  Use `layer_data()` to inspect ggplot\'s internal data ...
 
 Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your Stat will help prep data to look something like this.
 
@@ -98,10 +103,9 @@ layer_data(plot = last_plot(),
 
 
 
-
 ## Step 1: Define compute. Test.
 
-Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_group_medians()`.  The input is the plot data.  You will also need to use the scales argument, which ggplot2 uses internally. 
+Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_group_medians()`.  The `data` input will look similar to the plot data.  You will also need to include a `scales` argument, which ggplot2 uses internally. 
 
 ### Define compute.
 
@@ -109,7 +113,7 @@ Now you are ready to begin building your extension function. The first step is t
 #| label: compute_group_medians
 
 # Define compute.
-compute_group_medians <- function(data, ...){ 
+compute_group_medians <- function(data, scales){ 
   data |> 
     summarize(x = median(x),
               y = median(y))
@@ -119,11 +123,11 @@ compute_group_medians <- function(data, ...){
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **that our function uses a `...` argument.** 
-Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats.
-<!-- in the ggp argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step. -->
+1. **that our function uses the `scales` argument.** 
+<!-- Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats. --> 
+The `scales` argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step.
 
-2. **that the compute function assumes that variables x and y are present.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
+2. **that the compute function assumes that variables x and y are present in the data.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
 :::
 
 
@@ -140,7 +144,7 @@ penguins_clean |>
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-**that we prepare the data to have columns with names x and y before testing `compute_group_medians`.** Computation will fail if the names x and y are not present given our function definition.  Internally in a plot, columns are renamed when mapping aesthetics, e.g. `aes(x = bill_depth, y = bill_length)`.
+**... that we prepare the data to have columns with names x and y before testing `compute_group_medians`.** Computation will fail if the names x and y are not present given our function definition.  Internally in a plot, columns are renamed when mapping aesthetics, e.g. `aes(x = bill_depth, y = bill_length)`.
 :::
 
 
@@ -186,7 +190,7 @@ ggplot2::Stat$required_aes # generic some kind of NULL behaivor
 
 ### Test Stat.
 
-You can test out your Stat with many base ggplot2 geom_()* functions.  
+You can test out your Stat using them in ggplot2 geom_*() functions.  
 
 ```{r}
 penguins_clean |> 
@@ -258,7 +262,7 @@ penguins_clean |>
 ## Step 3: Define user-facing functions. Test.
 
 
-In this next section, we define user-facing functions.  It is a bit of a mouthful, *but see the tip that follows.*
+In this next section, we define user-facing functions.  It is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...'*.
 
 
 ### Define stat_*() function
@@ -310,11 +314,35 @@ stat_identity
 
 ### Define geom_*() function
 
-You can also define geom with identical properties via aliasing. 
+You can also define geom with identical properties via aliasing given that users may feel more comfortable with them.  
 
 ```{r}
 geom_medians <- stat_medians
 ```
+
+::: {.callout-warning collapse="true"}
+# Be aware ...
+
+... verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. 
+
+An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
+
+
+```{r}
+# user-facing function
+geom_medians <- function(mapping = NULL, data = NULL, 
+                         stat = "medians", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = stat, 
+        geom = GeomPoint, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+```
+
+However, because it would be confusing to use `geom_medians()` with a Stat other than StatMedians -- as doing so would remove the median-ness --- we think that the verbatim aliasing is a reasonable, time and code saving approach in cases like these.  
+:::
 
 ### Test user-facing functions
 

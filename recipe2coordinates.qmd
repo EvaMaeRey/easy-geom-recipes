@@ -104,7 +104,7 @@ Now you are ready to begin building your extension function. The first step is t
 #| label: compute_group_index
 
 # Define compute.
-compute_group_index <- function(data, ...){ 
+compute_group_index <- function(data, scales){ 
   data |> 
     mutate(label = row_number())
 }
@@ -113,11 +113,11 @@ compute_group_index <- function(data, ...){
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **that our function uses a `...` argument.** 
+1. **... that our function uses a `scales` argument.** 
 Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats.
 <!-- in the ggp argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step. -->
 
-2. **that the compute function adds a column of data called 'label'**  We assume that x and y will be present in our data as the user will declare them.  However, the `label` aes, which is required for Geoms like Text and Label will be computed *internally* in our layer.
+2. **... that the compute function adds a column of data called 'label'**  We assume that x and y will be present in our data as the user will declare them.  However, the `label` aes, which is required for Geoms like Text and Label will be computed *internally* in our layer.
 :::
 
 
@@ -134,7 +134,7 @@ cars |>
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-**that we prepare the data to have columns with names x and y before testing `compute_group_index`.** We just do this to be more consistent with how data will look internally in a ggplot --- columns are renamed when mapping aesthetics, e.g. `aes(x = speed, y = dist)`.  
+**... that we prepare the data to have columns with names x and y before testing `compute_group_index`.** We just do this to be more consistent with how data will look internally in a ggplot --- columns are renamed when mapping aesthetics, e.g. `aes(x = speed, y = dist)`, and variables that aren't mapped won't be available to the compute.  
 :::
 
 
@@ -158,16 +158,16 @@ StatIndex <-
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
-2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
+1. **... that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
+2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
 
 ```{r}
 names(ggplot2::Stat) # which elements exist in Stat
 ggplot2::Stat$required_aes # generic some kind of NULL behavior
 ```
 
-3. **that the compute_group_index function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
-4. **that setting `required_aes` isn't necessary for this Stat** The compute assumes data to be a dataframe but doesn't rely on columns named x and y, for example, for computation.  In general, specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_index()` requires the following missing aesthetics: x.'
+3. **... that the compute_group_index function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
+4. **... that setting `required_aes` isn't necessary for this Stat** The compute assumes data to be a dataframe but doesn't rely on columns named x and y, for example, for computation.  In general, specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_index()` requires the following missing aesthetics: x.'
   
 
 
@@ -193,7 +193,7 @@ cars |>
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-**that we don't use "index" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "index", size = 7)`
+**... that we don't use "index" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "index", size = 7)`
 
 :::
 
@@ -210,7 +210,7 @@ last_plot() +
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-**that some indices change with color mapping.**  Because compute is defined by `compute_group`, the row_number() computation and therefore index is within group. 
+**... that some indices change with color mapping.**  This is because compute is by group (`compute_group` is defined), so the index is within group.  
 :::
 
 
@@ -220,7 +220,7 @@ last_plot() +
 
 You might be thinking, what we've done has a lot of merit itself.  Can I just use my Stat as-is within geom_*() functions?  
 
-The answer probably depends a lot on audience.  If you just want to use the Stat yourself, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
+The answer probably depends a lot on audience.  If you just want to use the Stat yourself, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. a user-facing function.
 
 :::
 
@@ -278,11 +278,11 @@ stat_index <- function(mapping = NULL, data = NULL,
 ::: {.callout-note collapse="true"}
 # You may have noticed...
 
-1. **that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
+1. **... that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
 
-2. **that `StatIndex` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+2. **... that `StatIndex` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
 
-3. **that `"label"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomLabel` will be used in the layer unless otherwise specified by the user. 
+3. **... that `"label"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomLabel` will be used in the layer unless otherwise specified by the user. 
 :::
 
 
@@ -392,9 +392,9 @@ compute_group_index <- function(data, scales){
 
 # Step 2. Define Stat
 StatIndex = ggproto(`_class` = "StatIndex",
-                      `_inherit` = Stat,
-                      required_aes = c("x", "y"),
-                      compute_group = compute_group_index)
+                    `_inherit` = Stat,
+                    required_aes = c("x", "y"),
+                    compute_group = compute_group_index)
 
 # Step 3. Define user-facing functions
 

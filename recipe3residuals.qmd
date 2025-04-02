@@ -208,3 +208,34 @@ Interested in working a bit more with geoms and making them available to more fo
 
 Join in on the development and validation of the ggxmean package for statistical educators and everyday analysis!
 
+
+```{r}
+library(tidyverse)
+compute_group_xmean <- function(data, scales){
+
+data |>
+summarize(mean_x = mean(x),
+          xintercept = mean_x, 
+          y = I(.5),
+          x = mean_x)
+
+}
+
+StatXMean <- ggproto("StatXMean", Stat,
+                     compute_group = compute_group_xmean,
+                     default_aes = aes(label = round(after_stat(mean_x), 2)))
+
+cars|>
+  ggplot() + 
+  aes(speed, xend = lag(speed),  dist, yend = lag(dist)) +
+  geom_point() + 
+  layer(geom = GeomVline, stat = StatXMean, position = "identity") +
+  geom_label(stat = StatXMean) + 
+  geom_segment(lineend = "round") + 
+  geom_segment(lineend = "round", aes(xend = speed, yend = dist),
+               linewidth = 7)
+
+
+
+```
+
