@@ -30,16 +30,23 @@ Take your new geom for a spin! Check out group-wise computation behavior!
 
 Below, you'll see a completely worked example (example recipes) and then a invitation to build a related target geom_*().
 
+# The Goal
 
+Welcome to 'Easy `geom` recipes' Recipe #3: creating geom_fitted and geom_residuals.
+
+Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
 
 
 ---
 
-# Example recipe #3:  `geom_point_lm_fitted()`
+# Example recipe #3:  `geom_fitted()`
 
 ---
 
 ## Step 0: use base ggplot2 to get the job done
+
+
+It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
 
 ```{r}
 #| label: fitted_1
@@ -63,8 +70,20 @@ penguins %>%
              color = "blue")
 ```
 
+::: {.callout-tip collapse="true"}
+### Pro tip.  Use `layer_data()` to inspect ggplot\'s internal data ...
 
-## Step 1: computation
+Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your Stat will help prep data to look something like this.
+
+```{r}
+layer_data(plot = last_plot(), 
+           i = 2) # the fitted y (not the raw data y) is of interest
+```
+
+
+## Step 1: Define compute. Test.
+
+Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_group_lm_fitted()`.  The `data` input will look similar to the plot data.  You will also need to include a `scales` argument, which ggplot2 uses internally. 
 
 ```{r}
 #| label: fitted_2
@@ -74,58 +93,217 @@ compute_group_lm_fitted<- function(data, scales){
   data %>% 
     mutate(y=model$fitted.values)
 }
+```
 
-# test out the function
-penguins %>%
-  # rename to explicitly state the x and y inputs
-  rename(x = bill_depth_mm, y = bill_length_mm)%>%
+
+::: {.callout-note collapse="true"}
+# You may have noticed ...
+
+1. **... that our function uses the `scales` argument.** 
+<!-- Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats. --> 
+The `scales` argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step.
+
+2. **... that the compute function assumes that variables x and y are present in the data.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
+:::
+
+### Test compute.
+
+
+```{r}
+## Test compute. 
+penguins |>
+  rename(x = bill_depth_mm, y = bill_length_mm) |>
   compute_group_lm_fitted()
 ```
 
+::: {.callout-note collapse="true"}
+# You may have noticed ...
 
-## Step 2: define ggproto
+**... that we prepare the data to have columns with names x and y before testing `compute_group_medians`.** Computation will fail if the names x and y are not present given our function definition.  Internally in a plot, columns are renamed when mapping aesthetics, e.g. `aes(x = bill_depth, y = bill_length)`.
+:::
+
+
+
+## Step 2: Define new Stat. Test.
+
+
+Next, we use the ggplot2::ggproto function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
+
+### Define Stat.
+
 
 ```{r}
 #| label: fitted_3
-StatLmFitted<-ggplot2::ggproto(`_class` = "StatLmFitted",
+StatFitted <- ggplot2::ggproto(`_class` = "StatFitted",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
                                   compute_group = compute_group_lm_fitted)
-
-# test 
-penguins %>% 
-  ggplot() + 
-  aes(x = bill_depth_mm, y = bill_length_mm) +
-  geom_point() + 
-  geom_smooth(method = "lm", se = F) + 
-  geom_point(stat = StatLmFitted, color = "blue")
 ```
 
 
-## Step 3: define geom_* function
+::: {.callout-note collapse="true"}
+# You may have noticed ...
+
+1. **... that the naming convention for the ggproto object is CamelCase.** The new class should also be named the same, i.e. `"StatLmFitted"`.
+2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatLmFitted, we update the definition.
+
+```{r}
+names(ggplot2::Stat) # which elements exist in Stat
+ggplot2::Stat$required_aes # generic some kind of NULL behaivor
+```
+
+3. **that the compute_group_lm_fitted function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
+4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_medians()` requires the following missing aesthetics: x.'
+  
+:::
+
+
+### Test Stat.
+
+You can test out your Stat using them in ggplot2 geom_*() functions.  
+
+```{r}
+penguins |> 
+  ggplot() + 
+  aes(x = bill_depth_mm,
+      y = bill_length_mm) + 
+  geom_point() + 
+  geom_point(stat = StatFitted) + 
+  labs(title = "Testing StatLmFitted")
+```
+
+::: {.callout-note collapse="true"}
+# You may have noticed ...
+
+**that we don't use "fitted" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "fitted", size = 7)`.
+
+:::
+
+
+### Test group-wise behavior
+
+```{r}
+last_plot() + 
+  aes(color = species)
+
+```
+
+:::  {.callout-tip collapse="true"}
+# Pro tip: Think about an early exit ...
+
+You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within geom_*() functions?  
+
+The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
+
+:::
+
+
+:::   {.callout-tip collapse="true"}
+# Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
+
+Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, it's necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
+
+A test of StatFitted using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
+
+```{r}
+penguins |> 
+  ggplot() + 
+  aes(x = bill_depth_mm,
+      y = bill_length_mm) + 
+  geom_point() + 
+  layer(geom = GeomPoint, 
+        stat = StatFitted, 
+        position = "identity", 
+        params = list(size = 2)) + 
+  labs(title = "Testing StatLmFitted with layer() function")
+```
+
+:::
+
+
+## Step 3: Define user-facing functions. Test.
+
+
+In this next section, we define user-facing functions.  Doing so is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...' that follows*.
 
 
 ```{r}
 #| label: fitted_4
 
-geom_point_lm_fitted <- function(mapping = NULL, data = NULL,
-                           position = "identity", na.rm = FALSE,
-                           show.legend = NA,
-                           inherit.aes = TRUE, ...) {
-  ggplot2::layer(
-    stat = StatLmFitted, # proto object from step 2
-    geom = ggplot2::GeomPoint, # inherit other behavior
-    data = data, 
-    mapping = mapping,
-    position = position, 
-    show.legend = show.legend, 
-    inherit.aes = inherit.aes,
-    params = list(na.rm = na.rm, ...)
-  )
+stat_fitted <- function(mapping = NULL, data = NULL, geom = "point", position = "identity", 
+    ..., show.legend = NA, inherit.aes = TRUE) {
+    layer(data = data, mapping = mapping, stat = StatFitted, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = list(na.rm = FALSE, 
+            ...))
 }
 ```
 
-## Step 4: Enjoy! Use your function
+
+::: {.callout-note collapse="true"}
+# You may have noticed...
+
+1. **... that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
+
+2. **... that `StatIndex` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+
+3. **... that `"label"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomLabel` will be used in the layer unless otherwise specified by the user. 
+:::
+
+
+::: {.callout-tip collapse="true"}
+## Pro tip.  Use `stat_identity` definition as a template in this step ...
+...
+
+You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
+
+- Type `stat_identity` in your console to print function contents; copy-paste the function definition. 
+- Switch out `StatIdentity` with your Stat, e.g. `StatFitted`. 
+- Switch out `"point"` other geom ('rect', 'text', 'line' etc) if needed
+- Final touch, `list2` will error without export from rlang, so update to `rlang::list2`.
+
+```{r}
+stat_identity
+```
+
+:::
+
+
+### Define geom_*() function
+
+Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
+
+```{r}
+geom_fitted <- stat_fitted
+```
+
+
+::: {.callout-warning collapse="true"}
+# Be aware ...
+
+... verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
+
+An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
+
+
+```{r}
+# user-facing function
+geom_index <- function(mapping = NULL, data = NULL, 
+                         stat = "index", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = stat, 
+        geom = GeomPoint, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+```
+
+However, because it is unexpected to use `geom_index()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
+:::
+
+
+## Test/Enjoy functions
 
 ```{r}
 #| label: fitted_5
@@ -133,8 +311,8 @@ penguins %>%
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() + 
-  geom_smooth(method="lm", se= F)+
-  geom_point_lm_fitted(color="blue")
+  geom_smooth(method= "lm")+
+  geom_point_lm_fitted()
 ```
 
 ### And check out conditionality
@@ -199,43 +377,4 @@ penguins %>%
 ```
 
 ---
-
-Not interested in writing your own geoms?  
-
-Check out some ready-to-go geoms that might be of interest in the ggxmean package... or other extension packages.
-
-Interested in working a bit more with geoms and making them available to more folks, but not interested in writing your own package?
-
-Join in on the development and validation of the ggxmean package for statistical educators and everyday analysis!
-
-
-```{r}
-library(tidyverse)
-compute_group_xmean <- function(data, scales){
-
-data |>
-summarize(mean_x = mean(x),
-          xintercept = mean_x, 
-          y = I(.5),
-          x = mean_x)
-
-}
-
-StatXMean <- ggproto("StatXMean", Stat,
-                     compute_group = compute_group_xmean,
-                     default_aes = aes(label = round(after_stat(mean_x), 2)))
-
-cars|>
-  ggplot() + 
-  aes(speed, xend = lag(speed),  dist, yend = lag(dist)) +
-  geom_point() + 
-  layer(geom = GeomVline, stat = StatXMean, position = "identity") +
-  geom_label(stat = StatXMean) + 
-  geom_segment(lineend = "round") + 
-  geom_segment(lineend = "round", aes(xend = speed, yend = dist),
-               linewidth = 7)
-
-
-
-```
 

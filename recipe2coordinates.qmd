@@ -164,7 +164,7 @@ StatIndex <-
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **... that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatIndex"`.
+1. **... that the naming convention for the ggproto object is CamelCase.** The new class should also be named the same, i.e. `"StatIndex"`.
 2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
 
 ```{r}

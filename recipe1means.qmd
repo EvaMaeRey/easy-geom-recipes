@@ -168,8 +168,8 @@ StatMedians <-
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
-2. **that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
+1. **... that the naming convention for the ggproto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
+2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
 
 ```{r}
 names(ggplot2::Stat) # which elements exist in Stat
@@ -234,7 +234,7 @@ The short answer is 'yes'!  If you just want to use the Stat yourself locally in
 :::   {.callout-tip collapse="true"}
 # Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
 
-Instead of using a `geom_*()` function, you might prefer to use the more flexible `layer()` function in your testing step.  In fact, it's sometimes necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline.
+Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, it's necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
 
 A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
@@ -260,7 +260,7 @@ penguins_clean |>
 ## Step 3: Define user-facing functions. Test.
 
 
-In this next section, we define user-facing functions.  It is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...' that follows*.
+In this next section, we define user-facing functions.  Doing so is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...' that follows*.
 
 
 ### Define stat_*() function
@@ -312,7 +312,7 @@ stat_identity
 
 ### Define geom_*() function
 
-You can also define geom with identical properties via aliasing given that users may feel more comfortable with them.  
+Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
 
 ```{r}
 geom_medians <- stat_medians
