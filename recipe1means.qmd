@@ -17,7 +17,7 @@ ggplot(data = penguins) +
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
   geom_point() + 
-  geom_means(size = 8, color = "red") # new function
+  geom_means(size = 8, color = "red") # new function!
 ```
 
 ```{r, echo = F, message=F, warning=F}
@@ -40,7 +40,7 @@ penguins_clean |>
              size = 8, color = "red")
 ```
 
-In this exercise, we'll demonstrate how to add a point at the medians x and y by defining the new extension function `geom_medians()` and then you'll be prompted to define `geom_means()` based on what you've learned.
+In this exercise, we'll demonstrate how to add a point at the medians x and y by defining the new extension function `geom_medians()`. Then you'll be prompted to define `geom_means()` based on what you've learned.
 
 ---
 
@@ -66,7 +66,7 @@ glimpse(penguins_clean)
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension.
+It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
 
 
 ```{r status-quo}
@@ -123,11 +123,11 @@ compute_group_medians <- function(data, scales){
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **that our function uses the `scales` argument.** 
+1. **... that our function uses the `scales` argument.** 
 <!-- Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats. --> 
 The `scales` argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step.
 
-2. **that the compute function assumes that variables x and y are present in the data.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
+2. **... that the compute function assumes that variables x and y are present in the data.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
 :::
 
 
@@ -156,7 +156,6 @@ Next, we use the ggplot2::ggproto function which allows you to define a new Stat
 
 ### Define Stat.
 
-
 ```{r}
 #| label: StatMedians
 StatMedians <- 
@@ -178,8 +177,7 @@ ggplot2::Stat$required_aes # generic some kind of NULL behaivor
 ```
 
 3. **that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
-4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_medians()` requires the following missing
-  aesthetics: x.'
+4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_medians()` requires the following missing aesthetics: x.'
   
 
 
@@ -226,9 +224,9 @@ last_plot() +
 :::  {.callout-tip collapse="true"}
 # Pro tip: Think about an early exit ...
 
-You might be thinking, what we've done has a lot of merit itself.  Can I just use my Stat as-is within geom_*() functions?  
+You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within geom_*() functions?  
 
-The answer probably depends a lot on audience.  If you just want to use the Stat yourself, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
+The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
 
 :::
 
@@ -262,7 +260,7 @@ penguins_clean |>
 ## Step 3: Define user-facing functions. Test.
 
 
-In this next section, we define user-facing functions.  It is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...'*.
+In this next section, we define user-facing functions.  It is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...' that follows*.
 
 
 ### Define stat_*() function
@@ -323,10 +321,10 @@ geom_medians <- stat_medians
 ::: {.callout-warning collapse="true"}
 # Be aware ...
 
-... verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. 
+... verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
 
-An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
 
+An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
 
 ```{r}
 # user-facing function
@@ -341,10 +339,12 @@ geom_medians <- function(mapping = NULL, data = NULL,
 }
 ```
 
-However, because it would be confusing to use `geom_medians()` with a Stat other than StatMedians -- as doing so would remove the median-ness --- we think that the verbatim aliasing is a reasonable, time and code saving approach in cases like these.  
+However, because it is unexpected to use `geom_medians()` with a Stat other than StatMedians (doing so would remove the median-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
 :::
 
-### Test user-facing functions
+### Test/Enjoy your user-facing functions
+
+### Test geom_medians()
 
 ```{r}
 ## Test user-facing.
@@ -358,13 +358,12 @@ penguins_clean |>
 
 ### Test group-wise behavior
 
-
 ```{r}
 last_plot() + 
   aes(color = species) 
 ```
 
-### Test geom flexibility of stat_*() function.
+### Test stat_*() function with another Geom.
 
 ```{r}
 last_plot() + 
@@ -408,7 +407,7 @@ Also, not as many arguments will be spelled out for the user when using the func
 
 # Done! Time for a review.
 
-Here is a quick review of the definitional code we've covered, dropping tests and discussion.
+Here is a quick review of the functions and ggproto objects we've covered, dropping tests and discussion.
 
 ::: {.callout-note collapse="false"}
 # Review
@@ -452,7 +451,7 @@ geom_medians <- stat_medians
 
 # Your Turn: write `geom_means()`
 
-Using the medians Recipe #1 as a reference, try to create a `stat_means()` function that draws a point at the means of x and y. You may also write convenience geom_*() functions. 
+Using the `geom_medians` Recipe #1 as a reference, try to create a `stat_means()` function that draws a point at the means of x and y. You may also write convenience geom_*() functions. 
 
 ### Step 00: load libraries, data
 

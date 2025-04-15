@@ -6,6 +6,10 @@ webr:
     - palmerpenguins
 ---
 
+# The Goal
+
+Welcome to 'Easy `geom` recipes' Recipe #2: creating geom_index and geom_coordinates.
+
 Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
 
 
@@ -14,7 +18,7 @@ ggplot(data = cars) +
   aes(x = speed,
       y = dist) + 
   geom_point() + 
-  geom_coordinates(hjust = 1, # new function
+  geom_coordinates(hjust = 1, # new function!
                    vjust = 1, 
                    check_overlap = T) 
 ```
@@ -35,7 +39,7 @@ cars |>
             check_overlap = T)
 ```
 
-In this exercise, we'll think about a way to annotate the row number at x and y, defining the new extension function `geom_index()` and then you'll be prompted to define `geom_coordinates()` based on what you've learned.
+In this exercise, we'll demonstrate how to annotate the observation index (row number) at x and y, defining the new extension function `geom_index()`. Then you'll be prompted to define `geom_coordinates()` based on what you've learned.
 
 
 ```{r}
@@ -46,7 +50,7 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 
 ## Step 00: Loading packages and cleaning data
 
-We'll use the tidyverse's tibble to convert the cars data frame into a tibble.  This is mostly so we'll have nicer, redacted print of the data. 
+We'll use the tidyverse's tibble to convert the cars dataframe into a tibble.  This is just so we'll have redacted data when printing. 
 
 ```{r, message = F, warning=F}
 library(tidyverse)
@@ -59,7 +63,7 @@ cars
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's good to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you do here can serve a reference for building our new extension functionality.  
+It's good idea to go through at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.  
 
 
 ```{r status-quo}
@@ -84,7 +88,7 @@ Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.
 
 ```{r}
 layer_data(plot = last_plot(), 
-           i = 2) |> # layer 2, the computed means, is of interest
+           i = 2) |> # layer 2, with labels designated is of interest
   head()
 
 ```
@@ -113,11 +117,13 @@ compute_group_index <- function(data, scales){
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **... that our function uses a `scales` argument.** 
-Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats.
-<!-- in the ggp argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step. -->
+1. **... that our function uses the `scales` argument.** 
+<!-- Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats. --> 
+The `scales` argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step.
 
-2. **... that the compute function adds a column of data called 'label'**  We assume that x and y will be present in our data as the user will declare them.  However, the `label` aes, which is required for Geoms like Text and Label will be computed *internally* in our layer.
+2. **... that the compute function assumes that variables x and y are present in the data.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
+
+3. **... that the compute function adds a column of data called 'label'**  We assume that x and y will be present in our data as the user will declare them.  However, the `label` aes, which is required for Geoms like Text and Label will be computed *internally* in our layer, meaning the user doesn't need to provide this.
 :::
 
 
@@ -158,7 +164,7 @@ StatIndex <-
 ::: {.callout-note collapse="true"}
 # You may have noticed ...
 
-1. **... that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
+1. **... that the naming convention for the proto object is CamelCase.** The new class should also be named the same, i.e. `"StatIndex"`.
 2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
 
 ```{r}
@@ -218,9 +224,9 @@ last_plot() +
 :::  {.callout-tip collapse="true"}
 # Pro tip: Think about an early exit ...
 
-You might be thinking, what we've done has a lot of merit itself.  Can I just use my Stat as-is within geom_*() functions?  
+You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within geom_*() functions?  
 
-The answer probably depends a lot on audience.  If you just want to use the Stat yourself, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. a user-facing function.
+The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
 
 :::
 
@@ -230,7 +236,7 @@ The answer probably depends a lot on audience.  If you just want to use the Stat
 
 Instead of using a `geom_*()` function, you might prefer to use the more flexible `layer()` function in your testing step.  In fact, it's sometimes necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline.
 
-A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
+A test of StatIndex using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
 ```{r}
 cars |> 
@@ -254,7 +260,7 @@ cars |>
 ## Step 3: Define user-facing functions. Test.
 
 
-In this next section, we define user-facing functions.  It is a bit of a mouthful, *but see the tip that follows.*
+In this next section, we define user-facing functions.  It is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...' that follows*.
 
 
 ### Define stat_*() function
@@ -312,7 +318,33 @@ You can also define geom with identical properties via aliasing.
 geom_index <- stat_index
 ```
 
-### Test user-facing functions
+
+::: {.callout-warning collapse="true"}
+# Be aware ...
+
+... verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
+
+An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
+
+
+```{r}
+# user-facing function
+geom_index <- function(mapping = NULL, data = NULL, 
+                         stat = "index", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = stat, 
+        geom = GeomPoint, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+```
+
+However, because it is unexpected to use `geom_index()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
+:::
+
+
+### Test geom_index()
 
 ```{r}
 ## Test user-facing.
@@ -324,6 +356,8 @@ cars |>
   labs(title = "Testing geom_index()")
 ```
 
+### Test/Enjoy your user-facing functions
+
 ### Test group-wise behavior
 
 
@@ -332,7 +366,7 @@ last_plot() +
   aes(color = speed > 15) 
 ```
 
-### Test geom flexibility of stat_*() function.
+### Use stat_*() function with another Geom
 
 ```{r}
 cars |>
@@ -353,6 +387,8 @@ An alternate 'express' route below may be helpful in some settings (i.e. in-scri
 
 ```{r error = T, eval = F}
 geom_index <- function(...){geom_label(stat = StatIndex, ...)}
+geom_index_text <- function(...){geom_text(stat = StatIndex, ...)}
+
 
 cars |>
   ggplot() +
@@ -374,7 +410,7 @@ Also, not as many arguments will be spelled out for the user when using the func
 
 # Done! Time for a review.
 
-Here is a quick review of the definitional code we've covered, dropping tests and discussion.
+Here is a quick review of the functions and ggproto objects we've covered, dropping tests and discussion.
 
 ::: {.callout-note collapse="false"}
 # Review
@@ -519,7 +555,7 @@ cars |>
 
 # Next up: Recipe 3 `geom_lm_residuals()`
 
-How would you write the function draws residuals based on a linear model fit lm(y ~ x)? Go to Recipe 3.
+How would you write the function draws residuals based on a linear model fit lm(y ~ x)? Go to [Recipe 3](./recipe3residuals.qmd).
 
 
 
