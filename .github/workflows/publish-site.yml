@@ -4,9 +4,9 @@ on:
     release:
         types: [published]
     workflow_dispatch: {}
-      
+
 name: doc-website
-  
+
 jobs:
   demo-website:
     runs-on: ubuntu-latest
@@ -39,13 +39,13 @@ jobs:
             any::rmarkdown
             any::downlit
             any::xml2
-      
+
             # Back to our regularly scheduled Quarto output
       - name: "Set up Quarto"
         uses: quarto-dev/quarto-actions/setup@v2
         with:
           version: "pre-release"
-      
+
 
       # Install quarto extensions
       - name: "Install quarto extensions"
@@ -62,9 +62,9 @@ jobs:
       # This artifact shouldn't be required after deployment onto pages was a success.
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v2
-        with: 
+        with:
           retention-days: 1
-      
+
       # Use an Action deploy to push the artifact onto GitHub Pages
       # This requires the `Action` tab being structured to allow for deployment
       # instead of using `docs/` or the `gh-pages` branch of the repository
