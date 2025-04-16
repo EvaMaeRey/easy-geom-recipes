@@ -88,10 +88,10 @@ Now you are ready to begin building your extension function. The first step is t
 ```{r}
 #| label: fitted_2
 
-compute_group_lm_fitted<- function(data, scales){
-  model<-lm(formula= y ~ x, data = data)
+compute_group_lm_fitted <- function(data, scales){
+  model<-lm(formula = y ~ x, data = data)
   data %>% 
-    mutate(y=model$fitted.values)
+    mutate(y = model$fitted.values)
 }
 ```
 
@@ -134,7 +134,7 @@ Next, we use the ggplot2::ggproto function which allows you to define a new Stat
 
 ```{r}
 #| label: fitted_3
-StatFitted <- ggplot2::ggproto(`_class` = "StatFitted",
+StatLmFitted <- ggplot2::ggproto(`_class` = "StatLmFitted",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y"),
                                   compute_group = compute_group_lm_fitted)
@@ -168,7 +168,7 @@ penguins |>
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
   geom_point() + 
-  geom_point(stat = StatFitted) + 
+  geom_point(stat = StatLmFitted) + 
   labs(title = "Testing StatLmFitted")
 ```
 
@@ -212,7 +212,7 @@ penguins |>
       y = bill_length_mm) + 
   geom_point() + 
   layer(geom = GeomPoint, 
-        stat = StatFitted, 
+        stat = StatLmFitted, 
         position = "identity", 
         params = list(size = 2)) + 
   labs(title = "Testing StatLmFitted with layer() function")
@@ -230,9 +230,9 @@ In this next section, we define user-facing functions.  Doing so is a bit of a m
 ```{r}
 #| label: fitted_4
 
-stat_fitted <- function(mapping = NULL, data = NULL, geom = "point", position = "identity", 
+stat_lm_fitted <- function(mapping = NULL, data = NULL, geom = "point", position = "identity", 
     ..., show.legend = NA, inherit.aes = TRUE) {
-    layer(data = data, mapping = mapping, stat = StatFitted, 
+    layer(data = data, mapping = mapping, stat = StatLmFitted, 
         geom = geom, position = position, show.legend = show.legend, 
         inherit.aes = inherit.aes, params = list(na.rm = FALSE, 
             ...))
@@ -258,7 +258,7 @@ stat_fitted <- function(mapping = NULL, data = NULL, geom = "point", position = 
 You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
 
 - Type `stat_identity` in your console to print function contents; copy-paste the function definition. 
-- Switch out `StatIdentity` with your Stat, e.g. `StatFitted`. 
+- Switch out `StatIdentity` with your Stat, e.g. `StatLmFitted`. 
 - Switch out `"point"` other geom ('rect', 'text', 'line' etc) if needed
 - Final touch, `list2` will error without export from rlang, so update to `rlang::list2`.
 
@@ -274,7 +274,7 @@ stat_identity
 Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
 
 ```{r}
-geom_fitted <- stat_fitted
+geom_lm_fitted <- stat_lm_fitted
 ```
 
 
@@ -288,8 +288,8 @@ An approach that is more consistent with existing guidance would be to hardcode 
 
 ```{r}
 # user-facing function
-geom_index <- function(mapping = NULL, data = NULL, 
-                         stat = "index", position = "identity", 
+geom_lm_fitted <- function(mapping = NULL, data = NULL, 
+                         stat = "lm_fitted", position = "identity", 
                          ..., show.legend = NA, inherit.aes = TRUE) 
 {
     layer(data = data, mapping = mapping, stat = stat, 
@@ -299,7 +299,7 @@ geom_index <- function(mapping = NULL, data = NULL,
 }
 ```
 
-However, because it is unexpected to use `geom_index()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
+However, because it is unexpected to use `geom_lm_fitted()` with a Stat other than StatLmFitted (doing so would remove the fitted-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
 :::
 
 
@@ -311,8 +311,8 @@ penguins %>%
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() + 
-  geom_smooth(method= "lm")+
-  geom_point_lm_fitted()
+  geom_smooth(method = "lm") +
+  geom_lm_fitted()
 ```
 
 ### And check out conditionality
@@ -323,16 +323,57 @@ penguins %>%
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() + 
-  geom_smooth(method="lm", se= F) +
-  geom_point_lm_fitted() + 
+  geom_smooth(method= "lm", se= F) +
+  geom_lm_fitted() + 
   facet_wrap(facets = vars(species))
 ```
 
----
+# Done! Time for a review.
 
-# Task #3 create `geom_segment_lm_residuals()`
+Here is a quick review of the functions and ggproto objects we've covered, dropping tests and discussion.
 
-Create the function `geom_segment_lm_residuals()`. 
+::: {.callout-note collapse="false"}
+# Review
+
+```{r}
+library(tidyverse)
+
+# Step 1. Define compute
+compute_group_lm_fitted <- function(data, scales){
+  model <- lm(formula = y ~ x, data = data)
+  data %>% 
+    mutate(y = model$fitted.values)
+}
+
+
+# Step 2. Define Stat
+StatLmFitted = ggproto(`_class` = "StatLmFitted",
+                      `_inherit` = Stat,
+                      required_aes = c("x", "y"),
+                      compute_group = compute_group_lm_fitted)
+
+# Step 3. Define user-facing functions
+
+## define stat_*()
+stat_lm_fitted <- function(mapping = NULL, data = NULL, 
+                         geom = "point", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = StatLmFitted, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+## define geom_*()
+geom_lm_fitted <- stat_lm_fitted
+```
+
+::: 
+
+# Your Turn: Write `geom_residuals()`
+
+Using the `geom_lm_fitted` Recipe #3 as a reference, try to create a `stat_lm_residuals()` and convenience `geom_fitted()` that draws a segment between observed and fitted values for a linear model. 
 
 ### Hint: consider what aesthetics are required for segments.  We'll give you Step 0 this time...
 
@@ -364,17 +405,81 @@ penguins %>%
              color = "blue")
 ```
 
-```{webr-r}
-# step 1: write your compute_group function (and test)
+### Step 1: Write compute function. Test.
 
-# step 2: write ggproto with compute_group as an input
+```{webr}
+#| exercise: geom_means
+# Define. 
+compute_group_lm_residuals <- function(data, scales){
+  
+  model <- lm(formula = y ~ x, data = data)
+  
+  ___ %>% 
+    mutate(xend = x,
+           yend = model$fitted.values)
+  
+}
 
-# step 3: write your geom_*() function with ggproto as an input
+# Test.
+penguins_clean |> 
+  select(x = bill_depth_mm, 
+         ____ = bill_length_mm) |>
+  compute_group_means()
+```
 
-# step 4: enjoy!
+### Step 2: Write Stat.
 
+
+```{webr}
+#| exercise: geom_means
+# Define.
+StatLmResiduals <- ggproto(`_class` = "____",
+                     `_inherit` = Stat,
+                     compute_group = ____,
+                     required_aes = c("x", "____"))
+
+# Test.
+penguins_clean |> 
+  ggplot() + 
+  aes(x = bill_depth_mm, y = bill_length_mm) + 
+  geom_point() +
+  geom_smooth(method = lm) +
+  geom_point(stat = ____,
+             size = 8, color = "red")
 
 ```
 
----
+### Step 3: Write user-facing functions. 
+
+
+```{webr}
+#| exercise: geom_means
+# Define.
+stat_lm_residuals <- function (mapping = NULL, data = NULL, geom = "segment", position = "identity", 
+    ..., show.legend = NA, inherit.aes = TRUE){
+    layer(data = data, mapping = mapping, stat = ____, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+
+# Alias.
+geom_lm_residuals <- ____
+
+
+# Test.
+penguins_clean |> 
+  ggplot() + 
+  aes(x = bill_depth_mm, y = bill_length_mm) + 
+  geom_point() +
+  geom_smooth(method = lm) +
+  ____(size = 8, color = "red")
+```
+
+
+# Congratulations!
+
+If you've finished all three recipes, you feel for how Stats can help you build layer functions like stat_residuals and geom_residuals.  
+
 

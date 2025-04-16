@@ -234,7 +234,7 @@ The short answer is 'yes'!  If you just want to use the Stat yourself locally in
 :::   {.callout-tip collapse="true"}
 # Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
 
-Instead of using a `geom_*()` function, you might prefer to use the more flexible `layer()` function in your testing step.  In fact, it's sometimes necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline.
+Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, it's necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
 
 A test of StatIndex using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
@@ -312,7 +312,7 @@ stat_identity
 
 ### Define geom_*() function
 
-You can also define geom with identical properties via aliasing. 
+Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
 
 ```{r}
 geom_index <- stat_index
