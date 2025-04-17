@@ -70,4 +70,4 @@ jobs:
       # instead of using `docs/` or the `gh-pages` branch of the repository
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v2
+        uses: actions/deploy-pages@v3
