@@ -11,24 +11,7 @@ webr:
 
 
 
-This tutorial is intended for individuals who already have a working knowledge of the grammar of ggplot2, but may like to build a richer vocabulary for themselves via the Stat extension mechanism.
 
-# Preview
-
-Our recipes take the form:
-
-- *Step 0. Get the job done with 'base' ggplot2.* 
-It's a good idea to clarify what needs to happen without getting into the extension architecture
-- *Step 1. Write a computation function.* 
-Wrap the necessary computation into a function that your target geom_*() function will perform. We focus on 'compute_group' computation only in this tutorial.
-- *Step 2. Define a ggproto object.* 
-ggproto objects allow your extension to work together with base ggplot2 functions!  You'll use the computation function from step 1 to help define it.  
-- *Step 3. Write your geom function!* 
-You're ready to write your function.  You will incorporate the ggproto from step 2 and also define which more primitive geom (point, text, segment etc) you want other behaviors to inherit from. 
-- *Step 4. Test/Enjoy!*
-Take your new geom for a spin! Check out group-wise computation behavior!
-
-Below, you'll see a completely worked example (example recipes) and then a invitation to build a related target geom_*().
 
 # The Goal
 
@@ -387,13 +370,13 @@ Using the `geom_lm_fitted` Recipe #3 as a reference, try to create a `stat_lm_re
 library(tidyverse)
 library(palmerpenguins)
 # handling missingness is not a discussion of this tutorial, so we'll only use complete cases
-penguins <- ggplot2::remove_missing(penguins) 
+penguins_clean <- ggplot2::remove_missing(penguins) 
 
 # step 0: use base ggplot2
 model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
-            data = penguins) 
+            data = penguins_clean) 
 
-penguins_w_fitted <- penguins %>% 
+penguins_w_fitted <- penguins_clean %>% 
   mutate(fitted = model$fitted.values)
 
 penguins %>% 
@@ -425,7 +408,7 @@ compute_group_lm_residuals <- function(data, scales){
 penguins_clean |> 
   select(x = bill_depth_mm, 
          ____ = bill_length_mm) |>
-  compute_group_means()
+  compute_group_lm_residuals()
 ```
 
 ### Step 2: Write Stat.
@@ -445,8 +428,7 @@ penguins_clean |>
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
   geom_smooth(method = lm) +
-  geom_point(stat = ____,
-             size = 8, color = "red")
+  geom_segment(stat = ____, color = "blue")
 
 ```
 
@@ -475,7 +457,7 @@ penguins_clean |>
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
   geom_smooth(method = lm) +
-  ____(size = 8, color = "red")
+  ____(color = "blue")
 ```
 
 
