@@ -80,6 +80,7 @@ layer_data(plot = last_plot(),
            i = 2) # the fitted y (not the raw data y) is of interest
 ```
 
+:::
 
 ## Step 1: Define compute. Test.
 
