@@ -21,8 +21,8 @@ website:
         text: Home
       - href: tutorial-preview.qmd
         text: Tutorials
-      - href: research.qmd
-        text: Research
+      # - href: research.qmd
+      #   text: Research
     right:
       - icon: github
         href: https://github.com/evamaerey/easy-geom-recipes
@@ -36,14 +36,14 @@ website:
           - href: recipe3residuals.qmd
 
 
-      - section: "Tutorial Evaluation"
-        contents:
-          - href: survey_results_summary.qmd
-          - href: focus_group_script.qmd
-          - href: focus_group_highlights.qmd
-          - href: invitation_to_participate.qmd
-          - href: survey_instrument.qmd
-          - href: 2023_easy_geom_recipes.qmd
+      # - section: "Tutorial Evaluation"
+      #   contents:
+      #     - href: survey_results_summary.qmd
+      #     - href: focus_group_script.qmd
+      #     - href: focus_group_highlights.qmd
+      #     - href: invitation_to_participate.qmd
+      #     - href: survey_instrument.qmd
+      #     - href: 2023_easy_geom_recipes.qmd
 
 format:
   html:
