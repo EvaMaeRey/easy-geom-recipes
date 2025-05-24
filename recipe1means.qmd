@@ -8,9 +8,8 @@ webr:
 
 # The Goal
 
-Welcome to 'Easy `geom` recipes' Recipe #1: creating geom_means and geom_medians.
+Why write new `geom_*` functions?   When visualizations requires computation before plotting, custom `geom_()` or `stat_()` functions can streamline your workflow. By defining new `Stats` and using theme in new `geom_*()` function definition, you can integrate calculations directly into the plotting pipeline. In the following code, we'll demonstrate the process to define `geom_means()` to add a point at the means of `x` and `y`.
 
-Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
 
 ```{r, eval = F}
 ggplot(data = penguins) + 
@@ -40,7 +39,7 @@ penguins_clean |>
              size = 8, color = "red")
 ```
 
-In this exercise, we'll demonstrate how to add a point at the medians x and y by defining the new extension function `geom_medians()`. Then you'll be prompted to define `geom_means()` based on what you've learned.
+In this exercise, we'll demonstrate how to define the new extension function `geom_medians()` to add a point at the medians `x` and `y`. Then you'll be prompted to define `geom_means()` based on what you've learned.
 
 ---
 
@@ -66,7 +65,7 @@ glimpse(penguins_clean)
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
+It's a good idea to get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
 
 
 ```{r status-quo}
