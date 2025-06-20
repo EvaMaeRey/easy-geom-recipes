@@ -8,7 +8,7 @@ webr:
 
 # The Goal
 
-Why write new `geom_*` functions?   When visualizations requires computation before plotting, custom `geom_()` or `stat_()` functions can streamline your workflow. By defining new `Stats` and using theme in new `geom_*()` function definition, you can integrate calculations directly into the plotting pipeline. In the following code, we'll demonstrate the process to define `geom_means()` to add a point at the means of `x` and `y`.
+Why write new `geom_*` functions?   When visualizations requires computation before plotting, custom `geom_()` or `stat_()` functions can streamline your workflow. By defining new `Stats` objects and using them to define new `geom_*()` functions, you can integrate calculations directly into the plotting pipeline. In the following code, we'll demonstrate the process to define `geom_medians()` to add a point at the means of `x` and `y` which can be used as follows:
 
 
 ```{r, eval = F}
@@ -119,7 +119,7 @@ compute_group_medians <- function(data, scales){
 }
 ```
 
-::: {.callout-note collapse="true"}
+::: {.callout-note collapse="false"}
 # You may have noticed ...
 
 1. **... that our function uses the `scales` argument.** 
@@ -140,7 +140,7 @@ penguins_clean |>
   compute_group_medians()
 ```
 
-::: {.callout-note collapse="true"}
+::: {.callout-note collapse="false"}
 # You may have noticed ...
 
 **... that we prepare the data to have columns with names x and y before testing `compute_group_medians`.** Computation will fail if the names x and y are not present given our function definition.  Internally in a plot, columns are renamed when mapping aesthetics, e.g. `aes(x = bill_depth, y = bill_length)`.
@@ -164,19 +164,19 @@ StatMedians <-
                    required_aes = c("x", "y"))            # <4>
 ```
 
-::: {.callout-note collapse="true"}
+::: {.callout-note collapse="false"}
 # You may have noticed ...
 
-1. **... that the naming convention for the ggproto object is CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
-2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
+1. **... that the naming convention for the `ggproto` object is written in  CamelCase.** The new class should also be named the same, i.e. `"StatMedians"`.
+2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The `required_aes` and `compute_group` elements are generic and in StatMedians, we update the definition.
 
 ```{r}
 names(ggplot2::Stat) # which elements exist in Stat
 ggplot2::Stat$required_aes # generic some kind of NULL behaivor
 ```
 
-3. **that the compute_group_medians function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
-4. **that setting `required_aes` to 'x' and 'y' makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x and y, your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_medians()` requires the following missing aesthetics: x.'
+3. **that the `compute_group_medians` function is used to define our Stat's `compute_group` element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
+4. **that setting `required_aes` to `x` and `y` makes sense given compute assumptions.** The compute assumes data to be a dataframe with columns `x` and `y`. If you data doesn't have x and y, your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. "`stat_medians()` requires the following missing aesthetics: `x`."
   
 
 
@@ -187,7 +187,7 @@ ggplot2::Stat$required_aes # generic some kind of NULL behaivor
 
 ### Test Stat.
 
-You can test out your Stat using them in ggplot2 geom_*() functions.  
+You can test out your Stat using them in ggplot2 `geom_*()` functions.  
 
 ```{r}
 penguins_clean |> 
@@ -199,7 +199,7 @@ penguins_clean |>
   labs(title = "Testing StatMedians")
 ```
 
-::: {.callout-note collapse="true"}
+::: {.callout-note collapse="false"}
 # You may have noticed ...
 
 **that we don't use "medians" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "medians", size = 7)`
@@ -223,7 +223,7 @@ last_plot() +
 :::  {.callout-tip collapse="true"}
 # Pro tip: Think about an early exit ...
 
-You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within geom_*() functions?  
+You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within `geom_*()` functions?  
 
 The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
 
@@ -233,7 +233,7 @@ The short answer is 'yes'!  If you just want to use the Stat yourself locally in
 :::   {.callout-tip collapse="true"}
 # Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
 
-Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, it's necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
+Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, you *must* to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
 
 A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
@@ -250,55 +250,51 @@ penguins_clean |>
   labs(title = "Testing StatMedians with layer() function")
 ```
 
-
 :::
-
-
 
 
 ## Step 3: Define user-facing functions. Test.
 
+In this next section, we define user-facing functions.  Doing so is a bit of a mouthful, but *see the 'Pro tip:  Use `geom_point` definition as a template in this step ...' that follows*.
 
-In this next section, we define user-facing functions.  Doing so is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...' that follows*.
+### Define stat_\*() function. 
 
-
-### Define stat_*() function
+*Never use stat\_\*() functions, preferring to use geom_\*\(\) functions? You can skip this and jump straight to [Define `geom_*()` function](Define `geom_*()` function)
 
 ```{r}
-#| label: geom_point_medians
-
-# user-facing function
-stat_medians <- function(mapping = NULL, data = NULL, 
-                         geom = "point", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
+stat_medians <- function (mapping = NULL, data = NULL,
+                          geom = "point", position = "identity",
+                          ..., na.rm = FALSE, 
+                          show.legend = NA, inherit.aes = TRUE) 
 {
-    layer(data = data, mapping = mapping, stat = StatMedians, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
+    layer(mapping = mapping, data = data, 
+          geom = geom, stat = StatMedians, 
+          position = position, show.legend = show.legend, 
+          inherit.aes = inherit.aes, 
+        params = rlang::list2(na.rm = na.rm, ...))
 }
+
 ```
 
-
-::: {.callout-note collapse="true"}
+::: {.callout-note collapse="false"}
 # You may have noticed...
 
-1. **that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
+1. **... that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd probably create stat_big_circle() to follow naming conventions.
 
-2. **that `StatMedians` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+2. **... that `StatMedians` defines the new layer function and is fixed**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
 
-3. **that `"point"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomPoint` will be used in the layer unless otherwise specified by the user. 
+3. **... that `"point"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomPoint` will be used in the layer unless otherwise specified by the user. 
 :::
 
 
 ::: {.callout-tip collapse="true"}
-## Pro tip.  Use `stat_identity` definition as a template in this step ...
+## Pro tip.  Use `stat_identity`'s definition as a template in this step ...
 ...
 
 You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
 
 - Type `stat_identity` in your console to print function contents; copy-paste the function definition. 
-- Switch out `StatIdentity` with your Stat, e.g. `StatMedian`. 
+- Switch out `StatIdentity` with your Stat, e.g. `StatIndex`. 
 - Switch out `"point"` other geom ('rect', 'text', 'line' etc) if needed
 - Final touch, `list2` will error without export from rlang, so update to `rlang::list2`.
 
@@ -309,37 +305,55 @@ stat_identity
 :::
 
 
-### Define geom_*() function
+### Define geom_*() function. 
 
-Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
 
 ```{r}
-geom_medians <- stat_medians
-```
+#| label: geom_medians
 
-::: {.callout-warning collapse="true"}
-# Be aware ...
-
-... verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
-
-
-An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
-
-```{r}
 # user-facing function
-geom_medians <- function(mapping = NULL, data = NULL, 
-                         stat = "medians", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
+geom_medians <- function (mapping = NULL, data = NULL, stat = StatMedians, position = "identity", 
+    ..., na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) 
 {
-    layer(data = data, mapping = mapping, stat = stat, 
-        geom = GeomPoint, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
+    layer(mapping = mapping, data = data, geom = "point", stat = stat, 
+        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
+        params = rlang::list2(na.rm = na.rm, ...))
 }
 ```
 
-However, because it is unexpected to use `geom_medians()` with a Stat other than StatMedians (doing so would remove the median-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
+A more conventional and user-facing way to define this function would be to write `stat = "medians"` and let ggplot2 will retrieve `StatMedians` under-the-hood based on the `"medians"` string.
+
+
+::: {.callout-tip collapse="true"}
+## Pro tip.  Use the `geom_point` definition as a template in this step.
+
+You may be thinking, defining a new geom_\*() is a mouthful that's probably hard to reproduce from memory.  Therefore, we recommend you use `geom_point()` and `stat_identity()`'s definition as reference to write the scaffolding for your own layer. i.e:
+
+- Type `geom_point` in your console to print function contents; copy-paste the function definition. 
+- Switch out `"identity"` with your Stat, e.g. `StatMedian` (or refer to it with quoted string `"median"`). 
+- Switch out `"point"` other geom ('rect', 'text', 'line' etc) if needed
+- Final touch, `list2` will error without export from rlang, so update to `rlang::list2`.
+
+```{r}
+library(ggplot2)
+geom_point
+```
+
 :::
+
+::: {.callout-note collapse="false"}
+# You may have noticed ...
+
+1. **that we are breaking with a naming convention that names the `geom_*()` function after the Geom that is used internally to define the layer.** We define the function with `GeomPoint`, but our function is called `geom_medians()`.  So you may have guessed that `geom_medians` is a little bit of a false advertisement. An advanced user might assume that that GeomMedians exists and they can use it in other contexts.  However, breaking with the naming convention is true of other useful functions like `geom_count()`, `geom_jitter()`, `geom_col()` which are not based on `GeomCount`, `GeomJitter`, and `GeomCol`.
+
+2. **that `StatMedians` is the default Stat defining the function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+
+3. **that `geom = "point"`  defines the function**  This means that the `ggplot2::GeomPoint` will be used in the layer unless otherwise specified by the user. In the `geom_medians()` function the `GeomPoint` is fixed and  `StatMedians` could hypothetically be switched out.
+
+:::
+
+
+
 
 ### Test/Enjoy your user-facing functions
 
@@ -371,16 +385,16 @@ last_plot() +
 ```
 
 ::: {.callout-tip collapse="true"}
-# Pro-tip: 'Express' alternative for user-facing functions ... (*Caution, needs vetting*)
-
-*This approach is not fully vetted. Your comments and feedback are welcome. See discussions [26](https://github.com/teunbrand/ggplot-extension-club/discussions/26) and [31](https://github.com/teunbrand/ggplot-extension-club/discussions/31)*
-
-An alternate 'express' route below may be helpful in some settings (i.e. in-script definitions and exploratory work).  
+# Pro-tip: try express method `make_constructor`, available in ggplot v. 3.5.2.9000.  This will write the scaffolding code for you!
 
 
 ```{r error = T, eval = F}
-geom_medians <- function(...){geom_point(stat = StatMedians, ...)}
-geom_medians_label <- function(...){geom_label(stat = StatMedians, ...)}
+stat_medians <- ggplot2::make_constructor(StatMedians, GeomPoint)
+geom_medians <- ggplot2::make_constructor(GeomPoint, StatMedians)
+geom_medians_label <- ggplot2::make_constructor(GeomLabel, StatMedians)
+
+# check out the function definitions
+geom_medians
 
 penguins_clean |>
   ggplot() +
@@ -396,10 +410,6 @@ last_plot() +
   aes(label = species) +
   geom_medians_label()
 ```
-
-A downside is that the geom is hard-coded, so it is not flexible in this regard compared with the stat_*() counterpart defined using the layer() function. 
-
-Also, not as many arguments will be spelled out for the user when using the function.  
 
 :::
 
@@ -428,21 +438,18 @@ StatMedians = ggproto(`_class` = "StatMedians",
                       required_aes = c("x", "y"),
                       compute_group = compute_group_medians)
 
-# Step 3. Define user-facing functions
+# Step 3. Define user-facing functions (user friendly, geom_*() function only shown here)
 
-## define stat_*()
-stat_medians <- function(mapping = NULL, data = NULL, 
-                         geom = "point", position = "identity", 
+## use geom_point's definition as a model to follow geom_* conventions: geom is fixed, stat is flexible
+geom_medians <- function(mapping = NULL, data = NULL, 
+                         stat = "medians", position = "identity", 
                          ..., show.legend = NA, inherit.aes = TRUE) 
 {
-    layer(data = data, mapping = mapping, stat = StatMedians, 
-        geom = geom, position = position, show.legend = show.legend, 
+    layer(data = data, mapping = mapping, stat = stat, 
+        geom = GeomPoint, position = position, show.legend = show.legend, 
         inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
             ...))
 }
-
-## define geom_*()
-geom_medians <- stat_medians
 ```
 
 ::: 
@@ -470,7 +477,7 @@ glimpse(penguins_clean)
 ```{webr}
 #| exercise: geom_means
 # Step 0: Use base ggplot2 to get the job done.
-penguins_means <- penguins_clean %>% 
+penguins_means <- penguins_clean |> 
   summarise(mean_bill_depth_mm = ____(bill_depth_mm),
             ____ = mean(bill_length_mm))
 
@@ -489,9 +496,9 @@ penguins_clean |>
 ```{webr}
 #| exercise: geom_means
 # Define. 
-compute_group_means <- function(data, ...){
+compute_group_means <- function(data, scales){
   
-  data %>% 
+  data |> 
     summarise(x = mean(x),
               y = ____(____))
   
@@ -525,23 +532,19 @@ penguins_clean |>
 
 ```
 
-### Step 3: Write user-facing functions. 
+### Step 3: Write user-facing function (only geom_means() here using geom_point's definition for reference; stat_means() is almost the same, but would use stat_identity's definition as a model)
 
 
 ```{webr}
 #| exercise: geom_means
-# Define.
-stat_means <- function (mapping = NULL, data = NULL, geom = "point", position = "identity", 
+# Define geom_means.
+geom_means <- function (mapping = NULL, data = NULL, stat = ____, position = "identity", 
     ..., show.legend = NA, inherit.aes = TRUE){
-    layer(data = data, mapping = mapping, stat = ____, 
-        geom = geom, position = position, show.legend = show.legend, 
+    layer(data = data, mapping = mapping, stat = stat, 
+        geom = "point", position = position, show.legend = show.legend, 
         inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
             ...))
 }
-
-
-# Alias.
-geom_means <- ____
 
 
 # Test.

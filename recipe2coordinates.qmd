@@ -8,6 +8,9 @@ webr:
 
 # The Goal
 
+
+Why create custom ggplot2 functions? When visualizing data in a specific way requires pre-calculations before plotting, custom geom_() or stat_() functions can streamline your workflow. By extending the Stat class, you can integrate these calculations directly into the plotting pipeline. In the following code, we add an annotation with the coordinates of each point in the plot through a geom_coordinates() function.
+
 Welcome to 'Easy `geom` recipes' Recipe #2: creating geom_index and geom_coordinates.
 
 Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
@@ -486,7 +489,7 @@ cars |>
 ```{webr}
 #| exercise: geom_means
 # Define. 
-compute_group_coordinates <- function(data, ...){
+compute_group_coordinates <- function(data, scales){
   
   data %>% 
     # which aes are you defining x, color, label, linewidth?

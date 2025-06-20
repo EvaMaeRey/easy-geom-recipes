@@ -40,10 +40,10 @@ penguins <- remove_missing(palmerpenguins::penguins)
 model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
             data = penguins) 
 
-penguins_w_fitted <- penguins %>% 
+penguins_w_fitted <- penguins |> 
   mutate(fitted = model$fitted.values)
 
-penguins %>% 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() + 
@@ -74,7 +74,7 @@ Now you are ready to begin building your extension function. The first step is t
 
 compute_group_lm_fitted <- function(data, scales){
   model<-lm(formula = y ~ x, data = data)
-  data %>% 
+  data |> 
     mutate(y = model$fitted.values)
 }
 ```
@@ -291,7 +291,7 @@ However, because it is unexpected to use `geom_lm_fitted()` with a Stat other th
 
 ```{r}
 #| label: fitted_5
-penguins %>% 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() + 
@@ -303,7 +303,7 @@ penguins %>%
 
 ```{r}
 #| label: fitted_6
-penguins %>% 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() + 
@@ -325,7 +325,7 @@ library(tidyverse)
 # Step 1. Define compute
 compute_group_lm_fitted <- function(data, scales){
   model <- lm(formula = y ~ x, data = data)
-  data %>% 
+  data |> 
     mutate(y = model$fitted.values)
 }
 
@@ -376,10 +376,10 @@ penguins_clean <- ggplot2::remove_missing(penguins)
 model <- lm(formula = bill_length_mm ~ bill_depth_mm, 
             data = penguins_clean) 
 
-penguins_w_fitted <- penguins_clean %>% 
+penguins_w_fitted <- penguins_clean |> 
   mutate(fitted = model$fitted.values)
 
-penguins %>% 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() + 
@@ -398,7 +398,7 @@ compute_group_lm_residuals <- function(data, scales){
   
   model <- lm(formula = y ~ x, data = data)
   
-  ___ %>% 
+  ___ |> 
     mutate(xend = x,
            yend = model$fitted.values)
   
