@@ -333,7 +333,7 @@ geom_index <- function (mapping = NULL, data = NULL, stat = "index", position = 
 {
     layer(mapping = mapping, data = data, geom = "label", stat = stat, 
         position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
-        params = list2(na.rm = na.rm, ...))
+        params = rlang::list2(na.rm = na.rm, ...))
 }
 ```
 
