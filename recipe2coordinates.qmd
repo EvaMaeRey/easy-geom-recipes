@@ -117,16 +117,14 @@ compute_group_index <- function(data, scales){
 }
 ```
 
-::: {.callout-note collapse="true"}
-# You may have noticed ...
+::: {.callout-note collapse="false"}
+# You may have noticed ... 
 
-1. **... that our function uses the `scales` argument.** 
-<!-- Other things get passed alongside the data, like `scales`, `params`, through `...`.  You don't need to worry about these unless writing more complicated Stats. --> 
-The `scales` argument is used internally in ggplot2.  So while it won't be used in your test, you do need it for defining and using the ggproto Stat object in the next step.
+1. **... the `scales` argument in the compute definition, which is used internally in ggplot2.**  While it won't be used in your test (up next), you do need so that the computation will work in the ggplot2 setting.
 
-2. **... that the compute function assumes that variables x and y are present in the data.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for ggplots.
+2. **... that the compute function can only be used with data with variables `x` and `y`.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for plot.
 
-3. **... that the compute function adds a column of data called 'label'**  We assume that x and y will be present in our data as the user will declare them.  However, the `label` aes, which is required for Geoms like Text and Label will be computed *internally* in our layer, meaning the user doesn't need to provide this.
+3. **... that the compute function adds a column of data called 'label' internally.**  This means that the Stat can be used with Geoms like GeomText and GeomLabel without the user providing a label!
 :::
 
 
@@ -140,12 +138,11 @@ cars |>
   compute_group_index()
 ```
 
-::: {.callout-note collapse="true"}
-# You may have noticed ...
+::: {.callout-note collapse="false"}
+# You may have noticed ... 
 
-**... that we prepare the data to have columns with names x and y before testing `compute_group_index`.** We just do this to be more consistent with how data will look internally in a ggplot --- columns are renamed when mapping aesthetics, e.g. `aes(x = speed, y = dist)`, and variables that aren't mapped won't be available to the compute.  
+**... that we prepare the data to have columns with names `x` and `y` before testing.**  Computation will fail if variables `x` and `y` are not present given the function's definition.  In a plotting setting, columns are renamed by mapping aesthetics, e.g. `aes(x = speed, y = dist)`.
 :::
-
 
 ## Step 2: Define new Stat. Test.
 
@@ -164,19 +161,16 @@ StatIndex <-
                    compute_group = compute_group_index)            # <4>
 ```
 
-::: {.callout-note collapse="true"}
-# You may have noticed ...
+::: {.callout-note collapse="false"}
+# You may have noticed... 
 
-1. **... that the naming convention for the ggproto object is CamelCase.** The new class should also be named the same, i.e. `"StatIndex"`.
-2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. We have a quick look at defaults of generic `Stat` below.  The required_aes and compute_group elements are generic and in StatMedians, we update the definition.
+1. **... that the naming convention for the `ggproto` object is written in  CamelCase. **The new class should also be named the same, i.e. `"StatIndex"`.
 
-```{r}
-names(ggplot2::Stat) # which elements exist in Stat
-ggplot2::Stat$required_aes # generic some kind of NULL behavior
-```
+2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* -- you are inheriting class properties from ggplot2::Stat. 
 
-3. **... that the compute_group_index function is used to define our Stat's compute_group element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
-4. **... that setting `required_aes` isn't necessary for this Stat** The compute assumes data to be a dataframe but doesn't rely on columns named x and y, for example, for computation.  In general, specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue if required aes are not specified when plotting, e.g. '`stat_index()` requires the following missing aesthetics: x.'
+3. **... that the `compute_group_index` function is used to define our Stat's `compute_group` element.** This means that data will be transformed group-wise by our compute definition -- i.e. by categories if a categorical variable is mapped.
+
+4. **... that setting `required_aes` to `x` and `y` reflects the compute functions requirements** Specifying `required_aes` in your Stat can improve your user interface. Standard ggplot2 error messages will issue if required aes are not specified, e.g. "`stat_index()` requires the following missing aesthetics: `x`."
   
 
 
@@ -199,11 +193,11 @@ cars |>
   labs(title = "Testing StatIndex")
 ```
 
-::: {.callout-note collapse="true"}
+
+::: {.callout-note collapse="false"}
 # You may have noticed ...
 
-**... that we don't use "index" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "index", size = 7)`
-
+**... that we don't use `"index"` as the `stat` argument. But you could!**  If you prefer, you could write `geom_point(stat = "medians", size = 7)` which will direct to your new `StatMedians` under the hood. 
 :::
 
 ### Test Stat group-wise behavior
@@ -216,7 +210,7 @@ last_plot() +
   aes(color = speed > 15)
 ```
 
-::: {.callout-note collapse="true"}
+::: {.callout-note collapse="false"}
 # You may have noticed ...
 
 **... that some indices change with color mapping.**  This is because compute is by group (`compute_group` is defined), so the index is within group.  
@@ -224,15 +218,17 @@ last_plot() +
 
 
 
-:::  {.callout-tip collapse="true"}
-# Pro tip: Think about an early exit ...
 
-You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within geom_*() functions?  
+
+
+:::  {.callout-tip collapse="true"}
+# Pro tip: Think about an early exit (don't define a user-facing function) ...
+
+You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within `geom_*()` functions?  
 
 The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
 
 :::
-
 
 :::   {.callout-tip collapse="true"}
 # Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
@@ -284,12 +280,12 @@ stat_index <- function(mapping = NULL, data = NULL,
 ```
 
 
-::: {.callout-note collapse="true"}
+::: {.callout-note collapse="false"}
 # You may have noticed...
 
 1. **... that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle based stat_\*() function, I'd create stat_big_circle().
 
-2. **... that `StatIndex` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+2. **... that `StatIndex` is used to define the new layer function**, so the computation that defines it, which is to summarize to add the index label variable, will be in play before the layer is rendered.
 
 3. **... that `"label"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomLabel` will be used in the layer unless otherwise specified by the user. 
 :::
@@ -332,14 +328,12 @@ An approach that is more consistent with existing guidance would be to hardcode 
 
 ```{r}
 # user-facing function
-geom_index <- function(mapping = NULL, data = NULL, 
-                         stat = "index", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
+geom_index <- function (mapping = NULL, data = NULL, stat = "index", position = "identity", 
+    ..., na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) 
 {
-    layer(data = data, mapping = mapping, stat = stat, 
-        geom = GeomPoint, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
+    layer(mapping = mapping, data = data, geom = "label", stat = stat, 
+        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
+        params = list2(na.rm = na.rm, ...))
 }
 ```
 
