@@ -368,7 +368,7 @@ penguins |>
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm, group = species) +
   geom_point() + 
-  geom_smooth(method = "lm", se = F) + 
+  geom_lm_cat() +
   geom_segment(data = penguins_w_fitted,
              aes(yend = fitted, xend = bill_depth_mm),
              color = "blue")
@@ -439,7 +439,7 @@ penguins_clean |>
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
-  geom_smooth(method = lm) +
+  geom_lm_cat() +
   ____(color = "blue")
 ```
 

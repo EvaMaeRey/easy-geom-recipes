@@ -258,7 +258,9 @@ stat_medians <- function (mapping = NULL, data = NULL,
           inherit.aes = inherit.aes, 
         params = rlang::list2(na.rm = na.rm, ...))
 }
+```
 
+```{r, eval = F}
 # in the next ggplot2 release, you can use make_constructor to write all this for you!
 stat_medians <- make_constructor(StatMedians, geom = "point")
 
@@ -557,7 +559,7 @@ How would you write the function which annotates coordinates (x,y) for data poin
 
 
 
-```{r}
+```{r, eval = F}
 ## Consider statexpress::qstat_*() functions for more 
 ## flexibility and exploratory extension work 
 mean_fun <- function(data, scales){
