@@ -563,7 +563,7 @@ How would you write the function which annotates coordinates (x,y) for data poin
 
 
 
-```{r, eval = T}
+```{r, eval = F}
 ## Consider statexpress::qstat_*() functions for more 
 ## flexibility and exploratory extension work 
 mean_fun <- function(data, scales){
