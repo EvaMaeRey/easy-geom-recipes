@@ -1,5 +1,5 @@
 ---
-title: "Recipe 3: geom_residuals()"
+title: "Recipe 3: geom_lm_cat() and geom_lm_cat_residuals()"
 webr: 
   packages:
     - tidyverse
@@ -294,7 +294,7 @@ penguins |>
   geom_point() + 
   geom_smooth(method= "lm", se= F) +
   geom_lm_cat() + 
-  facet_wrap(facets = vars(species))
+  facet_wrap(facets = vars(sex))
 ```
 
 # Done! Time for a review.

@@ -231,7 +231,7 @@ cars |>
   aes(color = speed > 15)
 ```
 
-The indexing (row_numbers) are not computed within the T/F computed color variable `speed > 15`, but across the dataset.
+The indexing (row_numbers) are not computed within the T/F computed color variable `speed > 15`, but across the panel (facet).
 
 :::
 

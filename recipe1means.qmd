@@ -10,6 +10,10 @@ webr:
 
 Why write new `geom_*` functions?   When visualizations requires computation before plotting, custom `geom_()` or `stat_()` functions can streamline your workflow. By defining new `Stats` objects and using them to define new `geom_*()` functions, you can integrate calculations directly into the plotting pipeline. In the following code, we'll demonstrate the process to define `geom_medians()` to add a point at the means of `x` and `y` which can be used as follows:
 
+```{r, echo = F, code = readLines("make_constructor.R")}
+
+```
+
 
 ```{r, eval = F}
 ggplot(data = penguins) + 
@@ -260,7 +264,7 @@ stat_medians <- function (mapping = NULL, data = NULL,
 }
 ```
 
-```{r, eval = F}
+```{r, eval = T}
 # in the next ggplot2 release, you can use make_constructor to write all this for you!
 stat_medians <- make_constructor(StatMedians, geom = "point")
 
@@ -372,10 +376,10 @@ last_plot() +
 # Pro-tip: try express method `make_constructor`, available in ggplot v. 3.5.2.9000.  This will write the scaffolding code for you!
 
 
-```{r error = T, eval = F}
-stat_medians <- ggplot2::make_constructor(StatMedians, GeomPoint)
-geom_medians <- ggplot2::make_constructor(GeomPoint, StatMedians)
-geom_medians_label <- ggplot2::make_constructor(GeomLabel, StatMedians)
+```{r error = T, eval = T}
+stat_medians <- make_constructor(StatMedians, GeomPoint)
+geom_medians <- make_constructor(GeomPoint, StatMedians)
+geom_medians_label <- make_constructor(GeomLabel, StatMedians)
 
 # check out the function definitions
 geom_medians
@@ -559,7 +563,7 @@ How would you write the function which annotates coordinates (x,y) for data poin
 
 
 
-```{r, eval = F}
+```{r, eval = T}
 ## Consider statexpress::qstat_*() functions for more 
 ## flexibility and exploratory extension work 
 mean_fun <- function(data, scales){
