@@ -158,7 +158,8 @@ Next, we use the ggplot2::ggproto function which allows you to define a new Stat
 StatIndex <- 
   ggplot2::ggproto(`_class` = "StatIndex",              # <1>
                    `_inherit` = ggplot2::Stat,            # <2>
-                   compute_group = compute_group_index)            # <4>
+                   compute_group = compute_group_index,
+                   required_aes = c("x", "y"))            # <4>
 ```
 
 ::: {.callout-note collapse="false"}
@@ -213,7 +214,25 @@ last_plot() +
 ::: {.callout-note collapse="false"}
 # You may have noticed ...
 
-**... that some indices change with color mapping.**  This is because compute is by group (`compute_group` is defined), so the index is within group.  
+**... that some indices change with color mapping.**  This is because compute is by group (`compute_group` is defined), so the index is within group. Contrast this to the case where `compute_panel` is defined instead.
+
+```{r}
+StatIndexPanel <- 
+  ggplot2::ggproto(`_class` = "StatIndexPanel",              # <1>
+                   `_inherit` = ggplot2::Stat,            # <2>
+                   compute_panel = compute_group_index)
+
+cars |> 
+  ggplot() + 
+  aes(x = speed, y = dist) + 
+  geom_point() + 
+  geom_text(stat = StatIndexPanel, hjust = 1, vjust = 1) + 
+  labs(title = "Testing StatIndex") + 
+  aes(color = speed > 15)
+```
+
+The indexing (row_numbers) are not computed within the T/F computed color variable `speed > 15`, but across the dataset.
+
 :::
 
 

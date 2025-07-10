@@ -1,5 +1,5 @@
 ---
-title: "Easy geom recipes"
+title: "Easy geom_*() recipes"
 ---
 
 ```{r, echo = F, warning=F, fig.height=3.5}
@@ -24,7 +24,7 @@ Extending ggplot2 is a powerful way to enhance productivity and make coding plot
 
 <!-- Yet some useful areas of extension are not in mainstream use even among seasoned ggplot2 users. -->
 
-*Easy geom recipes* is a new point of entry for learning ggplot2 *Stat* extension, a particularly powerful mechanism which allows users to define computation to be used in new geom\_\*() or stat\_\*() functions.
+'Easy geom_\*() recipes' is a new point of entry for learning ggplot2 *Stat* extension, a particularly exension powerful mechanism which allows users to define computation to be used in new geom\_\*() or stat\_\*() functions.
 
 With new Stats, *you* can specify calculation to be done within the ggplot2 plot pipeline:
 

@@ -22,14 +22,13 @@ ggplot(data = penguins) +
 ```{r, echo = F, message=F, warning=F}
 library(tidyverse)
 library(palmerpenguins)
-penguins_clean <- remove_missing(penguins) 
 
-penguins_medians <- penguins_clean |> 
-  summarize(bill_length_mm_median = median(bill_length_mm),
-            bill_depth_mm_median = median(bill_depth_mm))
+penguins_medians <- penguins |> 
+  summarize(bill_length_mm_median = median(bill_length_mm, na.rm = T),
+            bill_depth_mm_median = median(bill_depth_mm, na.rm = T))
 
 # Plot.
-penguins_clean |> 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() + 
@@ -51,13 +50,12 @@ knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 
 ## Step 00: Loading packages and prepping data
 
-Handling missingness is not a discussion of this tutorial, so we'll only use complete cases.
+<!-- Handling missingness is not a discussion of this tutorial, so we'll only use complete cases. -->
 
 ```{r, message = F, warning=F}
 library(tidyverse)
 library(palmerpenguins)
-penguins_clean <- remove_missing(penguins) 
-glimpse(penguins_clean)
+glimpse(penguins)
 ```
 
 
@@ -71,12 +69,12 @@ It's a good idea to get things done without Stat extension first, just using 'ba
 ```{r status-quo}
 #| label: penguins
 # Compute.
-penguins_medians <- penguins_clean |> 
-  summarize(bill_length_mm_median = median(bill_length_mm),
-            bill_depth_mm_median = median(bill_depth_mm))
+penguins_medians <- penguins |> 
+  summarize(bill_length_mm_median = median(bill_length_mm, na.rm = T),
+            bill_depth_mm_median = median(bill_depth_mm, na.rm = T))
 
 # Plot.
-penguins_clean |> 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() + 
@@ -114,8 +112,8 @@ Now you are ready to begin building your extension function. The first step is t
 # Define compute.
 compute_group_medians <- function(data, scales){ 
   data |> 
-    summarize(x = median(x),
-              y = median(y))
+    summarize(x = median(x, na.rm = T),
+              y = median(y, na.rm = T))
 }
 ```
 
@@ -132,7 +130,7 @@ compute_group_medians <- function(data, scales){
 
 ```{r}
 # Test compute. 
-penguins_clean |>
+penguins |>
   select(x = bill_depth_mm,  
          y = bill_length_mm) |>  
   compute_group_medians()
@@ -184,7 +182,7 @@ StatMedians <-
 You can test out your Stat using them in ggplot2 `geom_*()` functions.  
 
 ```{r}
-penguins_clean |> 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
@@ -201,7 +199,6 @@ penguins_clean |>
 
 ### Test Stat group-wise behavior
 
-
 Test group-wise behavior by using a discrete variable with an group-triggering aesthetic like color, fill, or group, or by faceting.
 
 
@@ -217,7 +214,6 @@ last_plot() +
 You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within `geom_*()` functions?  
 
 The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
-
 :::
 
 
@@ -229,7 +225,7 @@ Instead of using a `geom_*()` function, you might prefer to use the `layer()` fu
 A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
 ```{r}
-penguins_clean |> 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
@@ -263,7 +259,10 @@ stat_medians <- function (mapping = NULL, data = NULL,
         params = rlang::list2(na.rm = na.rm, ...))
 }
 
+# in the next ggplot2 release, you can use make_constructor to write all this for you!
+stat_medians <- make_constructor(StatMedians, geom = "point")
 
+stat_medians
 ```
 
 ::: {.callout-note collapse="false"}
@@ -278,9 +277,10 @@ stat_medians <- function (mapping = NULL, data = NULL,
 :::
 
 
+
 ::: {.callout-tip collapse="true"}
 ## Pro tip.  Use `stat_identity`'s definition as a template in this step ...
-...
+...  (`make_constructor` in the next ggplot2 release means this tip can be deleted 🎉)
 
 You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
 
@@ -306,7 +306,9 @@ geom_medians <- stat_medians
 
 
 ::: {.callout-warning collapse="true"}
-# Be aware verbatim aliasing as shown above is a bit of a shortcut.
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut.
+
+Note: With the next ggplot2 release, we recommend using 'make_constructor' # as follows which will put you more in line with conventions! `geom_medians <- make_constructor(GeomPoint, stat = "medians")`
 
 Verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
 
@@ -331,13 +333,17 @@ However, because it is unexpected to use `geom_index()` with a Stat other than S
 
 
 
+
+
+
+
 ### Test/Enjoy your user-facing functions
 
 ### Test geom_medians()
 
 ```{r}
 ## Test user-facing.
-penguins_clean |>
+penguins |>
   ggplot() +
   aes(x = bill_depth_mm, y = bill_length_mm) +
   geom_point() +
@@ -372,7 +378,7 @@ geom_medians_label <- ggplot2::make_constructor(GeomLabel, StatMedians)
 # check out the function definitions
 geom_medians
 
-penguins_clean |>
+penguins |>
   ggplot() +
   aes(x = bill_depth_mm, 
       y = bill_length_mm) +
@@ -444,8 +450,7 @@ Using the `geom_medians` Recipe #1 as a reference, try to create a `stat_means()
 
 library(tidyverse)
 library(palmerpenguins)
-penguins_clean <- remove_missing(penguins) 
-glimpse(penguins_clean)
+glimpse(penguins)
 ```
 
 ### Step 0: Use base ggplot2 to get the job done
@@ -534,6 +539,10 @@ penguins_clean |>
 ```
 
 
+
+
+
+
 # Next up: Recipe 2 `geom_id()`
 
 How would you write the function which annotates coordinates (x,y) for data points on a scatterplot? Go to [Recipe 2](./recipe2coordinates.qmd).
@@ -542,7 +551,59 @@ How would you write the function which annotates coordinates (x,y) for data poin
 
 
 
+::: {.callout-note collapse="true"}
+### Pro tip: check out `ggplot2::stat_manual()` for group-wise compute in the next ggplot2 release one-offs or [`statexpress::qstat()`](https://github.com/EvaMaeRey/statexpress) for a quick stat short-cut in extension explorations.  
 
+
+
+
+```{r}
+## Consider statexpress::qstat_*() functions for more 
+## flexibility and exploratory extension work 
+mean_fun <- function(data, scales){
+  
+  data |>
+    summarize(x = mean(x, na.rm = T),
+              y = mean(y, na.rm = T))
+}
+
+library(statexpress)
+ggplot(penguins) + 
+  aes(x = bill_depth_mm,
+      y = bill_length_mm) + 
+  geom_point() + 
+  geom_point(stat = qstat(mean_fun),
+             size = 8)
+
+## option 2, use geom_point(stat = "manual")
+means_fun2 <- function(data){
+  
+  data |>
+    summarize(x = mean(x, na.rm = T),
+              y = mean(y, na.rm = T))
+  
+}
+
+ggplot(penguins) + 
+  aes(x = bill_depth_mm,
+      y = bill_length_mm) + 
+  geom_point() + 
+  geom_point(stat = "manual",
+             fun = means_fun2, 
+             size = 8)
+
+# or use the stat_manual function; GeomPoint is the default... 
+ggplot(penguins) + 
+  aes(x = bill_depth_mm,
+      y = bill_length_mm) + 
+  stat_manual(size = 8, # geom default is "point"
+              fun = means_fun2)
+```
+
+
+
+
+:::
 
 
 
