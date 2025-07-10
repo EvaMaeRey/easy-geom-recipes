@@ -1,7 +1,5 @@
 ---
 title: "Recipe 3: geom_residuals()"
-author: "Gina Reynolds, Morgan Brown"
-date: "1/3/2022"
 webr: 
   packages:
     - tidyverse
@@ -243,7 +241,7 @@ stat_lm_cat <- function(mapping = NULL, data = NULL, geom = "line", position = "
 ::: {.callout-tip collapse="true"}
 ## Pro tip.  Use `make_constructor` from the next release
 
-```{r}
+```{r, eval = F}
 stat_lm_cat <- make_constructor(StatLmCat, geom = "line")
 ```
 
@@ -262,7 +260,7 @@ geom_lm_cat <- stat_lm_cat
 ::: {.callout-tip collapse="true"}
 ## Pro tip.  Use `make_constructor` from the next release, which will be more consistent with most geom_*() formulations
 
-```{r}
+```{r, eval = F}
 geom_lm_cat <- make_constructor(GeomLine, stat = "lm_cat")
 ```
 
