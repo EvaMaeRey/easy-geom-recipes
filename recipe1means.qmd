@@ -10,7 +10,7 @@ webr:
 
 Why write new `geom_*` functions?   When visualizations requires computation before plotting, custom `geom_()` or `stat_()` functions can streamline your workflow. By defining new `Stats` objects and using them to define new `geom_*()` functions, you can integrate calculations directly into the plotting pipeline. In the following code, we'll demonstrate the process to define `geom_medians()` to add a point at the means of `x` and `y` which can be used as follows:
 
-```{r, echo = F, code = readLines("make_constructor.R")}
+```{r, echo = F, eval = F, code = readLines("make_constructor.R")}
 
 ```
 
@@ -264,12 +264,8 @@ stat_medians <- function (mapping = NULL, data = NULL,
 }
 ```
 
-```{r, eval = T}
-# in the next ggplot2 release, you can use make_constructor to write all this for you!
-stat_medians <- make_constructor(StatMedians, geom = "point")
 
-stat_medians
-```
+
 
 ::: {.callout-note collapse="false"}
 # You may have noticed that ...
@@ -284,9 +280,11 @@ stat_medians
 
 
 
+
+
 ::: {.callout-tip collapse="true"}
 ## Pro tip.  Use `stat_identity`'s definition as a template in this step ...
-...  (`make_constructor` in the next ggplot2 release means this tip can be deleted 🎉)
+... 
 
 You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
 
@@ -302,6 +300,18 @@ stat_identity
 :::
 
 
+::: {.callout-tip collapse="true"}
+
+# Pro-tip: In the next ggplot2 release 🎉, use `stat_medians <- make_constructor(StatMedians, geom = "point")` to write the scaffolding code for you!
+
+
+```{r error = T, eval = F}
+stat_medians <- make_constructor(StatMedians, geom = "point")
+
+```
+
+:::
+
 ### Define geom_*() function
 
 Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
@@ -312,9 +322,8 @@ geom_medians <- stat_medians
 
 
 ::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut.
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut.  (🎉 but we can use make_constructor in the next ggplot2 release, just about as easy and more conventional: `geom_medians <- make_constructor(GeomPoint, stat = "medians")`)
 
-Note: With the next ggplot2 release, we recommend using 'make_constructor' # as follows which will put you more in line with conventions! `geom_medians <- make_constructor(GeomPoint, stat = "medians")`
 
 Verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
 
@@ -335,6 +344,31 @@ geom_index <- function(mapping = NULL, data = NULL,
 ```
 
 However, because it is unexpected to use `geom_index()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
+
+With the next ggplot2 release, we recommend using 'make_constructor' as follows which will put you more in line with conventions of a geom-prefixed user function having a fixed Geom and flexible Stat! 
+
+```{r, eval = F}
+geom_medians <- make_constructor(GeomPoint, stat = "medians")
+geom_medians_label <- make_constructor(GeomLabel, stat = "medians")
+
+# check out the function definitions
+geom_medians
+
+penguins |>
+  ggplot() +
+  aes(x = bill_depth_mm, 
+      y = bill_length_mm) +
+  geom_point() +
+  geom_medians(size = 8)
+
+last_plot() + 
+  aes(color = species) 
+
+last_plot() + 
+  aes(label = species) +
+  geom_medians_label()
+```
+
 :::
 
 
@@ -372,34 +406,7 @@ last_plot() +
   labs(subtitle = "and stat_medians()")
 ```
 
-::: {.callout-tip collapse="true"}
-# Pro-tip: try express method `make_constructor`, available in ggplot v. 3.5.2.9000.  This will write the scaffolding code for you!
 
-
-```{r error = T, eval = T}
-stat_medians <- make_constructor(StatMedians, GeomPoint)
-geom_medians <- make_constructor(GeomPoint, StatMedians)
-geom_medians_label <- make_constructor(GeomLabel, StatMedians)
-
-# check out the function definitions
-geom_medians
-
-penguins |>
-  ggplot() +
-  aes(x = bill_depth_mm, 
-      y = bill_length_mm) +
-  geom_point() +
-  geom_medians(size = 8)
-
-last_plot() + 
-  aes(color = species) 
-
-last_plot() + 
-  aes(label = species) +
-  geom_medians_label()
-```
-
-:::
 
 
 # Done! Time for a review.

@@ -1,6 +1,94 @@
 library(tidyverse)
 library(rlang)
 
+validate_subclass <- function(x, subclass,
+                              argname = to_lower_ascii(subclass),
+                              x_arg = caller_arg(x),
+                              env = parent.frame(),
+                              call = caller_env()) {
+
+  if (inherits(x, subclass)) {
+    return(x)
+  }
+  if (!is_scalar_character(x)) {
+    stop_input_type(x, as_cli("either a string or a {.cls {subclass}} object"), arg = x_arg)
+  }
+
+  # Try getting class object directly
+  name <- paste0(subclass, camelize(x, first = TRUE))
+  obj <- find_global(name, env = env)
+  if (inherits(obj, subclass)) {
+    return(obj)
+  }
+
+  # Try retrieving class via constructors
+  name <- snakeize(name)
+  obj <- find_global(name, env = env, mode = "function")
+  if (is.function(obj)) {
+    obj <- try_fetch(
+      obj(),
+      error = function(cnd) {
+        # replace `obj()` call with name of actual constructor
+        cnd$call <- call(name)
+        cli::cli_abort(
+          "Failed to retrieve a {.cls {subclass}} object from {.fn {name}}.",
+          parent = cnd, call = call
+        )
+      })
+  }
+  # Position constructors return classes directly
+  if (inherits(obj, subclass)) {
+    return(obj)
+  }
+  # Try prying the class from a layer
+  if (inherits(obj, "Layer")) {
+    obj <- switch(
+      subclass,
+      Geom = obj$geom,
+      Stat = obj$stat,
+      NULL
+    )
+  }
+  if (inherits(obj, subclass)) {
+    return(obj)
+  }
+  cli::cli_abort("Can't find {argname} called {.val {x}}.", call = call)
+}
+
+# helper function to adjust the draw_key slot of a geom
+# if a custom key glyph is requested
+set_draw_key <- function(geom, draw_key = NULL) {
+  if (is.null(draw_key)) {
+    return(geom)
+  }
+  if (is.character(draw_key)) {
+    draw_key <- paste0("draw_key_", draw_key)
+  }
+  draw_key <- match.fun(draw_key)
+
+  ggproto(NULL, geom, draw_key = draw_key)
+}
+
+cleanup_mismatched_data <- function(data, n, fun) {
+  if (vec_duplicate_any(names(data))) {
+    data <- data[unique0(names(data))]
+  }
+
+  failed <- !lengths(data) %in% c(0, 1, n)
+  if (!any(failed)) {
+    return(data)
+  }
+
+  failed <- names(data)[failed]
+  cli::cli_warn(
+    "Failed to apply {.fn {fun}} for the following \\
+    aesthetic{?s}: {.field {failed}}."
+  )
+
+  data[failed] <- NULL
+  data
+}
+
 make_constructor <- function(x, ...) {
   UseMethod("make_constructor")
 }
@@ -12,7 +100,7 @@ make_constructor.Geom <- function(x, ..., checks = exprs(), omit = character(),
 
   # Check that we can independently find the geom
   geom <- gsub("^geom_", "", ggplot2:::snake_class(x))
-  ggplot2:::validate_subclass(geom, "Geom", env = env)
+  validate_subclass(geom, "Geom", env = env)
 
   # Split additional arguments into required and extra ones
   args <- enexprs(...)
@@ -96,7 +184,7 @@ make_constructor.Stat <- function(x, ..., checks = exprs(), omit = character(),
                                   env = caller_env()) {
   # Check that we can independently find the stat
   stat <- gsub("^stat_", "", ggplot2:::snake_class(x))
-  ggplot2:::validate_subclass(stat, "Stat", env = env)
+  validate_subclass(stat, "Stat", env = env)
 
   # Split additional arguments into required and extra ones
   args <- enexprs(...)

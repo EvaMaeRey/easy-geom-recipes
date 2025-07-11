@@ -1,0 +1,500 @@
+---
+title: "Recipe 3: geom_bal_point() and geom_support()"
+webr: 
+  packages:
+    - tidyverse
+    - palmerpenguins
+---
+
+Welcome to 'Easy `geom` recipes' Recipe #3: creating `geom_support()` and `geom_bal_point()`.
+
+
+In the first couple of recipes, you defined compute that would work group-wise. In recipe #2 we briefly we contrasted a panel-wise computation specification with our group-wise computation (StatIndexPanel).  We saw that when introducing a categorical variable using `StatIndexPanel`, indices were computed *across* the groups, instead of within groups -- which might be a prefered behavior. 
+
+In this recipe, we'll use *panel-wise* computation throughout to look at the 'balance' of the frequency of discrete ordinal variables.  Panel-wise compute is needed because of the discrete variable mapping, i.e. `aes(x = response)`.  So that the data isn't broken up by category (each response), we define `compute_panel` instead of `compute_group`.
+
+Our goal is to be able to write the following code and with the plot outcome.
+
+
+```{r, eval = F}
+survey_df <- data.frame(response = 
+             c("Awful", "Bad", 
+                        "Neutral",
+                        "Good",
+                        "Amazing") |> 
+                          fct_inorder(ordered = T), 
+                         freq = c(1, 6, 9, 7, 3))
+
+ggplot(data = survey_df) + 
+  aes(x = response,
+      y = freq) + 
+  geom_col() + 
+  geom_support() + 
+  geom_bal_point()
+```
+
+
+
+
+```{r echo = F, message=F}
+
+library(tidyverse)
+survey_df <- data.frame(response = 
+                          c("Awful",
+                        "Bad", 
+                        "Neutral",
+                        "Good",
+                        "Amazing") |> 
+                          fct_inorder(ordered = T), 
+                         freq = c(1, 6, 9, 7, 3))
+
+balancing_point_df <- survey_df |> 
+  summarize(x = sum(as.numeric(response) * freq) / 
+              sum(freq)) |> 
+  mutate(y = 0)
+
+ggplot(survey_df) + 
+  aes(x = response, 
+      y = freq) + 
+  geom_col() + 
+  geom_point(data = balancing_point_df,
+             aes(x = x, y = y),
+             size = 5, color = "magenta")
+```
+
+
+
+---
+
+# Example recipe #3:  `geom_support()`
+
+---
+
+## Step 0: use base ggplot2 to get the job done
+
+It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. Here, we'll plot the frequencies of some ordered responses (A to E), and look at the 'balance' based on their numeric values.
+
+```{r }
+#| label: fitted_1
+
+library(tidyverse)
+survey_df <- data.frame(response = 
+                          c("Awful",
+                        "Bad", 
+                        "Neutral",
+                        "Good",
+                        "Amazing") |> 
+                          fct_inorder(ordered = T), 
+                         freq = c(1, 6, 9, 7, 3))
+
+balancing_point_df <- survey_df |> 
+  summarize(x = sum(as.numeric(response) * freq) / 
+              sum(freq)) |> 
+  mutate(y = 0)
+
+ggplot(survey_df) + 
+  aes(x = response, 
+      y = freq) + 
+  geom_col() + 
+  geom_point(data = balancing_point_df,
+             aes(x = x, y = y),
+             size = 5, color = "magenta")
+```
+
+
+
+## Step 1: Define compute. Test.
+
+Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_panel_bal_point()`.  You will also need to include a `scales` argument, which ggplot2 uses internally. Because the x scale is converted to numeric early on in ggplot2 plot build - the compute is even simpler - you don't need to convert your x variable to numeric as was required in Step 0!
+
+```{r}
+#| label: fitted_2
+
+compute_panel_bal_point <- function(data, scales){
+
+  data |> 
+  summarize(x = sum(x * y) / sum(y)) |> 
+  mutate(y = 0)
+  
+}
+```
+
+
+::: {.callout-note collapse="false"}
+# You may have noticed ... 
+
+1. **... the `scales` argument in the compute definition, which is used internally in ggplot2.**  While it won't be used in your test (up next), you do need so that the computation will work in the ggplot2 setting.
+
+2. **... that the compute function can only be used with data with variables `x`**  Aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for plot.
+:::
+
+
+### Test compute.
+
+
+```{r}
+## Test compute. 
+survey_df |>
+  mutate(response = response |> as.numeric()) |>
+  select(x = response, 
+         y = freq) |>
+  compute_panel_bal_point()
+```
+
+::: {.callout-note collapse="false"}
+# You may have noticed ...
+
+**... that we prepare the data to have columns with names x and y before testing `compute_panel_bal_point`.** Computation will fail if the names x and y are not present given our function definition.  Internally in a plot, columns are named based on aesthetic mapping, e.g. `aes(x = response, y = freq)`.
+:::
+
+
+
+## Step 2: Define new Stat. Test.
+
+
+Next, we use the ggplot2::ggproto function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
+
+### Define Stat.
+
+
+```{r}
+#| label: fitted_3
+StatBalPoint <- ggplot2::ggproto(`_class` = "StatBalPoint",
+                                  `_inherit` = ggplot2::Stat,
+                                  required_aes = c("x", "y"),
+                                  compute_panel = compute_panel_bal_point)
+```
+
+
+::: {.callout-note collapse="false"}
+# You may have noticed ...
+
+1. **... that the naming convention for the ggproto object is CamelCase.** The new class should also be named the same, i.e. `"StatLmFitted"`.
+2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. 
+
+3. **that the compute_panel_lm_cat function is used to define our Stat's compute_panel element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
+4. **that setting `required_aes` to 'x', 'y', and 'cat' is consistent with compute requirements** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x, y, and cat your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue when required aes are not specified, e.g. '`stat_lm_cat()` requires the following missing aesthetics: x.'
+  
+:::
+
+
+### Test Stat.
+
+You can test out your Stat using them in ggplot2 geom_*() functions.  
+
+```{r}
+survey_df |> 
+  ggplot() + 
+  aes(x = response,
+      y = freq) + 
+  geom_col() + 
+  geom_point(stat = StatBalPoint, 
+             color = "magenta", 
+             size = 7) +
+  labs(title = "Testing StatBalPoint")
+```
+
+::: {.callout-note collapse="false"}
+# You may have noticed ...
+
+**that we don't use `"bal_point"` as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "bal_point", size = 7)`.
+
+:::
+
+
+
+
+:::  {.callout-tip collapse="true"}
+# Pro tip: Think about an early exit (don't define use facing functions) ...
+
+You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within geom_*() functions?  
+
+The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
+
+:::
+
+
+:::   {.callout-tip collapse="true"}
+# Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
+
+Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, it's necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
+
+A test of StatBalPoint using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
+
+```{r}
+survey_df |> 
+  ggplot() + 
+  aes(x = response,
+      y = freq) + 
+  geom_col() + 
+  layer(geom = GeomPoint, 
+        stat = StatBalPoint, 
+        position = "identity", 
+        params = list(color = "magenta")) + 
+  labs(title = "Testing StatBalPoint with layer() function")
+```
+
+:::
+
+
+## Step 3: Define user-facing functions. Test.
+
+
+In this next section, we define user-facing functions.  Doing so is a bit of a mouthful, but see the 'Pro tip:  *Use `stat_identity` definition as a template in this step ...*' that follows.
+
+
+```{r}
+#| label: fitted_4
+
+stat_bal_point <- function(mapping = NULL, data = NULL, geom = "point", position = "identity", 
+    ..., show.legend = NA, inherit.aes = TRUE) {
+    layer(data = data, mapping = mapping, stat = StatBalPoint, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = list(na.rm = FALSE, 
+            ...))
+}
+```
+
+
+::: {.callout-note collapse="false"}
+# You may have noticed...
+
+1. **... that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle-based stat_\*() function, I'd create stat_big_circle().
+
+2. **... that `StatBalPoint` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+
+3. **... that `"point"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomPoint` will be used in the layer unless otherwise specified by the user. 
+:::
+
+
+::: {.callout-tip collapse="true"}
+## Pro tip. 🎉 Use `make_constructor` from the next ggplot2 release to write this scaffolding code for you!
+
+```{r, eval = F}
+stat_bal_point <- make_constructor(StatBalPoint, geom = "point")
+```
+
+:::
+
+
+### Define geom_*() function
+
+Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
+
+```{r}
+geom_bal_point <- stat_bal_point
+```
+
+
+::: {.callout-warning collapse="true"}
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut.  (🎉 but we can use `make_constructor()` in the next ggplot2 release, just about as easy and more conventional`)
+
+Soon, we'll be able to use `make_constructor()`.
+
+```{r, eval = F}
+geom_bal_point <- make_constructor(GeomPoint, stat = "bal_point")
+```
+
+For now, verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
+
+An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
+
+
+```{r}
+# user-facing function
+geom_bal_point <- function(mapping = NULL, data = NULL, 
+                         stat = "bal_point", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = stat, 
+        geom = GeomPoint, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+```
+
+However, because it is unexpected to use `geom_bal_point()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
+
+With the next ggplot2 release, we recommend using 'make_constructor' as follows which will put you more in line with conventions of a geom-prefixed user function having a fixed Geom and flexible Stat! 
+
+
+
+:::
+
+
+
+## Test/Enjoy functions
+
+```{r}
+#| label: fitted_5
+survey_df |> 
+  ggplot() + 
+  aes(x = response, 
+      y = freq) +
+  geom_col() + 
+  geom_bal_point(color = "magenta", 
+                 size = 7)
+```
+
+
+# Done! Time for a review.
+
+Here is a quick review of the functions and ggproto objects we've covered, dropping tests and discussion.
+
+::: {.callout-note collapse="false"}
+# Review
+
+```{r}
+library(tidyverse)
+
+# Step 1. Define compute
+compute_panel_bal_point <- function(data, scales){
+  
+  data |> 
+    summarise(x = (x*y)/sum(y)) |>
+    mutate(y = 0)
+  
+}
+
+
+# Step 2. Define Stat
+StatBalPoint = ggproto(`_class` = "StatBalPoint",
+                      `_inherit` = Stat,
+                      required_aes = c("x", "y"),
+                      compute_group = compute_panel_bal_point)
+
+# Step 3. Define user-facing functions
+
+## define stat_*()
+stat_bal_point <- function(mapping = NULL, data = NULL, 
+                         geom = "point", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = StatBalPoint, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+## define geom_*()
+geom_bal_point <- stat_bal_point
+```
+
+::: 
+
+# Your Turn: Write `geom_support()`
+
+Using the `geom_bal_point` Recipe #3 as a reference, try to create a `stat_support()` and convenience `geom_support()` that draws a segment from the minimum of x to the max of x along y = 0. This might complement the geom_bal_point(), being the support of the fulcrum/balancing point.
+
+### Hint: consider what aesthetics are required for segments.  We'll give you Step 0 this time...
+
+
+
+
+## Step 0: use base ggplot2 to get the job done
+
+```{webr-r}
+#| label: exercise-setup
+#| autorun: true
+#| read-only: true
+library(tidyverse)
+
+survey_df <- data.frame(response = 
+                          c("Awful",
+                        "Bad", 
+                        "Neutral",
+                        "Good",
+                        "Amazing") |> 
+                          fct_inorder(ordered = T), 
+                         freq = c(1, 6, 9, 7, 3))
+
+# step 0: use base ggplot2
+response_min_max_df <- survey_df |> 
+  mutate(x = response |> as.numeric()) |>
+  summarise(xend = min(x), x = max(x)) |> 
+  mutate(yend = 0, y = 0)
+
+survey_df |> 
+  ggplot() + 
+  aes(x = response, y = freq) +
+  geom_col() + 
+  geom_segment(data = response_min_max_df,
+               aes(x = x, xend = xend, 
+                   y = y, yend = yend),
+               color = "magenta", 
+               linewidth = 3)
+```
+
+### Step 1: Write compute function. Test.
+
+```{webr}
+#| exercise: geom_means
+# Define. 
+compute_panel_support <- function(data, scales){
+  
+  data |> 
+    summarize(xend = min(x, na.rm = T),
+              x = ____(x, na.rm = T)) |>
+    mutate(yend = 0,
+           ____ = 0)
+  
+}
+
+# Test.
+survey_df |> 
+  mutate(x = response |> as.numeric()) |>
+  select(x) |>
+  compute_panel_support()
+```
+
+### Step 2: Write Stat.
+
+
+```{webr}
+#| exercise: geom_means
+# Define.
+StatSupport <- ggproto(`_class` = "____",
+                     `_inherit` = Stat,
+                     compute_panel = ____,
+                     required_aes = c("____"))
+
+# Test.
+survey_df |> 
+  ggplot() + 
+  aes(x = response, y = freq) + 
+  geom_col() +
+  geom_segment(stat = ____, color = "magenta")
+
+```
+
+### Step 3: Write user-facing functions. 
+
+
+```{webr}
+#| exercise: geom_means
+# Define.
+stat_support <- function (mapping = NULL, data = NULL, geom = "segment", position = "identity", 
+    ..., show.legend = NA, inherit.aes = TRUE){
+    layer(data = data, mapping = mapping, stat = ____, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+# Alias.
+geom_support <- ____
+
+# Test.
+survey_df |> 
+  ggplot() + 
+  aes(x = response, y = freq) + 
+  geom_col() +
+  ____(color = "magenta")
+```
+
+
+# Congratulations!
+
+If you've finished all three recipes, you feel for how Stats can help you build layer functions like stat_residuals and geom_residuals.  
+
+

@@ -7,20 +7,12 @@ webr:
 ---
 
 
-
-
-
-
-# The Goal
-
-Welcome to 'Easy `geom` recipes' Recipe #3: creating `geom_lm_cat()` and `geom_lm_cat_residuals()`.
-
-Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
+In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous and categorical variable.  This may feel like `geom_smooth(method = lm)`, but since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)`. 
 
 
 ---
 
-# Example recipe #3:  `geom_lm_cat()`
+# Example recipe #4:  `geom_lm_cat()`
 
 ---
 
@@ -98,7 +90,7 @@ compute_panel_lm_cat <- function(data, scales){
 ```{r}
 ## Test compute. 
 penguins |>
-  rename(x = bill_depth_mm, 
+  select(x = bill_depth_mm, 
          y = bill_length_mm,
          cat = species) |>
   compute_panel_lm_cat()
@@ -113,7 +105,6 @@ penguins |>
 
 
 ## Step 2: Define new Stat. Test.
-
 
 Next, we use the ggplot2::ggproto function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
 
@@ -133,9 +124,11 @@ StatLmCat <- ggplot2::ggproto(`_class` = "StatLmCat",
 # You may have noticed ...
 
 1. **... that the naming convention for the ggproto object is CamelCase.** The new class should also be named the same, i.e. `"StatLmFitted"`.
+
 2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. 
 
 3. **that the compute_panel_lm_cat function is used to define our Stat's compute_panel element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
+
 4. **that setting `required_aes` to 'x', 'y', and 'cat' is consistent with compute requirements** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x, y, and cat your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue when required aes are not specified, e.g. '`stat_lm_cat()` requires the following missing aesthetics: x.'
   
 :::
@@ -239,7 +232,7 @@ stat_lm_cat <- function(mapping = NULL, data = NULL, geom = "line", position = "
 
 
 ::: {.callout-tip collapse="true"}
-## Pro tip.  Use `make_constructor` from the next release
+## Pro tip. 🎉 Use `stat_lm_cat <- make_constructor(StatLmCat, geom = "line")` from the next ggplot2 release.
 
 ```{r, eval = F}
 stat_lm_cat <- make_constructor(StatLmCat, geom = "line")
@@ -257,8 +250,31 @@ geom_lm_cat <- stat_lm_cat
 ```
 
 
-::: {.callout-tip collapse="true"}
-## Pro tip.  Use `make_constructor` from the next release, which will be more consistent with most geom_*() formulations
+::: {.callout-warning collapse="true"}
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut.  (🎉 but we can use make_constructor in the next ggplot2 release, just about as easy and more conventional: `geom_lm_cat <- make_constructor(GeomLine, stat = "lm_cat")`)
+
+
+Verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
+
+An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
+
+
+```{r}
+# user-facing function
+geom_lm_cat <- function(mapping = NULL, data = NULL, 
+                         stat = "lm_cat", position = "identity", 
+                         ..., show.legend = NA, inherit.aes = TRUE) 
+{
+    layer(data = data, mapping = mapping, stat = stat, 
+        geom = GeomPoint, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+```
+
+However, because it is unexpected to use `geom_lm_cat()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
+
+With the next ggplot2 release, we recommend using 'make_constructor' as follows which will put you more in line with conventions of a geom-prefixed user function having a fixed Geom and flexible Stat! 
 
 ```{r, eval = F}
 geom_lm_cat <- make_constructor(GeomLine, stat = "lm_cat")
@@ -342,7 +358,7 @@ geom_lm_cat <- stat_lm_cat
 
 # Your Turn: Write `geom_residuals()`
 
-Using the `geom_lm_cat` Recipe #3 as a reference, try to create a `stat_lm_residuals()` and convenience `geom_fitted()` that draws a segment between observed and fitted values for a linear model. 
+Using the `geom_lm_cat` Recipe #3 as a reference, try to create a `stat_lm_cat_residuals()` and convenience `stat_lm_cat_residuals()` that draws a segment between observed and fitted values for a linear model. 
 
 ### Hint: consider what aesthetics are required for segments.  We'll give you Step 0 this time...
 

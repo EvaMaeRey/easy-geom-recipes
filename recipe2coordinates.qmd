@@ -9,11 +9,13 @@ webr:
 # The Goal
 
 
-Why create custom ggplot2 functions? When visualizing data in a specific way requires pre-calculations before plotting, custom geom_() or stat_() functions can streamline your workflow. By extending the Stat class, you can integrate these calculations directly into the plotting pipeline. In the following code, we add an annotation with the coordinates of each point in the plot through a geom_coordinates() function.
+In the last recipe, you should have seen and practiced how to write a compute function that can be used in a Stat. Specifically, you  defined group-wise computation by defining `compute_group` in `ggproto()`.  You specified that other behavior should be inherited from the more generic `Stat` class. You improved user interface for your `Stat` by specifying which `aes` must be provided by the user in the `require_aes` slot. Finally you wrote user-facing functions `stat_\*()` and `geom_\*()` based on the new Stat object and an existing Geom object.
 
-Welcome to 'Easy `geom` recipes' Recipe #2: creating geom_index and geom_coordinates.
+In this next recipe, we'll look at the creation of `StatIndex`, `stat_index`, and `geom_index`, which can all be used to label observations with their row numbers
 
-Creating a new geom_\*() or stat_\*() function is often motivated when plotting would require pre-computation otherwise. By using Stat extension, you can define computation to be performed *within* the plotting pipeline, as in the code that follows: 
+Along the way, we'll contrast a *new move* - defining panel-wise instead of group-wise compute using `compute_panel`.  This 'move' will be used in the two recipes that follow.  
+
+In the exercise for this recipe, you'll create StatCoordinates, stat_coordinates() and geom_coordinates(), useable to mark points with their `x` and `y` coordinates.
 
 
 ```{r, eval = F}
@@ -328,6 +330,18 @@ stat_identity
 :::
 
 
+::: {.callout-tip collapse="true"}
+
+# Pro-tip: In the next ggplot2 release 🎉, use `stat_index <- make_constructor(StatIndex, geom = "text")` to write the scaffolding code for you!
+
+
+```{r error = T, eval = F}
+stat_index <- make_constructor(StatIndex, geom = "text")
+
+```
+
+:::
+
 ### Define geom_*() function
 
 Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
@@ -338,9 +352,9 @@ geom_index <- stat_index
 
 
 ::: {.callout-warning collapse="true"}
-# Be aware ...
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut.  (🎉 but we can use make_constructor in the next ggplot2 release, just about as easy and more conventional: `geom_index <- make_constructor(GeomText, stat = "index")`)
 
-... verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
+Verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
 
 An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
 

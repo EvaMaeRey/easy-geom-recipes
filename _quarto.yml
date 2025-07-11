@@ -28,12 +28,13 @@ website:
         href: https://github.com/evamaerey/easy-geom-recipes
   sidebar:
     contents:
-      - section: "Tutorial"
+      - section: "Tutorials"
         contents:
           - href: preview.qmd
           - href: recipe1means.qmd
           - href: recipe2coordinates.qmd
           - href: recipe3residuals.qmd
+          - href: recipe4balance.qmd
 
 
       # - section: "Tutorial Evaluation"
