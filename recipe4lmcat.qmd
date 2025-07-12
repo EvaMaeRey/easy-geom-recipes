@@ -40,7 +40,10 @@ penguins |>
   geom_point() + 
   geom_line(data = penguins_w_fitted,
              aes(y = fitted),
-             color = "blue")
+             color = "orange")+ 
+  geom_point(data = penguins_w_fitted,
+             aes(y = fitted),
+             color = "orange")
 ```
 
 ::: {.callout-tip collapse="true"}
@@ -143,8 +146,8 @@ penguins |>
       y = bill_length_mm,
       cat = species) + 
   geom_point() + 
-  geom_point(stat = StatLmCat, color = "blue") +
-  geom_line(stat = StatLmCat, color = "blue") + 
+  geom_point(stat = StatLmCat) +
+  geom_line(stat = StatLmCat) + 
   labs(title = "Testing StatLmCat")
 
 ```
@@ -296,7 +299,7 @@ penguins |>
   geom_point() + 
   geom_lm_cat(color = "orange") +
   geom_smooth(method = "lm", 
-              alpha = .4) 
+              linewidth = .4) 
 ```
 
 ### And check out conditionality
@@ -314,7 +317,7 @@ penguins |>
   facet_wrap(facets = vars(sex))
 ```
 
-Note that because `panel-wise` (facet-wise) computation is specified, there are in fact, two separately estimated models for female and male.  If the model is to be computed across all of the data, it's worth considering layer-wise computation, i.e. specifying the `compute_layer` slot (not yet covered in these tutorials).  
+Note that because `panel-wise` (facet-wise) computation is specified, there are in fact, two separately *are* estimated models for female and male.  If the model is to be computed across all of the data, it's worth considering layer-wise computation, i.e. specifying the `compute_layer` slot (not yet covered in these tutorials).  
 
 
 # Done! Time for a review.
@@ -432,7 +435,7 @@ penguins_clean |>
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
-  geom_segment(stat = ____, color = "blue")
+  geom_segment(stat = ____, color = "orange")
 
 ```
 
@@ -458,7 +461,7 @@ penguins_clean |>
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
-  ____(color = "blue")
+  ____(color = "orange")
 ```
 
 
