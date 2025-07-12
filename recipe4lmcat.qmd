@@ -9,7 +9,7 @@ webr:
 
 # Example recipe #4:  `geom_lm_cat()`
 
-In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous and categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- so there is one model per category. Let's see how we might visual a single model containing a categorical variable.
+In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous and categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- meaning a model is estimated for each category. Let's see how we might visual a single model that includes a categorical variable. 
 
 
 ---
@@ -264,7 +264,7 @@ geom_lm_cat <- function(mapping = NULL, data = NULL,
                          ..., show.legend = NA, inherit.aes = TRUE) 
 {
     layer(data = data, mapping = mapping, stat = stat, 
-        geom = GeomPoint, position = position, show.legend = show.legend, 
+        geom = GeomLine, position = position, show.legend = show.legend, 
         inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
             ...))
 }
@@ -284,6 +284,8 @@ geom_lm_cat <- make_constructor(GeomLine, stat = "lm_cat")
 
 ## Test/Enjoy functions
 
+Below we use the new function `geom_lm_cat()`, constrasting it to `geom_smooth()`, with parallel and unparallel slopes respectively.
+
 ```{r}
 #| label: fitted_5
 penguins |> 
@@ -292,11 +294,13 @@ penguins |>
       y = bill_length_mm,
       cat = species) +
   geom_point() + 
-  geom_smooth(method = "lm") +
-  geom_lm_cat()
+  geom_lm_cat(color = "orange") +
+  geom_smooth(method = "lm", 
+              alpha = .4) 
 ```
 
 ### And check out conditionality
+
 
 ```{r}
 #| label: fitted_6
@@ -306,10 +310,12 @@ penguins |>
       y = bill_length_mm,
       cat = species) +
   geom_point() + 
-  geom_smooth(method= "lm", se= F) +
-  geom_lm_cat() + 
+  geom_lm_cat(color = "orange") + 
   facet_wrap(facets = vars(sex))
 ```
+
+Note that because `panel-wise` (facet-wise) computation is specified, there are in fact, two separately estimated models for female and male.  If the model is to be computed across all of the data, it's worth considering layer-wise computation, i.e. specifying the `compute_layer` slot (not yet covered in these tutorials).  
+
 
 # Done! Time for a review.
 
@@ -382,7 +388,6 @@ penguins |>
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm, group = species) +
   geom_point() + 
-  geom_lm_cat() +
   geom_segment(data = penguins_w_fitted,
              aes(yend = fitted, xend = bill_depth_mm),
              color = "blue")
@@ -453,7 +458,6 @@ penguins_clean |>
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
-  geom_lm_cat() +
   ____(color = "blue")
 ```
 
