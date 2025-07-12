@@ -1,5 +1,5 @@
 ---
-title: "Recipe 3: geom_lm_cat() and geom_lm_cat_residuals()"
+title: "Recipe 4: geom_lm_cat() and geom_lm_cat_residuals()"
 webr: 
   packages:
     - tidyverse
