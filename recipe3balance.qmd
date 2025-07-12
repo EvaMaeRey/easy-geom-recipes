@@ -8,12 +8,11 @@ webr:
 
 Welcome to 'Easy `geom` recipes' Recipe #3: creating `geom_support()` and `geom_bal_point()`.
 
+In the first couple of recipes, you defined compute that would work group-wise. In recipe #2 we briefly we contrasted a panel-wise computation specification with our group-wise computation (StatIndexPanel).  We saw that when introducing a categorical variable using `StatIndexPanel`, indices were computed *across* the groups, instead of within groups -- which might be a preferred behavior. 
 
-In the first couple of recipes, you defined compute that would work group-wise. In recipe #2 we briefly we contrasted a panel-wise computation specification with our group-wise computation (StatIndexPanel).  We saw that when introducing a categorical variable using `StatIndexPanel`, indices were computed *across* the groups, instead of within groups -- which might be a prefered behavior. 
+In this recipe, we'll use *panel-wise* computation throughout to look at the 'balance' of the frequency of discrete ordinal variables.  Panel-wise compute is needed because of the discrete variable mapping, i.e. `aes(x = response)`.  So that the data isn't broken up by category (unique responses), we define `compute_panel` instead of `compute_group`.
 
-In this recipe, we'll use *panel-wise* computation throughout to look at the 'balance' of the frequency of discrete ordinal variables.  Panel-wise compute is needed because of the discrete variable mapping, i.e. `aes(x = response)`.  So that the data isn't broken up by category (each response), we define `compute_panel` instead of `compute_group`.
-
-Our goal is to be able to write the following code and with the plot outcome.
+Our goal is to be able to write the following code, producing the plot that follows. 
 
 
 ```{r, eval = F}
@@ -29,16 +28,16 @@ ggplot(data = survey_df) +
   aes(x = response,
       y = freq) + 
   geom_col() + 
-  geom_support() + 
-  geom_bal_point()
+  geom_support(color = "magenta", 
+               size = 2) + 
+  geom_bal_point(color = "magenta", 
+                 size = 7)
 ```
 
 
-
-
-```{r echo = F, message=F}
-
+```{r, echo = F, message = F, warning=F}
 library(tidyverse)
+
 survey_df <- data.frame(response = 
                           c("Awful",
                         "Bad", 
@@ -59,14 +58,15 @@ ggplot(survey_df) +
   geom_col() + 
   geom_point(data = balancing_point_df,
              aes(x = x, y = y),
-             size = 5, color = "magenta")
+             size = 5, color = "magenta") + 
+  annotate(geom = "segment", x = 1, xend = 5, y = 0, yend = 0,
+           color = "magenta", size = 2) +
+  labs(title = "Responses are a bit more positive than negative on balance")
+
+
 ```
 
-
-
----
-
-# Example recipe #3:  `geom_support()`
+Let's get started!
 
 ---
 
@@ -299,7 +299,6 @@ For now, verbatim aliasing as shown above is a bit of a shortcut and assumes tha
 
 An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
 
-
 ```{r}
 # user-facing function
 geom_bal_point <- function(mapping = NULL, data = NULL, 
@@ -315,9 +314,7 @@ geom_bal_point <- function(mapping = NULL, data = NULL,
 
 However, because it is unexpected to use `geom_bal_point()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
 
-With the next ggplot2 release, we recommend using 'make_constructor' as follows which will put you more in line with conventions of a geom-prefixed user function having a fixed Geom and flexible Stat! 
-
-
+With the next ggplot2 release, we recommend using 'make_constructor' as follows which will put you more in line with conventions of a geom-prefixed user function having a fixed Geom and flexible Stat, consistent with what other seasoned practicioners are doing! 
 
 :::
 
@@ -367,8 +364,10 @@ StatBalPoint = ggproto(`_class` = "StatBalPoint",
 
 ## define stat_*()
 stat_bal_point <- function(mapping = NULL, data = NULL, 
-                         geom = "point", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
+                           geom = "point", 
+                           position = "identity", 
+                         ..., show.legend = NA, 
+                         inherit.aes = TRUE) 
 {
     layer(data = data, mapping = mapping, stat = StatBalPoint, 
         geom = geom, position = position, show.legend = show.legend, 
@@ -493,8 +492,7 @@ survey_df |>
 ```
 
 
-# Congratulations!
+##  Next up, Recipe 4: [geom_lm_cat()](https://evamaerey.github.io/easy-geom-recipes/recipe3residuals.html)
 
-If you've finished all three recipes, you feel for how Stats can help you build layer functions like stat_residuals and geom_residuals.  
-
+How would you write the function draws residuals based on a linear model fit that contains a categorical variable, `lm(y ~ x + cat)`? Go to Recipe 4.
 

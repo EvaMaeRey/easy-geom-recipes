@@ -33,8 +33,8 @@ website:
           - href: preview.qmd
           - href: recipe1means.qmd
           - href: recipe2coordinates.qmd
-          - href: recipe4balance.qmd
-          - href: recipe3residuals.qmd
+          - href: recipe3balance.qmd
+          - href: recipe4lmcat.qmd
 
 
       # - section: "Tutorial Evaluation"

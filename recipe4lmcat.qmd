@@ -7,12 +7,10 @@ webr:
 ---
 
 
-In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous and categorical variable.  This may feel like `geom_smooth(method = lm)`, but since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)`. 
-
-
----
-
 # Example recipe #4:  `geom_lm_cat()`
+
+In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous and categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- so there is one model per category. Let's see how we might visual a single model containing a categorical variable.
+
 
 ---
 
@@ -21,7 +19,7 @@ In this next recipe, we use panel-wise computation again to visualize an linear 
 
 It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
 
-```{r}
+```{r, message = F, warning=F}
 #| label: fitted_1
 
 library(tidyverse)
@@ -320,7 +318,7 @@ Here is a quick review of the functions and ggproto objects we've covered, dropp
 ::: {.callout-note collapse="false"}
 # Review
 
-```{r}
+```{r, warning=F, message=F}
 library(tidyverse)
 
 # Step 1. Define compute
@@ -462,6 +460,6 @@ penguins_clean |>
 
 # Congratulations!
 
-If you've finished all three recipes, you feel for how Stats can help you build layer functions like stat_residuals and geom_residuals.  
+If you've finished all four recipes, you should have a good feel for writing Stats and `stat_\*()` and `geom_\*()` functions  
 
 
