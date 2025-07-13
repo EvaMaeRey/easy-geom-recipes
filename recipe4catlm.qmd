@@ -40,7 +40,7 @@ penguins |>
   geom_point() + 
   geom_line(data = penguins_w_fitted,
              aes(y = fitted),
-             color = "coral")
+             color = "maroon4")
 ```
 
 ::: {.callout-tip collapse="true"}
@@ -57,12 +57,12 @@ layer_data(plot = last_plot(),
 
 ## Step 1: Define compute. Test.
 
-Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_panel_lm_cat()`.  The `data` input will look similar to the plot data.  You will also need to include a `scales` argument, which ggplot2 uses internally. 
+Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_panel_cat_lm()`.  The `data` input will look similar to the plot data.  You will also need to include a `scales` argument, which ggplot2 uses internally. 
 
 ```{r}
 #| label: fitted_2
 
-compute_panel_lm_cat <- function(data, scales){
+compute_panel_cat_lm <- function(data, scales){
 
   model<-lm(formula = y ~ x + cat, data = data)
   
@@ -91,7 +91,7 @@ penguins |>
   select(x = bill_depth_mm, 
          y = bill_length_mm,
          cat = species) |>
-  compute_panel_lm_cat()
+  compute_panel_cat_lm()
 ```
 
 ::: {.callout-note collapse="false"}
@@ -111,10 +111,10 @@ Next, we use the ggplot2::ggproto function which allows you to define a new Stat
 
 ```{r}
 #| label: fitted_3
-StatLmCat <- ggplot2::ggproto(`_class` = "StatLmCat",
+StatCatLm <- ggplot2::ggproto(`_class` = "StatCatLm",
                                   `_inherit` = ggplot2::Stat,
                                   required_aes = c("x", "y", "cat"),
-                                  compute_panel = compute_panel_lm_cat)
+                                  compute_panel = compute_panel_cat_lm)
 ```
 
 
@@ -125,9 +125,9 @@ StatLmCat <- ggplot2::ggproto(`_class` = "StatLmCat",
 
 2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. 
 
-3. **that the compute_panel_lm_cat function is used to define our Stat's compute_panel element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
+3. **that the compute_panel_cat_lm function is used to define our Stat's compute_panel element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
 
-4. **that setting `required_aes` to 'x', 'y', and 'cat' is consistent with compute requirements** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x, y, and cat your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue when required aes are not specified, e.g. '`stat_lm_cat()` requires the following missing aesthetics: x.'
+4. **that setting `required_aes` to 'x', 'y', and 'cat' is consistent with compute requirements** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x, y, and cat your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue when required aes are not specified, e.g. '`stat_cat_lm()` requires the following missing aesthetics: x.'
   
 :::
 
@@ -143,9 +143,9 @@ penguins |>
       y = bill_length_mm,
       cat = species) + 
   geom_point() + 
-  geom_point(stat = StatLmCat) +
-  geom_line(stat = StatLmCat) + 
-  labs(title = "Testing StatLmCat")
+  geom_point(stat = StatCatLm) +
+  geom_line(stat = StatCatLm) + 
+  labs(title = "Testing StatCatLm")
 
 ```
 
@@ -190,10 +190,10 @@ penguins |>
       cat = species) + 
   geom_point() + 
   layer(geom = GeomLine, 
-        stat = StatLmCat, 
+        stat = StatCatLm, 
         position = "identity", 
         params = list(color = "blue")) + 
-  labs(title = "Testing StatLmCat with layer() function")
+  labs(title = "Testing StatCatLm with layer() function")
 ```
 
 :::
@@ -208,9 +208,9 @@ In this next section, we define user-facing functions.  Doing so is a bit of a m
 ```{r}
 #| label: fitted_4
 
-stat_lm_cat <- function(mapping = NULL, data = NULL, geom = "line", position = "identity", 
+stat_cat_lm <- function(mapping = NULL, data = NULL, geom = "line", position = "identity", 
     ..., show.legend = NA, inherit.aes = TRUE) {
-    layer(data = data, mapping = mapping, stat = StatLmCat, 
+    layer(data = data, mapping = mapping, stat = StatCatLm, 
         geom = geom, position = position, show.legend = show.legend, 
         inherit.aes = inherit.aes, params = list(na.rm = FALSE, 
             ...))
@@ -223,17 +223,17 @@ stat_lm_cat <- function(mapping = NULL, data = NULL, geom = "line", position = "
 
 1. **... that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle-based stat_\*() function, I'd create stat_big_circle().
 
-2. **... that `StatLmCat` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
+2. **... that `StatCatLm` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
 
 3. **... that `"label"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomLine` will be used in the layer unless otherwise specified by the user. 
 :::
 
 
 ::: {.callout-tip collapse="true"}
-## Pro tip. 🎉 Use `stat_lm_cat <- make_constructor(StatLmCat, geom = "line")` from the next ggplot2 release.
+## Pro tip. 🎉 Use `stat_cat_lm <- make_constructor(StatCatLm, geom = "line")` from the next ggplot2 release.
 
 ```{r, eval = F}
-stat_lm_cat <- make_constructor(StatLmCat, geom = "line")
+stat_cat_lm <- make_constructor(StatCatLm, geom = "line")
 ```
 
 :::
@@ -244,12 +244,12 @@ stat_lm_cat <- make_constructor(StatLmCat, geom = "line")
 Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
 
 ```{r}
-geom_lm_cat <- stat_lm_cat
+geom_cat_lm <- stat_cat_lm
 ```
 
 
 ::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut.  (🎉 but we can use make_constructor in the next ggplot2 release, just about as easy and more conventional: `geom_lm_cat <- make_constructor(GeomLine, stat = "lm_cat")`)
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut.  (🎉 but we can use make_constructor in the next ggplot2 release, just about as easy and more conventional: `geom_cat_lm <- make_constructor(GeomLine, stat = "cat_lm")`)
 
 
 Verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
@@ -259,8 +259,8 @@ An approach that is more consistent with existing guidance would be to hardcode 
 
 ```{r}
 # user-facing function
-geom_lm_cat <- function(mapping = NULL, data = NULL, 
-                         stat = "lm_cat", position = "identity", 
+geom_cat_lm <- function(mapping = NULL, data = NULL, 
+                         stat = "cat_lm", position = "identity", 
                          ..., show.legend = NA, inherit.aes = TRUE) 
 {
     layer(data = data, mapping = mapping, stat = stat, 
@@ -270,12 +270,12 @@ geom_lm_cat <- function(mapping = NULL, data = NULL,
 }
 ```
 
-However, because it is unexpected to use `geom_lm_cat()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
+However, because it is unexpected to use `geom_cat_lm()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
 
 With the next ggplot2 release, we recommend using 'make_constructor' as follows which will put you more in line with conventions of a geom-prefixed user function having a fixed Geom and flexible Stat! 
 
 ```{r, eval = F}
-geom_lm_cat <- make_constructor(GeomLine, stat = "lm_cat")
+geom_cat_lm <- make_constructor(GeomLine, stat = "cat_lm")
 ```
 
 :::
@@ -284,7 +284,7 @@ geom_lm_cat <- make_constructor(GeomLine, stat = "lm_cat")
 
 ## Test/Enjoy functions
 
-Below we use the new function `geom_lm_cat()`, constrasting it to `geom_smooth()`, with parallel and unparallel slopes respectively.
+Below we use the new function `geom_cat_lm()`, constrasting it to `geom_smooth()`, with parallel and unparallel slopes respectively.
 
 ```{r}
 #| label: fitted_5
@@ -294,9 +294,9 @@ penguins |>
       y = bill_length_mm,
       cat = species) +
   geom_point() + 
-  geom_lm_cat(color = "coral") +
+  geom_cat_lm(color = "maroon4") +
   geom_smooth(method = "lm", 
-              linewidth = .4) 
+              linewidth = .2) 
 ```
 
 ### And check out conditionality
@@ -310,7 +310,7 @@ penguins |>
       y = bill_length_mm,
       cat = species) +
   geom_point() + 
-  geom_lm_cat(color = "coral") + 
+  geom_cat_lm(color = "maroon4") + 
   facet_wrap(facets = vars(sex))
 ```
 
@@ -328,7 +328,7 @@ Here is a quick review of the functions and ggproto objects we've covered, dropp
 library(tidyverse)
 
 # Step 1. Define compute
-compute_panel_lm_cat <- function(data, scales){
+compute_panel_cat_lm <- function(data, scales){
   model <- lm(formula = y ~ x + cat, data = data)
   data |> 
     mutate(y = model$fitted.values)
@@ -336,26 +336,26 @@ compute_panel_lm_cat <- function(data, scales){
 
 
 # Step 2. Define Stat
-StatLmCat = ggproto(`_class` = "StatLmCat",
+StatCatLm = ggproto(`_class` = "StatCatLm",
                       `_inherit` = Stat,
                       required_aes = c("x", "y"),
-                      compute_group = compute_panel_lm_cat)
+                      compute_group = compute_panel_cat_lm)
 
 # Step 3. Define user-facing functions
 
 ## define stat_*()
-stat_lm_cat <- function(mapping = NULL, data = NULL, 
+stat_cat_lm <- function(mapping = NULL, data = NULL, 
                          geom = "line", position = "identity", 
                          ..., show.legend = NA, inherit.aes = TRUE) 
 {
-    layer(data = data, mapping = mapping, stat = StatLmCat, 
+    layer(data = data, mapping = mapping, stat = StatCatLm, 
         geom = geom, position = position, show.legend = show.legend, 
         inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
             ...))
 }
 
 ## define geom_*()
-geom_lm_cat <- stat_lm_cat
+geom_cat_lm <- stat_cat_lm
 ```
 
 ::: 
@@ -387,22 +387,22 @@ penguins_w_fitted <- penguins_clean |>
 penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm, group = species) +
-  geom_point() + 
   geom_point(data = penguins_w_fitted,
              aes(y = fitted),
-             color = "coral")
+             color = "maroon4") +
   geom_segment(data = penguins_w_fitted,
              aes(yend = fitted, xend = bill_depth_mm),
-             color = "coral")
+             color = "maroon4") + 
+  geom_point()
 ```
 
-### Step 1: Write compute functions. Test.
+### Step 1: Write compute. Test.
 
 ```{webr}
 # Define. 
 compute_panel_cat_fitted <- function(data, scales){
   
-  model <- lm(formula = y ~ x + cat, data = data)
+  model <- lm(formula = y ~ x + cat, data = ____)
   
   data |> 
     mutate(y = model$fitted.values)
@@ -413,9 +413,9 @@ compute_panel_cat_fitted <- function(data, scales){
 # Define. 
 compute_panel_cat_residuals <- function(data, scales){
   
-  model <- lm(formula = y ~ x + cat, data = ____)
+  model <- lm(formula = y ~ x + cat, data = data)
   
-  data |> 
+  ____ |> 
     mutate(xend = x,
            yend = model$fitted.values)
   
@@ -447,28 +447,30 @@ penguins_clean |>
 #| exercise: geom_means
 
 #| exercise: geom_means
-# Define.
+# Define StatCatFitted.
 StatCatFitted <- ggproto(`_class` = "____",
                      `_inherit` = Stat,
-                     compute_panel = ____,
+                     compute_panel = compute_panel_cat_fitted,
                      required_aes = c("x", "____", "cat"))
 
 
-# Define.
-StatCatResiduals <- ggproto(`_class` = "____",
+# Define StatCatResiduals.
+StatCatResiduals <- ggproto(`_class` = "StatCatResiduals",
                      `_inherit` = Stat,
                      compute_panel = ____,
-                     required_aes = c("x", "____", "cat"))
+                     required_aes = c("x", "y", "____"))
 
 
 
-# Test.
+# Test StatCatFitted & StatCatResiduals.
 penguins_clean |> 
   ggplot() + 
-  aes(x = bill_depth_mm, y = bill_length_mm) + 
-  geom_point() +
-  geom_point(stat = StatCatFitted, color = "coral")
-  geom_segment(stat = ____, color = "coral")
+  aes(x = bill_depth_mm, 
+      y = bill_length_mm,
+      cat = species) + 
+  geom_point(stat = StatCatFitted, color = "maroon4") +
+  geom_segment(stat = ____, color = "maroon4") +
+  geom_point()
 
 ```
 
@@ -480,7 +482,7 @@ penguins_clean |>
 # Define.
 stat_cat_fitted <- function (mapping = NULL, data = NULL, geom = "point", position = "identity", 
     ..., show.legend = NA, inherit.aes = TRUE){
-    layer(data = data, mapping = mapping, stat = StatCatFitted, 
+    layer(data = data, mapping = mapping, stat = ____, 
         geom = geom, position = position, show.legend = show.legend, 
         inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
             ...))
@@ -488,7 +490,7 @@ stat_cat_fitted <- function (mapping = NULL, data = NULL, geom = "point", positi
 
 
 # Define.
-stat_cat_residuals <- function (mapping = NULL, data = NULL, geom = "segment", position = "identity", 
+stat_cat_residuals <- function (mapping = NULL, data = NULL, geom = ____, position = "identity", 
     ..., show.legend = NA, inherit.aes = TRUE){
     layer(data = data, mapping = mapping, stat = ____, 
         geom = geom, position = position, show.legend = show.legend, 
@@ -503,10 +505,12 @@ geom_cat_residuals <- ____
 # Test.
 penguins_clean |> 
   ggplot() + 
-  aes(x = bill_depth_mm, y = bill_length_mm) + 
-  geom_point() +
-  ____(color = "coral") + 
-  ____(color = "coral")
+  aes(x = bill_depth_mm, 
+      y = bill_length_mm,
+      cat = species) + 
+  ____(color = "maroon4") + 
+  geom_cat_residuals(color = "maroon4") +
+  geom_point()
 ```
 
 
