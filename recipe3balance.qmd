@@ -365,7 +365,7 @@ geom_bal_point <- stat_bal_point
 
 # Your Turn: Write `geom_support()`
 
-Using the `geom_bal_point` Recipe #3 as a reference, try to create a `stat_support()` and convenience `geom_support()` that draws a segment from the minimum of x to the max of x along y = 0. This might complement the geom_bal_point(), being the support of the fulcrum/balancing point.
+Using the `geom_bal_point` Recipe #3 as a reference, try to create a `stat_support()` and convenience `geom_support()` that draws a segment from the minimum of x to the max of x along y = 0. This might complement the `geom_bal_point()`, being the support upon which the data bars sit and the logical limits for the balancing point.
 
 ### Hint: consider what aesthetics are required for segments.  We'll give you Step 0 this time...
 
@@ -470,11 +470,12 @@ survey_df |>
   ggplot() + 
   aes(x = response, y = freq) + 
   geom_col() +
-  ____(color = "magenta")
+  ____(color = "magenta", 
+       linewidth = 2)
 ```
 
 
-##  Next up, Recipe 4: [geom_lm_cat()](https://evamaerey.github.io/easy-geom-recipes/recipe3residuals.html)
+##  Next up, Recipe 4: [geom_lm_cat()](https://evamaerey.github.io/easy-geom-recipes/recipe4catlm.html)
 
 How would you write the function draws residuals based on a linear model fit that contains a categorical variable, `lm(y ~ x + cat)`? Go to Recipe 4.
 

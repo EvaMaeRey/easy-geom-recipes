@@ -258,7 +258,7 @@ The short answer is 'yes'!  If you just want to use the Stat yourself locally in
 
 Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, it's necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
 
-A test of StatIndex using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
+A test of `StatIndex` using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
 ```{r}
 cars |> 
@@ -339,7 +339,6 @@ stat_identity
 
 ```{r error = T, eval = F}
 stat_index <- make_constructor(StatIndex, geom = "text")
-
 ```
 
 :::
@@ -401,35 +400,7 @@ cars |>
   labs(subtitle = "and stat_index()")
 ```
 
-::: {.callout-tip collapse="true"}
-# Pro-tip: 'Express' alternative for user-facing functions ... (*Caution, needs vetting*)
 
-*This approach is not fully vetted. Your comments and feedback are welcome. See discussions [26](https://github.com/teunbrand/ggplot-extension-club/discussions/26) and [31](https://github.com/teunbrand/ggplot-extension-club/discussions/31)*
-
-An alternate 'express' route below may be helpful in some settings (i.e. in-script definitions and exploratory work).  
-
-
-```{r error = T, eval = F}
-geom_index <- function(...){geom_label(stat = StatIndex, ...)}
-geom_index_text <- function(...){geom_text(stat = StatIndex, ...)}
-
-
-cars |>
-  ggplot() +
-  aes(x = speed, 
-      y = dist) +
-  geom_point() +
-  geom_index(vjust = 1)
-
-last_plot() + 
-  aes(color = speed > 15) 
-```
-
-A downside is that the geom is hard-coded, so it is not flexible in this regard compared with the stat_*() counterpart defined using the layer() function. 
-
-Also, not as many arguments will be spelled out for the user when using the function.  
-
-:::
 
 
 # Done! Time for a review.
@@ -577,9 +548,9 @@ cars |>
 ```
 
 
-# Next up: Recipe 3 `geom_lm_residuals()`
+# Next up: Recipe 3 `geom_bal_point()` and `geom_support()`
 
-How would you write the function draws residuals based on a linear model fit lm(y ~ x)? Go to [Recipe 3](./recipe3residuals.qmd).
+In the next recipe, we'll look at computation when we know we'll be working with categorical variables, creating `geom_bal_point()` and `geom_support()`
 
 
 
