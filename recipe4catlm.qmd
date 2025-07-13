@@ -1,5 +1,5 @@
 ---
-title: "Recipe 4: geom_lm_cat() and geom_lm_cat_residuals()"
+title: "Recipe 4: geom_cat_lm(), geom_cat_fitted(), and geom_cat_residuals()"
 webr: 
   packages:
     - tidyverse
@@ -7,9 +7,9 @@ webr:
 ---
 
 
-# Example recipe #4:  `geom_lm_cat()`
+# Example recipe #4:  `geom_cat_lm()`
 
-In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous and categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- meaning a model is estimated for each category. Let's see how we might visual a single model that includes a categorical variable. 
+In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous, and categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- meaning a model is estimated for each category. Let's see how we might visual a single model that includes a categorical variable. 
 
 
 ---
@@ -40,10 +40,7 @@ penguins |>
   geom_point() + 
   geom_line(data = penguins_w_fitted,
              aes(y = fitted),
-             color = "orange")+ 
-  geom_point(data = penguins_w_fitted,
-             aes(y = fitted),
-             color = "orange")
+             color = "coral")
 ```
 
 ::: {.callout-tip collapse="true"}
@@ -297,7 +294,7 @@ penguins |>
       y = bill_length_mm,
       cat = species) +
   geom_point() + 
-  geom_lm_cat(color = "orange") +
+  geom_lm_cat(color = "coral") +
   geom_smooth(method = "lm", 
               linewidth = .4) 
 ```
@@ -313,7 +310,7 @@ penguins |>
       y = bill_length_mm,
       cat = species) +
   geom_point() + 
-  geom_lm_cat(color = "orange") + 
+  geom_lm_cat(color = "coral") + 
   facet_wrap(facets = vars(sex))
 ```
 
@@ -363,9 +360,9 @@ geom_lm_cat <- stat_lm_cat
 
 ::: 
 
-# Your Turn: Write `geom_residuals()`
+# Your Turn: Write `geom_cat_fitted()` and `geom_cat_residuals()`
 
-Using the `geom_lm_cat` Recipe #3 as a reference, try to create a `stat_lm_cat_residuals()` and convenience `stat_lm_cat_residuals()` that draws a segment between observed and fitted values for a linear model. 
+Using the `geom_cat_lm` Recipe #3 as a reference, try to create a `geom_cat_fitted()` and `geom_cat_residuals()` that draws a segment between observed and fitted values for a linear model. 
 
 ### Hint: consider what aesthetics are required for segments.  We'll give you Step 0 this time...
 
@@ -391,32 +388,56 @@ penguins |>
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm, group = species) +
   geom_point() + 
+  geom_point(data = penguins_w_fitted,
+             aes(y = fitted),
+             color = "coral")
   geom_segment(data = penguins_w_fitted,
              aes(yend = fitted, xend = bill_depth_mm),
-             color = "blue")
+             color = "coral")
 ```
 
-### Step 1: Write compute function. Test.
+### Step 1: Write compute functions. Test.
 
 ```{webr}
-#| exercise: geom_means
 # Define. 
-compute_group_lm_residuals <- function(data, scales){
+compute_panel_cat_fitted <- function(data, scales){
   
   model <- lm(formula = y ~ x + cat, data = data)
   
-  ___ |> 
+  data |> 
+    mutate(y = model$fitted.values)
+  
+}
+
+#| exercise: geom_means
+# Define. 
+compute_panel_cat_residuals <- function(data, scales){
+  
+  model <- lm(formula = y ~ x + cat, data = ____)
+  
+  data |> 
     mutate(xend = x,
            yend = model$fitted.values)
   
 }
 
-# Test.
+
+
+
+# Test. compute_panel_cat_residuals
 penguins_clean |> 
   select(x = bill_depth_mm, 
          ____ = bill_length_mm,
          cat = species) |>
-  compute_group_lm_residuals()
+  compute_panel_cat_residuals()
+
+
+# Test. compute_panel_cat_fitted
+penguins_clean |> 
+  select(x = bill_depth_mm, 
+         y = bill_length_mm,
+         ____ = species) |>
+  compute_panel_cat_fitted()
 ```
 
 ### Step 2: Write Stat.
@@ -424,18 +445,30 @@ penguins_clean |>
 
 ```{webr}
 #| exercise: geom_means
+
+#| exercise: geom_means
 # Define.
-StatLmCatResiduals <- ggproto(`_class` = "____",
+StatCatFitted <- ggproto(`_class` = "____",
                      `_inherit` = Stat,
                      compute_panel = ____,
                      required_aes = c("x", "____", "cat"))
+
+
+# Define.
+StatCatResiduals <- ggproto(`_class` = "____",
+                     `_inherit` = Stat,
+                     compute_panel = ____,
+                     required_aes = c("x", "____", "cat"))
+
+
 
 # Test.
 penguins_clean |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
-  geom_segment(stat = ____, color = "orange")
+  geom_point(stat = StatCatFitted, color = "coral")
+  geom_segment(stat = ____, color = "coral")
 
 ```
 
@@ -445,7 +478,17 @@ penguins_clean |>
 ```{webr}
 #| exercise: geom_means
 # Define.
-stat_lm_cat_residuals <- function (mapping = NULL, data = NULL, geom = "segment", position = "identity", 
+stat_cat_fitted <- function (mapping = NULL, data = NULL, geom = "point", position = "identity", 
+    ..., show.legend = NA, inherit.aes = TRUE){
+    layer(data = data, mapping = mapping, stat = StatCatFitted, 
+        geom = geom, position = position, show.legend = show.legend, 
+        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
+            ...))
+}
+
+
+# Define.
+stat_cat_residuals <- function (mapping = NULL, data = NULL, geom = "segment", position = "identity", 
     ..., show.legend = NA, inherit.aes = TRUE){
     layer(data = data, mapping = mapping, stat = ____, 
         geom = geom, position = position, show.legend = show.legend, 
@@ -454,14 +497,16 @@ stat_lm_cat_residuals <- function (mapping = NULL, data = NULL, geom = "segment"
 }
 
 # Alias.
-geom_lm__cat_residuals <- ____
+geom_cat_fitted <- ____
+geom_cat_residuals <- ____
 
 # Test.
 penguins_clean |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
-  ____(color = "orange")
+  ____(color = "coral") + 
+  ____(color = "coral")
 ```
 
 
