@@ -20,7 +20,7 @@ ggcanvas() +
 
 ```
 
-Extending ggplot2 is a powerful way to enhance productivity and make coding plots more enjoyable. The ggplot2 extension system allows us to build new 'vocabulary' for more fluent expression.
+Extending ggplot2 is a powerful way to enhance productivity and make creating plots more fun. The ggplot2 extension system allows us to build new 'vocabulary' for more fluent expression.
 
 <!-- Yet some useful areas of extension are not in mainstream use even among seasoned ggplot2 users. -->
 

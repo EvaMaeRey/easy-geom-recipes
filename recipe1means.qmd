@@ -12,7 +12,7 @@ In this first recipe, we'll look at simple examples of defining a new `geom_*()`
 
 Each `geom_*()` function (layer) is defined by three major elements: a `Geom`, a `Stat`, and a `position`.  The simplest among these to create is a new `Stat`, so the 'Easy recipes' start with these. And while simple, `Stats` are also powerful because they allow you compute to be integrated into your plotting pipeline --- that you would otherwise might need to do 'manually' before plotting.  
 
-Along with writing the `geom_\*()` function, we'll write a `stat_*()` function, which is pretty typical for seasoned ggplot2 developers. It's okay if *you* don't typically write your plots with `stat_*()` functions -- you can ignore these `stat_*()` functions if you like. 
+Along with writing the `geom_\*()` function, we'll write a `stat_*()` function, which is pretty typical for seasoned ggplot2 developers when writing `Stats`. It's okay if *you* don't typically write your plots with `stat_*()` functions -- you can use just use the `geom_*()` functions if you like. 
 
 ::: {.callout-tip}
 
@@ -20,10 +20,7 @@ Along with writing the `geom_\*()` function, we'll write a `stat_*()` function, 
 
 :::
 
-```{r, echo = F, eval = F, code = readLines("make_constructor.R")}
-
-```
-
+Let's get started!  Our objective in this first 'recipe' is to be able to compose the following plot with a new `geom_means()` function that we will create.
 
 ```{r, eval = F}
 ggplot(data = penguins) + 
@@ -304,7 +301,7 @@ stat_medians <- make_constructor(StatMedians, geom = "point")
 
 ### Define geom_*() function
 
-Because users are more accustom to using layers that have the `geom` prefix, you might also define geom with identical properties via aliasing. 
+Because users are more accustom to using layers that have the `geom_` prefix, you might also define a `geom_` function with identical properties as the `stat_` via aliasing. 
 
 > 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.' *ggplot2: Elegant Graphics for Data Analysis*. 
 
@@ -318,7 +315,7 @@ geom_medians <- stat_medians
 
 It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
 
-But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed geom and flexible stat convention in what follows:
+But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed-geom, flexible-stat convention in what follows:
 
 
 ```{r, eval = F}
@@ -398,6 +395,9 @@ stat_medians <- function(mapping = NULL, data = NULL,
         inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
             ...))
 }
+
+# stat_medians
+geom_medians <- stat_medians
 ```
 
 ::: 
@@ -405,7 +405,7 @@ stat_medians <- function(mapping = NULL, data = NULL,
 
 # Your Turn: write `geom_means()`
 
-Using the `geom_medians` Recipe #1 as a reference, try to create a `stat_means()` function that draws a point at the means of x and y. You may also write convenience geom_*() functions. 
+Using the `geom_medians` Recipe #1 as a reference, try to create a `geom_means()` function that draws a point at the means of x and y. You may also write convenience geom_*() functions. 
 
 ### Step 00: load libraries, data
 
@@ -519,9 +519,9 @@ How would you write the function which annotates coordinates (x,y) for data poin
 
 
 ::: {.callout-note collapse="true"}
-### Pro tip: check out `ggplot2::stat_manual()` for group-wise compute in the next ggplot2 release one-offs or [`statexpress::qstat()`](https://github.com/EvaMaeRey/statexpress) for a quick stat short-cut in extension explorations.  
+### Pro tip: check out `ggplot2::stat_manual()` for one-off group-wise compute in the next ggplot2 release or [`statexpress::qstat()`](https://github.com/EvaMaeRey/statexpress) for a quick stat short-cut in extension explorations.  
 
-
+Examples follow:
 
 
 ```{r, eval = F}
@@ -541,6 +541,7 @@ ggplot(penguins) +
   geom_point() + 
   geom_point(stat = qstat(mean_fun),
              size = 8)
+#--------------------------------------------------
 
 ## option 2, use geom_point(stat = "manual")
 means_fun2 <- function(data){
@@ -551,6 +552,7 @@ means_fun2 <- function(data){
   
 }
 
+### usage A (geom )
 ggplot(penguins) + 
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 
@@ -559,7 +561,7 @@ ggplot(penguins) +
              fun = means_fun2, 
              size = 8)
 
-# or use the stat_manual function; GeomPoint is the default... 
+### usage B (geom )
 ggplot(penguins) + 
   aes(x = bill_depth_mm,
       y = bill_length_mm) + 

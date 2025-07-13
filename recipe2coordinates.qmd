@@ -9,13 +9,15 @@ webr:
 # The Goal
 
 
-In the last recipe, you should have seen and practiced how to write a compute function that can be used in a Stat. Specifically, you  defined group-wise computation by defining `compute_group` in `ggproto()`.  You specified that other behavior should be inherited from the more generic `Stat` class. You improved user interface for your `Stat` by specifying which `aes` must be provided by the user in the `require_aes` slot. Finally you wrote user-facing functions `stat_\*()` and `geom_\*()` based on the new Stat object and an existing Geom object.
+In the last recipe, you should have seen and practiced how to write a compute function that can be used in a Stat. Specifically, you  defined group-wise computation by defining `compute_group` for your `Stat` ggproto object.  You specified that other behavior should be inherited from the more generic `Stat` class. You improved user interface for your `Stat` by specifying which `aes` must be provided by the user in the `require_aes` slot. Finally you wrote user-facing functions `stat_\*()` and `geom_\*()` based on the new Stat object and an existing Geom object.
 
-In this next recipe, we'll look at the creation of `StatIndex`, `stat_index`, and `geom_index`, which can all be used to label observations with their row numbers
+In this next recipe, we'll first see the creation of `StatIndex`, `stat_index`, and `geom_index`, which can all be used to label observations with their row numbers
 
-Along the way, we'll contrast a *new move* - defining panel-wise instead of group-wise compute using `compute_panel`.  This 'move' will be used in the two recipes that follow.  
+Along the way, we'll contrast a *new extension move* - defining panel-wise instead of group-wise compute using `compute_panel`.  Panel-wise computation will be used in the two recipes that follow.  
 
-In the exercise for this recipe, you'll create StatCoordinates, stat_coordinates() and geom_coordinates(), useable to mark points with their `x` and `y` coordinates.
+In the exercise for this recipe, you'll create `StatCoordinates`, `stat_coordinates()` and `geom_coordinates()`, usable to mark points with their `x` and `y` coordinates.
+
+Let's get started! By the end of the exercise, we should be able to specify the plot below with the new `geom_coordinates()` function:
 
 
 ```{r, eval = F}
@@ -44,7 +46,7 @@ cars |>
             check_overlap = T)
 ```
 
-In this exercise, we'll demonstrate how to annotate the observation index (row number) at x and y, defining the new extension function `geom_index()`. Then you'll be prompted to define `geom_coordinates()` based on what you've learned.
+But, we'll start by demonstrating how to annotate the observation index (row number) at x and y, defining the new extension function `geom_index()`. Then you'll be prompted to define `geom_coordinates()` based on what you've learned.
 
 
 ```{r}
@@ -352,7 +354,7 @@ geom_index <- stat_index
 
 
 ::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut, an a tad unconventional. 
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut, and a tad unconventional. 
 
 It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
 

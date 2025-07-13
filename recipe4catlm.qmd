@@ -9,17 +9,36 @@ webr:
 
 # Example recipe #4:  `geom_cat_lm()`
 
-In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous, and categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- meaning a model is estimated for each category. Let's see how we might visual a single model that includes a categorical variable. 
+In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous and a categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- meaning a model is estimated for each category. Let's see how we might visual a single model that includes a categorical variable. 
+
+Our first goal is to be able to specify a plot with newly created `geom_cat_lm()` (and well look at defining `geom_cat_fitted()` or `geom_cat_residuals()`)
+
+```{r, eval = F}
+penguins |> 
+  ggplot() + 
+  aes(x = bill_depth_mm, 
+      y = bill_length_mm,
+      cat = species) +
+  geom_point() + 
+  geom_cat_lm()
+```
+
+```{r, code = knitr::knit_code$get("fitted_1"), echo=F, message=FALSE, warning=F}
 
 
----
+
+```
+
+
+
+Let's get started!
 
 ## Step 0: use base ggplot2 to get the job done
 
 
 It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
 
-```{r, message = F, warning=F}
+```{r fitted_1, message = F, warning=F}
 #| label: fitted_1
 
 library(tidyverse)
@@ -152,7 +171,7 @@ penguins |>
 ::: {.callout-note collapse="false"}
 # You may have noticed ...
 
-**that we don't use "fitted" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "fitted", size = 7)`.
+**that we don't use "cat_lm" as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "cat_lm", size = 7)`.
 
 :::
 

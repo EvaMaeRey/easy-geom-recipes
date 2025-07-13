@@ -6,9 +6,9 @@ webr:
     - palmerpenguins
 ---
 
-Welcome to 'Easy `geom` recipes' Recipe #3: creating `geom_support()` and `geom_bal_point()`.
 
-In the first couple of recipes, you defined compute that would work group-wise. In recipe #2 we briefly we contrasted a panel-wise computation specification with our group-wise computation (StatIndexPanel).  We saw that when introducing a categorical variable using `StatIndexPanel`, indices were computed *across* the groups, instead of within groups -- which might be a preferred behavior. 
+
+In the first two of recipes, you defined compute that would work group-wise. In recipe #2 we briefly we contrasted a panel-wise computation specification with our group-wise computation (see `StatIndexPanel`).  We saw that when introducing a categorical variable using `StatIndexPanel`, indices were computed *across* the groups, instead of within groups -- the behavior for `StatIndex`. 
 
 In this recipe, we'll use *panel-wise* computation throughout to look at the 'balance' of the frequency of discrete ordinal variables.  Panel-wise compute is needed because of the discrete variable mapping, i.e. `aes(x = response)`.  So that the data isn't broken up by category (unique responses), we define `compute_panel` instead of `compute_group`.
 
@@ -180,7 +180,7 @@ StatBalPoint <- ggplot2::ggproto(`_class` = "StatBalPoint",
 
 ### Test Stat.
 
-You can test out your Stat using them in ggplot2 geom_*() functions.  
+You can test out your Stat using them in ggplot2 `geom_*()` functions.  
 
 ```{r}
 survey_df |> 
@@ -197,7 +197,7 @@ survey_df |>
 ::: {.callout-note collapse="false"}
 # You may have noticed ...
 
-**that we don't use `"bal_point"` as the stat argument, which would be more consistent with base ggplot2 documentation.**  However, if you prefer, you can refer to your newly created Stat this way when testing, i.e. `geom_point(stat = "bal_point", size = 7)`.
+**that we don't use `"bal_point"` as the stat argument, which - but you could!**  `StatBalPoint` would be retrieved under the hood.
 
 :::
 
