@@ -287,34 +287,16 @@ geom_bal_point <- stat_bal_point
 
 
 ::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut.  (🎉 but we can use `make_constructor()` in the next ggplot2 release, just about as easy and more conventional`)
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut, and a tad unconventional. 
 
-Soon, we'll be able to use `make_constructor()`.
+It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
+
+But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed geom and flexible stat convention in what follows:
+
 
 ```{r, eval = F}
 geom_bal_point <- make_constructor(GeomPoint, stat = "bal_point")
 ```
-
-For now, verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
-
-An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
-
-```{r}
-# user-facing function
-geom_bal_point <- function(mapping = NULL, data = NULL, 
-                         stat = "bal_point", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(data = data, mapping = mapping, stat = stat, 
-        geom = GeomPoint, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
-```
-
-However, because it is unexpected to use `geom_bal_point()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
-
-With the next ggplot2 release, we recommend using 'make_constructor' as follows which will put you more in line with conventions of a geom-prefixed user function having a fixed Geom and flexible Stat, consistent with what other seasoned practicioners are doing! 
 
 :::
 

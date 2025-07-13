@@ -352,25 +352,17 @@ geom_index <- stat_index
 
 
 ::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut.  (🎉 but we can use make_constructor in the next ggplot2 release, just about as easy and more conventional: `geom_index <- make_constructor(GeomText, stat = "index")`)
+# Be aware that verbatim aliasing as shown above is a bit of a shortcut, an a tad unconventional. 
 
-Verbatim aliasing as shown above is a bit of a shortcut and assumes that users will use the 'geom_\*()' function with the stat-geom combination as-is. (For a discussion, see [**Constructors**](https://ggplot2-book.org/ext-springs.html#constructors) in 'Extending ggplot2: A case Study' in *ggplot2: Elegant Graphics for Data Analysis*.  This section notes, 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.') 
+It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
 
-An approach that is more consistent with existing guidance would be to hardcode the Geom and allow the user to change the Stat as follows. 
+But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed geom and flexible stat convention in what follows:
 
 
-```{r}
-# user-facing function
-geom_index <- function (mapping = NULL, data = NULL, stat = "index", position = "identity", 
-    ..., na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(mapping = mapping, data = data, geom = "label", stat = stat, 
-        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
-        params = rlang::list2(na.rm = na.rm, ...))
-}
+```{r, eval = F}
+geom_index <- make_constructor(GeomText, stat = "index")
 ```
 
-However, because it is unexpected to use `geom_index()` with a Stat other than StatIndex (doing so would remove the index-ness) we think that the verbatim aliasing is a reasonable, time and code saving getting-started approach.  
 :::
 
 
