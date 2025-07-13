@@ -516,6 +516,6 @@ penguins_clean |>
 
 # Congratulations!
 
-If you've finished all four recipes, you should have a good feel for writing Stats and `stat_\*()` and `geom_\*()` functions  
+If you've finished all four recipes, you should have a good feel for writing Stats and `stat_\*()` and `geom_\*()` functions.
 
 
