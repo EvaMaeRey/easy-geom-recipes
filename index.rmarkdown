@@ -1,0 +1,51 @@
+---
+title: "Easy geom_*() recipes"
+---
+
+```{r, echo = F, warning=F, fig.height=3.5}
+# download.file("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Ggplot2_hex_logo.png/800px-Ggplot2_hex_logo.png", destfile = "800px-Ggplot2_hex_logo.png")  
+  
+
+library(ggstamp)
+library(ggplot2)
+ggcanvas() + 
+  stamp_polygon(x0y0 = pos_honeycomb(n = 50, ncol = 10), 
+                fill = "whitesmoke") + 
+  ggstamp::stamp_wash(fill = "whitesmoke") +
+  ggstamp::theme_void_fill("whitesmoke") + 
+  ggstamp::stamp_png(png = "800px-Ggplot2_hex_logo.png", x0 = 6,
+                     y0 = -3, width = 4
+                    )
+
+
+```
+
+
+
+Extending ggplot2 is a powerful way to enhance productivity and make creating plots more fun. The ggplot2 extension system allows us to build new 'vocabulary' for more fluent expression.
+
+<!-- Yet some useful areas of extension are not in mainstream use even among seasoned ggplot2 users. -->
+
+'Easy geom_\*() recipes' is a new point of entry for learning ggplot2 *Stat* extension, a particularly exension powerful mechanism which allows users to define computation to be used in new geom\_\*() or stat\_\*() functions.
+
+With new Stats, *you* can specify calculation to be done within the ggplot2 plot pipeline:
+
+
+
+```{r}
+#| eval = F
+ggplot(data = cars,
+       aes(x = speed, y = dist)) + 
+  geom_customized()  # YOU specify compute
+```
+
+
+
+In this project's tutorials, you'll see how to define your own Stats and write new user-facing geom\_\*() or stat\_\*() functions.
+
+The materials are aimed at academics, data analysts, BI professionals, seasoned and new ggplot2 users, statistics educators and their students, journalists, etc. The approach has been tested and evaluated by data science and statistics educators.
+
+# Where to next
+
+We recommend that you get started by working through the recipes, starting with [Recipe #1](./recipe1means.qmd). If you'd like to leaf through the recipes or present the recipes approach to a group, you can check out [slide show](https://evamaerey.github.io/mytidytuesday/2022-01-03-easy-geom-recipes/easy_geom_recipes_flipbook_2024.html) covering the protocol. As mentioned above, the recipes have been tested and evaluated by educators. Please feel fee to check out that [research](./easy-geom-recipes/research.qmd). If you would like to engage with other extenders or have an extension related problem you might check out [the ggplot2 extension club](https://github.com/teunbrand/ggplot-extension-club), which meets virtually and has an online forum (discussion). 'Easy geom_\*() recipes' and these other resources are part of the [Everyday ggplot2 extension](https://evamaerey.github.io/everyday_ggplot2_extension/) initiative.
+

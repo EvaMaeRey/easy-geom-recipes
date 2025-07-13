@@ -34,7 +34,7 @@ website:
           - href: recipe1means.qmd
           - href: recipe2coordinates.qmd
           - href: recipe3balance.qmd
-          - href: recipe4lmcat.qmd
+          - href: recipe4catlm.qmd
 
 
       # - section: "Tutorial Evaluation"
