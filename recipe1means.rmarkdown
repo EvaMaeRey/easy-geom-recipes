@@ -6,6 +6,8 @@ webr:
     - palmerpenguins
 ---
 
+
+
 # The Goal
 
 In this first recipe, we'll look at simple examples of defining a new `geom_*()` function, `geom_medians()` and `geom_means()`.  
@@ -21,6 +23,8 @@ Along with writing the `geom_\*()` function, we'll write a `stat_*()` function, 
 :::
 
 Let's get started!  Our objective in this first 'recipe' is to be able to compose the following plot with a new `geom_means()` function that we will create.
+
+
 
 ```{r, eval = F}
 ggplot(data = penguins) + 
@@ -49,9 +53,13 @@ penguins |>
              size = 8, color = "red")
 ```
 
+
+
 In this exercise, we'll demonstrate how to define the new extension function `geom_medians()` to add a point at the medians `x` and `y`. Then you'll be prompted to define `geom_means()` based on what you've learned.
 
 ---
+
+
 
 ```{r}
 #| label: setup
@@ -59,9 +67,13 @@ In this exercise, we'll demonstrate how to define the new extension function `ge
 knitr::opts_chunk$set(echo = TRUE, message = F, warning = F)
 ```
 
+
+
 ## Step 00: Loading packages and prepping data
 
 <!-- Handling missingness is not a discussion of this tutorial, so we'll only use complete cases. -->
+
+
 
 ```{r, message = F, warning=F}
 library(tidyverse)
@@ -71,10 +83,14 @@ glimpse(penguins)
 
 
 
+
+
 ## Step 0: use base ggplot2 to get the job done
 
 
 It's a good idea to get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
+
+
 
 
 ```{r status-quo}
@@ -97,15 +113,21 @@ penguins |>
 ```
 
 
+
+
 ::: {.callout-tip collapse="true"}
 ### Pro tip.  Use `layer_data()` to inspect ggplot\'s internal data ...
 
 Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your Stat will help prep data to look something like this.
 
+
+
 ```{r}
 layer_data(plot = last_plot(), 
            i = 2) # layer 2, the computed means, is of interest
 ```
+
+
 :::
 
 
@@ -116,6 +138,8 @@ layer_data(plot = last_plot(),
 Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_group_medians()`.  The `data` input will look similar to the plot data.  You will also need to include a `scales` argument, which ggplot2 uses internally. 
 
 ### Define compute.
+
+
 
 ```{r}
 #| label: compute_group_medians
@@ -128,6 +152,8 @@ compute_group_medians <- function(data, scales){
 }
 ```
 
+
+
 ::: {.callout-note collapse="false"}
 # You may have noticed ... 
 
@@ -139,6 +165,8 @@ compute_group_medians <- function(data, scales){
 
 ### Test compute.
 
+
+
 ```{r}
 # Test compute. 
 penguins |>
@@ -146,6 +174,8 @@ penguins |>
          y = bill_length_mm) |>  
   compute_group_medians()
 ```
+
+
 
 ::: {.callout-note collapse="false"}
 # You may have noticed ... 
@@ -162,6 +192,8 @@ Next, we use the ggplot2::ggproto function which allows you to define a new Stat
 
 ### Define Stat.
 
+
+
 ```{r}
 #| label: StatMedians
 StatMedians <- 
@@ -170,6 +202,8 @@ StatMedians <-
                    compute_group = compute_group_medians, # <3>
                    required_aes = c("x", "y"))            # <4>
 ```
+
+
 
 ::: {.callout-note collapse="false"}
 # You may have noticed... 
@@ -192,6 +226,8 @@ StatMedians <-
 
 You can test out your Stat using them in ggplot2 `geom_*()` functions.  
 
+
+
 ```{r}
 penguins |> 
   ggplot() + 
@@ -201,6 +237,8 @@ penguins |>
   geom_point(stat = StatMedians, size = 7) + 
   labs(title = "Testing StatMedians")
 ```
+
+
 
 ::: {.callout-note collapse="false"}
 # You may have noticed ...
@@ -214,10 +252,14 @@ Test group-wise behavior by using a discrete variable with an group-triggering a
 
 
 
+
+
 ```{r}
 last_plot() + 
   aes(color = species)
 ```
+
+
 
 :::  {.callout-tip collapse="true"}
 # Pro tip: Think about an early exit (don't define a user-facing function) ...
@@ -235,6 +277,8 @@ Instead of using a `geom_*()` function, you might prefer to use the `layer()` fu
 
 A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
+
+
 ```{r}
 penguins |> 
   ggplot() + 
@@ -248,6 +292,8 @@ penguins |>
   labs(title = "Testing StatMedians with layer() function")
 ```
 
+
+
 :::
 
 
@@ -259,6 +305,8 @@ penguins |>
 In this next section, we define user-facing functions.  Doing so is a bit of a mouthful, but see the 'Pro tip:  *Use `geom_point` definition as a template in this step ...*' that follows.
 
 ### Define stat_\*() and geom_\*() functions. 
+
+
 
 ```{r}
 stat_medians <- function (mapping = NULL, data = NULL,
@@ -273,6 +321,8 @@ stat_medians <- function (mapping = NULL, data = NULL,
         params = rlang::list2(na.rm = na.rm, ...))
 }
 ```
+
+
 
 
 
@@ -292,9 +342,13 @@ stat_medians <- function (mapping = NULL, data = NULL,
 ::: {.callout-tip collapse="true"}
 ## Pro tip. 🎉 Use `make_constructor()` to write the scaffolding code for you upon the next ggplot2 release.
 
+
+
 ```{r, eval = F}
 stat_medians <- make_constructor(StatMedians, geom = "point")
 ```
+
+
 
 :::
 
@@ -305,9 +359,13 @@ Because users are more accustom to using layers that have the `geom_` prefix, yo
 
 > 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.' *ggplot2: Elegant Graphics for Data Analysis*. 
 
+
+
 ```{r}
 geom_medians <- stat_medians
 ```
+
+
 
 
 ::: {.callout-warning collapse="true"}
@@ -318,9 +376,13 @@ It is more conventional write out scaffolding code, nearly identical to the stat
 But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed-geom, flexible-stat convention in what follows:
 
 
+
+
 ```{r, eval = F}
 geom_medians <- make_constructor(GeomPoint, stat = "medians")
 ```
+
+
 
 :::
 
@@ -330,6 +392,8 @@ geom_medians <- make_constructor(GeomPoint, stat = "medians")
 ### Test/Enjoy your user-facing functions
 
 ### Test geom_medians()
+
+
 
 ```{r}
 ## Test user-facing.
@@ -341,14 +405,22 @@ penguins |>
   labs(title = "Testing geom_medians()")
 ```
 
+
+
 ### Test group-wise behavior
+
+
 
 ```{r}
 last_plot() + 
   aes(color = species) 
 ```
 
+
+
 ### Test stat_*() function with another Geom.
+
+
 
 ```{r}
 last_plot() + 
@@ -359,12 +431,16 @@ last_plot() +
 
 
 
+
+
 # Done! Time for a review.
 
 Here is a quick review of the functions and ggproto objects we've covered, dropping tests and discussion.
 
 ::: {.callout-note collapse="false"}
 # Review
+
+
 
 ```{r}
 library(tidyverse)
@@ -400,6 +476,8 @@ stat_medians <- function(mapping = NULL, data = NULL,
 geom_medians <- stat_medians
 ```
 
+
+
 ::: 
 
 
@@ -408,6 +486,8 @@ geom_medians <- stat_medians
 Using the `geom_medians` Recipe #1 as a reference, try to create a `geom_means()` function that draws a point at the means of x and y. You may also write convenience geom_*() functions. 
 
 ### Step 00: load libraries, data
+
+
 
 ```{webr}
 #| setup: true
@@ -419,7 +499,11 @@ library(palmerpenguins)
 glimpse(penguins)
 ```
 
+
+
 ### Step 0: Use base ggplot2 to get the job done
+
+
 
 ```{webr}
 #| exercise: geom_means
@@ -438,7 +522,11 @@ penguins_clean |>
                  size = 8, color = "red")
 ```
 
+
+
 ### Step 1: Write compute function. Test.
+
+
 
 ```{webr}
 #| exercise: geom_means
@@ -458,7 +546,11 @@ penguins |>
   compute_group_means()
 ```
 
+
+
 ### Step 2: Write Stat.
+
+
 
 
 ```{webr}
@@ -479,7 +571,11 @@ penguins |>
 
 ```
 
+
+
 ### Step 3: Write user-facing functions
+
+
 
 
 ```{webr}
@@ -510,6 +606,8 @@ penguins_clean |>
 
 
 
+
+
 # Next up: Recipe 2 `geom_id()`
 
 How would you write the function which annotates coordinates (x,y) for data points on a scatterplot? Go to [Recipe 2](./recipe2coordinates.qmd).
@@ -522,6 +620,8 @@ How would you write the function which annotates coordinates (x,y) for data poin
 ### Pro tip: check out `ggplot2::stat_manual()` for one-off group-wise compute in the next ggplot2 release or [`statexpress::qstat()`](https://github.com/EvaMaeRey/statexpress) for a quick stat short-cut in extension explorations.  
 
 Examples follow:
+
+
 
 
 ```{r, eval = F}
@@ -572,7 +672,10 @@ ggplot(penguins) +
 
 
 
+
+
 :::
+
 
 
 
