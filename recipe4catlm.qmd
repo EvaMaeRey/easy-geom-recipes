@@ -362,7 +362,7 @@ geom_cat_lm <- stat_cat_lm
 
 # Your Turn: Write `geom_cat_fitted()` and `geom_cat_residuals()`
 
-Using the `geom_cat_lm` Recipe #3 as a reference, try to create a `geom_cat_fitted()` and `geom_cat_residuals()` that draws a segment between observed and fitted values for a linear model. 
+Using the `geom_cat_lm` Recipe #3 as a reference, try to create a `geom_cat_fitted()` *and* `geom_cat_residuals()` that draws fitted values and segments between observed and fitted values for a linear model with a categorical variable. 
 
 ### Hint: consider what aesthetics are required for segments.  We'll give you Step 0 this time...
 
