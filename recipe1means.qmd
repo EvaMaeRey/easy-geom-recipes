@@ -74,7 +74,7 @@ glimpse(penguins)
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's a good idea to get things done without a `` extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
+It's a good idea to get things done without a `Stat` extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
 
 
 ```{r us-quo}
@@ -100,7 +100,7 @@ penguins |>
 ::: {.callout-tip collapse="true"}
 ### Pro tip.  Use `layer_data()` to inspect ggplot\'s internal data ...
 
-Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your `` will help prep data to look something like this.
+Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your `Stat` will help prep data to look something like this.
 
 ```{r}
 layer_data(plot = last_plot(), 
