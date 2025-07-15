@@ -77,7 +77,7 @@ glimpse(penguins)
 It's a good idea to get things done without a `Stat` extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
 
 
-```{r us-quo}
+```{r status-quo}
 #| label: penguins
 # Compute.
 penguins_medians <- penguins |> 
