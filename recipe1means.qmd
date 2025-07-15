@@ -12,7 +12,7 @@ In this first recipe, we'll look at simple examples of defining a new `geom_*()`
 
 Each `geom_*()` function (layer) is defined by three major elements: a `Geom`, a `Stat`, and a `position`.  The simplest among these to create is a new `Stat`, so the 'Easy recipes' start with these. And while simple, `Stats` are also powerful because they allow you compute to be integrated into your plotting pipeline --- that you would otherwise might need to do 'manually' before plotting.  
 
-Along with writing the `geom_\*()` function, we'll write a `stat_*()` function, which is pretty typical for seasoned ggplot2 developers when writing `Stats`. It's okay if *you* don't typically write your plots with `stat_*()` functions -- you can use just use the `geom_*()` functions if you like. 
+Along with writing the `geom_*()` function, we'll write a `stat_*()` function, which is pretty typical for seasoned ggplot2 developers when writing `Stats`. It's okay if *you* don't typically write your plots with `stat_*()` functions -- you can use just use the `geom_*()` functions if you like. 
 
 ::: {.callout-tip}
 
@@ -74,10 +74,10 @@ glimpse(penguins)
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's a good idea to get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
+It's a good idea to get things done without a `` extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.
 
 
-```{r status-quo}
+```{r us-quo}
 #| label: penguins
 # Compute.
 penguins_medians <- penguins |> 
@@ -100,7 +100,7 @@ penguins |>
 ::: {.callout-tip collapse="true"}
 ### Pro tip.  Use `layer_data()` to inspect ggplot\'s internal data ...
 
-Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your Stat will help prep data to look something like this.
+Use ggplot2::layer_data() to inspect the render-ready data internal in the plot.  Your `` will help prep data to look something like this.
 
 ```{r}
 layer_data(plot = last_plot(), 
@@ -131,7 +131,7 @@ compute_group_medians <- function(data, scales){
 ::: {.callout-note collapse="false"}
 # You may have noticed ... 
 
-1. **... the `scales` argument in the compute definition, which is used internally in ggplot2.**  While it won't be used in your test (up next), you do need so that the computation will work in the ggplot2 setting.
+1. **... the `scales` argument in the compute definition, which is used internally in ggplot2.**  While it won't be used in your test (up next), you do need it so that the computation will work in the ggplot2 setting.
 
 2. **... that the compute function can only be used with data with variables `x` and `y`.**  These aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for plot.
 :::
@@ -154,13 +154,13 @@ penguins |>
 :::
 
 
-## Step 2: Define new Stat. Test.
+## Step 2: Define new `Stat`. Test.
 
-Next, we use the ggplot2::ggproto function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
+Next, we use the ggplot2::ggproto function which allows you to define a new `Stat` object - which will let us do computation under the hood while building our plot. 
 
 <!-- https://ggplot2.tidyverse.org/reference/ggproto.html -->
 
-### Define Stat.
+### Define `Stat`.
 
 ```{r}
 #| label: StatMedians
@@ -175,11 +175,11 @@ StatMedians <-
 # You may have noticed... 
 
 1. **... that the naming convention for the `ggproto` object is written in  CamelCase. **The new class should also be named the same, i.e. `"StatMedians"`.
-2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* -- you are inheriting class properties from ggplot2::Stat. 
+2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* -- you are inheriting class properties from `ggplot2::Stat`. 
 
-3. **... that the `compute_group_medians` function is used to define our Stat's `compute_group` element.** This means that data will be transformed group-wise by our compute definition -- i.e. by categories if a categorical variable is mapped.
+3. **... that the `compute_group_medians` function is used to define our `Stat`'s `compute_group` element.** This means that data will be transformed group-wise by our compute definition -- i.e. by categories if a categorical variable is mapped.
 
-4. **... that setting `required_aes` to `x` and `y` reflects the compute functions requirements** Specifying `required_aes` in your Stat can improve your user interface. Standard ggplot2 error messages will issue if required aes are not specified, e.g. "`stat_medians()` requires the following missing aesthetics: `x`."
+4. **... that setting `required_aes` to `x` and `y` reflects the compute functions requirements** Specifying `required_aes` in your `Stat` can improve your user interface. Standard ggplot2 error messages will issue if required aes are not specified, e.g. "`stat_medians()` requires the following missing aesthetics: `x`."
   
 
 
@@ -188,9 +188,9 @@ StatMedians <-
 :::
 
 
-### Test Stat.
+### Test `Stat`.
 
-You can test out your Stat using them in ggplot2 `geom_*()` functions.  
+You can test out your `Stat` using them in ggplot2 `geom_*()` functions.  
 
 ```{r}
 penguins |> 
@@ -208,7 +208,7 @@ penguins |>
 **... that we don't use `"medians"` as the `stat` argument. But you could!**  If you prefer, you could write `geom_point(stat = "medians", size = 7)` which will direct to your new `StatMedians` under the hood. 
 :::
 
-### Test Stat group-wise behavior
+### Test `Stat` group-wise behavior
 
 Test group-wise behavior by using a discrete variable with an group-triggering aesthetic like color, fill, or group, or by faceting.
 
@@ -222,16 +222,16 @@ last_plot() +
 :::  {.callout-tip collapse="true"}
 # Pro tip: Think about an early exit (don't define a user-facing function) ...
 
-You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within `geom_*()` functions?  
+You might be thinking, what we've done would already be pretty useful to me.  Can I just use my `Stat` as-is within `geom_*()` functions?  
 
-The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
+The short answer is 'yes'!  If you just want to use the `Stat` yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
 :::
 
 
 :::   {.callout-tip collapse="true"}
 # Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
 
-Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, you *must* to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
+Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, you *must* to go this route; for example, `geom_vline()` contains no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
 
 A test of StatMedians using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
@@ -258,7 +258,7 @@ penguins |>
 
 In this next section, we define user-facing functions.  Doing so is a bit of a mouthful, but see the 'Pro tip:  *Use `geom_point` definition as a template in this step ...*' that follows.
 
-### Define stat_\*() and geom_\*() functions. 
+### Define `stat_*()` and `geom_*()` functions. 
 
 ```{r}
 stat_medians <- function (mapping = NULL, data = NULL,
@@ -280,7 +280,7 @@ stat_medians <- function (mapping = NULL, data = NULL,
 ::: {.callout-note collapse="false"}
 # You may have noticed that ...
 
-1. **... the `stat_*()` function name derives from the Stat object's name, but is snake case.** Given naming conventions, a StatBigCircle-based stat_\*() function, should be named stat_big_circle().
+1. **... the `stat_*()` function name derives from the `Stat` object's name, but is snake case.** Given naming conventions, a StatBigCircle-based `stat_*()` function, should be named `stat_big_circle()`.
 
 2. **... `StatMedians` defines the new layer function and cannot be replaced by the user** `StatMedians` and the computation that defines it will be in effect before the layer is rendered.
 
@@ -313,7 +313,7 @@ geom_medians <- stat_medians
 ::: {.callout-warning collapse="true"}
 # Be aware that verbatim aliasing as shown above is a bit of a shortcut, and a tad unconventional. 
 
-It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
+It is more conventional write out scaffolding code, nearly identical to the `stat_*()` definition, but has the geom fixed and the stat flexible.
 
 But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed-geom, flexible-stat convention in what follows:
 
