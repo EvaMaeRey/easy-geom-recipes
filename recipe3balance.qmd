@@ -72,7 +72,7 @@ Let's get started!
 
 ## Step 0: use base ggplot2 to get the job done
 
-It's a good idea to look at how you'd get things done without Stat extension first, just using 'base' ggplot2. Here, we'll plot the frequencies of some ordered responses (A to E), and look at the 'balance' based on their numeric values.
+It's a good idea to look at how you'd get things done without extension first, just using 'base' ggplot2. Here, we'll plot the frequencies of some ordered responses (A to E), and look at the 'balance' based on their numeric values.
 
 ```{r }
 #| label: fitted_1
@@ -277,29 +277,13 @@ stat_bal_point <- make_constructor(StatBalPoint, geom = "point")
 :::
 
 
-### Define geom_*() function
+### Define `geom_*()` function
 
-Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
+Because users are more accustom to using layers that have the `geom` prefix, you might also define geom with similar properties. 
 
 ```{r}
-geom_bal_point <- stat_bal_point
-```
-
-
-::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut, and a tad unconventional. 
-
-It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
-
-But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed geom and flexible stat convention in what follows:
-
-
-```{r, eval = F}
 geom_bal_point <- make_constructor(GeomPoint, stat = "bal_point")
 ```
-
-:::
-
 
 
 ## Test/Enjoy functions
@@ -318,7 +302,7 @@ survey_df |>
 
 # Done! Time for a review.
 
-Here is a quick review of the functions and ggproto objects we've covered, dropping tests and discussion.
+Here is a quick review of the functions and `ggproto` objects we've covered, dropping tests and discussion.
 
 ::: {.callout-note collapse="false"}
 # Review
@@ -345,20 +329,11 @@ StatBalPoint = ggproto(`_class` = "StatBalPoint",
 # Step 3. Define user-facing functions
 
 ## define stat_*()
-stat_bal_point <- function(mapping = NULL, data = NULL, 
-                           geom = "point", 
-                           position = "identity", 
-                         ..., show.legend = NA, 
-                         inherit.aes = TRUE) 
-{
-    layer(data = data, mapping = mapping, stat = StatBalPoint, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
+stat_bal_point <- make_constructor(StatBalPoint, geom = "point")
+
 
 ## define geom_*()
-geom_bal_point <- stat_bal_point
+geom_bal_point <- make_constructor(GeomPoint, stat = "bal_point")
 ```
 
 ::: 
@@ -408,6 +383,7 @@ survey_df |>
 
 ### Step 1: Write compute function. Test.
 
+
 ```{webr}
 #| exercise: geom_means
 # Define. 
@@ -423,6 +399,7 @@ compute_panel_support <- function(data, scales){
 
 # Test.
 survey_df |> 
+  ## ggplot2 converts factors to numeric
   mutate(x = response |> as.numeric()) |>
   select(x) |>
   compute_panel_support()
@@ -450,20 +427,13 @@ survey_df |>
 
 ### Step 3: Write user-facing functions. 
 
-
 ```{webr}
 #| exercise: geom_means
 # Define.
-stat_support <- function (mapping = NULL, data = NULL, geom = "segment", position = "identity", 
-    ..., show.legend = NA, inherit.aes = TRUE){
-    layer(data = data, mapping = mapping, stat = ____, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
+stat_support <- make_constructor(StatSupport, geom = "segment")
 
 # Alias.
-geom_support <- ____
+geom_support <- make_constructor(GeomSegment, stat = ____)
 
 # Test.
 survey_df |> 

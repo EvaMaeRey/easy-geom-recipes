@@ -9,7 +9,7 @@ webr:
 
 # Example recipe #4:  `geom_cat_lm()`
 
-In this next recipe, we use panel-wise computation again to visualize an linear model that is estimated using both a continuous and a categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- meaning a model is estimated for each category. Let's see how we might visual a single model that includes a categorical variable. 
+In this next recipe, we use *panel-wise* computation again to visualize an linear model that is estimated using both a continuous and a categorical variable, i.e. `lm(y ~ x + cat)`.  This may feel a bit like `geom_smooth(method = lm) + aes(group = cat)`. However, since geom_smooth does group-wise computation, the data is broken up before model estimation when a discrete variable is mapped like `aes(color = sex)` -- meaning a model is estimated for each category. Let's see how we might visual a single model that includes a categorical variable. 
 
 Our first goal is to be able to specify a plot with newly created `geom_cat_lm()` (and well look at defining `geom_cat_fitted()` or `geom_cat_residuals()`)
 
@@ -83,7 +83,7 @@ Now you are ready to begin building your extension function. The first step is t
 
 compute_panel_cat_lm <- function(data, scales){
 
-  model<-lm(formula = y ~ x + cat, data = data)
+  model <- lm(formula = y ~ x + cat, data = data)
   
   data |> 
     mutate(y = model$fitted.values)
@@ -199,7 +199,7 @@ The short answer is 'yes'!  If you just want to use the Stat yourself locally in
 
 Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, it's necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
 
-A test of StatFitted using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
+A test of `StatFitted` using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
 ```{r}
 penguins |> 
@@ -227,13 +227,11 @@ In this next section, we define user-facing functions.  Doing so is a bit of a m
 ```{r}
 #| label: fitted_4
 
-stat_cat_lm <- function(mapping = NULL, data = NULL, geom = "line", position = "identity", 
-    ..., show.legend = NA, inherit.aes = TRUE) {
-    layer(data = data, mapping = mapping, stat = StatCatLm, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = list(na.rm = FALSE, 
-            ...))
-}
+stat_cat_lm <- make_constructor(StatCatLm, geom = "line")
+
+
+# check definition
+print(stat_cat_lm)
 ```
 
 
@@ -248,38 +246,20 @@ stat_cat_lm <- function(mapping = NULL, data = NULL, geom = "line", position = "
 :::
 
 
-::: {.callout-tip collapse="true"}
-## Pro tip. 🎉 Use ` make_constructor` from the next ggplot2 release.
 
-```{r, eval = F}
-stat_cat_lm <- make_constructor(StatCatLm, geom = "line")
-```
 
-:::
 
 
 ### Define geom_*() function
 
-Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
+Because users are more accustom to using layers that have the 'geom' prefix, you might also define a user-facing `geom function` with almost identical properties using `make_constructor()`. 
 
 ```{r}
-geom_cat_lm <- stat_cat_lm
-```
-
-
-::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut, and a tad unconventional. 
-
-It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
-
-But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed geom and flexible stat convention in what follows:
-
-
-```{r, eval = F}
 geom_cat_lm <- make_constructor(GeomLine, stat = "cat_lm")
-```
 
-:::
+# check specification
+print(geom_cat_lm)
+```
 
 
 ## Test/Enjoy functions
@@ -301,6 +281,8 @@ penguins |>
 
 ### And check out conditionality
 
+Note that because `panel-wise` (facet-wise) computation is specified, there are in fact, two separately *are* estimated models for female and male.  If the model is to be computed across all of the data, it's worth considering layer-wise computation, i.e. specifying the `compute_layer` slot (not yet covered in these tutorials).  
+
 
 ```{r}
 #| label: fitted_6
@@ -314,7 +296,6 @@ penguins |>
   facet_wrap(facets = vars(sex))
 ```
 
-Note that because `panel-wise` (facet-wise) computation is specified, there are in fact, two separately *are* estimated models for female and male.  If the model is to be computed across all of the data, it's worth considering layer-wise computation, i.e. specifying the `compute_layer` slot (not yet covered in these tutorials).  
 
 
 # Done! Time for a review.
@@ -344,18 +325,10 @@ StatCatLm = ggproto(`_class` = "StatCatLm",
 # Step 3. Define user-facing functions
 
 ## define stat_*()
-stat_cat_lm <- function(mapping = NULL, data = NULL, 
-                         geom = "line", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(data = data, mapping = mapping, stat = StatCatLm, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
+stat_cat_lm <- make_constructor(StatCatLm, geom = "line")
 
 ## define geom_*()
-geom_cat_lm <- stat_cat_lm
+geom_cat_lm <- make_constructor(GeomLine, stat = "cat_lm")
 ```
 
 ::: 
@@ -423,21 +396,20 @@ compute_panel_cat_residuals <- function(data, scales){
 
 
 
-
-# Test. compute_panel_cat_residuals
+# Test. compute_panel_cat_fitted
 penguins_clean |> 
   select(x = bill_depth_mm, 
          ____ = bill_length_mm,
          cat = species) |>
-  compute_panel_cat_residuals()
+  compute_panel_cat_fitted()
 
-
-# Test. compute_panel_cat_fitted
+# Test. compute_panel_cat_residuals
 penguins_clean |> 
   select(x = bill_depth_mm, 
          y = bill_length_mm,
          ____ = species) |>
-  compute_panel_cat_fitted()
+  compute_panel_cat_residuals()
+
 ```
 
 ### Step 2: Write Stat.
@@ -479,28 +451,17 @@ penguins_clean |>
 
 ```{webr}
 #| exercise: geom_means
-# Define.
-stat_cat_fitted <- function (mapping = NULL, data = NULL, geom = "point", position = "identity", 
-    ..., show.legend = NA, inherit.aes = TRUE){
-    layer(data = data, mapping = mapping, stat = ____, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
+# Define stastat_cat_fitted
+stat_cat_fitted <- make_constructor(StatCatFitted, geom = ____)
 
+# Define stat_cat_residuals
+stat_cat_residuals <- make_constructor(____, geom = "segment")
 
-# Define.
-stat_cat_residuals <- function (mapping = NULL, data = NULL, geom = ____, position = "identity", 
-    ..., show.legend = NA, inherit.aes = TRUE){
-    layer(data = data, mapping = mapping, stat = ____, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
+# Define geom_cat_fitted
+geom_cat_fitted <- make_constructor(GeomPoint, stat = "cat_fitted")
 
-# Alias.
-geom_cat_fitted <- ____
-geom_cat_residuals <- ____
+# Define geom_cat_residuals
+geom_cat_residuals <- make_constructor(____, stat = "cat_residuals")
 
 # Test.
 penguins_clean |> 
@@ -516,6 +477,6 @@ penguins_clean |>
 
 # Congratulations!
 
-If you've finished all four recipes, you should have a good feel for writing `Stats`, and `stat_\*()` and `geom_\*()` functions.
+If you've finished all four recipes, you should have a good feel for writing `Stats`, and `stat_*()` and `geom_*()` functions.
 
 

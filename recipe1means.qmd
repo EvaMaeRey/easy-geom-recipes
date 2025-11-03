@@ -289,41 +289,37 @@ stat_medians <- function (mapping = NULL, data = NULL,
 :::
 
 
-::: {.callout-tip collapse="true"}
-## Pro tip. 🎉 Use `make_constructor()` to write the scaffolding code for you upon the next ggplot2 release.
+An alternate and recommended route is to use the `make_constructor()` function, newly available in the ggplot2 v4.0.0 release, to write the scaffolding code for you, 
 
 ```{r, eval = F}
 stat_medians <- make_constructor(StatMedians, geom = "point")
 ```
 
-:::
+You can then check that this specifies the function with the boilerplate code as we have done above. 
+
+```{r}
+print(stat_medians)
+```
+
 
 
 ### Define geom_*() function
 
-Because users are more accustom to using layers that have the `geom_` prefix, you might also define a `geom_` function with identical properties as the `stat_` via aliasing. 
-
 > 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.' *ggplot2: Elegant Graphics for Data Analysis*. 
 
+Because ggplot2 users may be more accustomed to using layers that have the `geom_` prefix, you might also define a `geom_` function with almost the same properties as the `stat_`.  Here we'll use `make_constructor()` for convenience. 
+
 ```{r}
-geom_medians <- stat_medians
-```
-
-
-::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut, and a tad unconventional. 
-
-It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
-
-But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed-geom, flexible-stat convention in what follows:
-
-
-```{r, eval = F}
 geom_medians <- make_constructor(GeomPoint, stat = "medians")
 ```
 
-:::
 
+Below, we'll have a look at the definition of our `geom_*()` function that `make_constructor()` helps us write. We see that it's nearly identical to the `stat_*()` definition.  But following ggplot2 conventions, our `geom_`-prefixed function will have a fixed `Geom` and the flexible `Stat`. 
+
+
+```{r, eval = T}
+print(geom_medians)
+```
 
 
 
@@ -386,18 +382,10 @@ StatMedians = ggproto(`_class` = "StatMedians",
 # Step 3. Define user-facing functions (user friendly, geom_*() function only shown here)
 
 ## use geom_point's definition as a model to follow geom_* conventions: geom is fixed, stat is flexible
-stat_medians <- function(mapping = NULL, data = NULL, 
-                         geom = "point", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(data = data, mapping = mapping, stat = StatMedians, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
-
+stat_medians <- make_constructor(StatMedians, geom = "point")
+  
 # stat_medians
-geom_medians <- stat_medians
+geom_medians <- make_constructor(GeomPoint, stat = "medians")
 ```
 
 ::: 
@@ -428,7 +416,7 @@ penguins_means <- penguins |>
   summarise(mean_bill_depth_mm = ____(bill_depth_mm, na.rm = T),
             ____ = mean(bill_length_mm, na.rm = T))
 
-penguins_clean |> 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() + 
@@ -484,21 +472,14 @@ penguins |>
 
 ```{webr}
 #| exercise: stat_means
-# Define geom_means.
-stat_means <- function (mapping = NULL, data = NULL, geom = "point", position = "identity", 
-    ..., na.rm = FALSE, show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(mapping = mapping, data = data, geom = geom, stat = ___, 
-        position = position, show.legend = show.legend, inherit.aes = inherit.aes, 
-        params = list2(na.rm = na.rm, ...))
-}
-}
+# Define stat_means
+stat_means <- make_constructor(____, geom = "point")
 
-# Alias
-geom_means <- ____
+# Define geom_means
+geom_means <- make_constructor(GeomPoint, stat = ____)
 
 # Test.
-penguins_clean |> 
+penguins |> 
   ggplot() + 
   aes(x = bill_depth_mm, y = bill_length_mm) + 
   geom_point() +
@@ -519,7 +500,7 @@ How would you write the function which annotates coordinates (x,y) for data poin
 
 
 ::: {.callout-note collapse="true"}
-### Pro tip: check out `ggplot2::stat_manual()` for one-off group-wise compute in the next ggplot2 release or [`statexpress::qstat()`](https://github.com/EvaMaeRey/statexpress) for a quick stat short-cut in extension explorations.  
+### Pro tip: check out `ggplot2::stat_manual()` for one-off, group-wise compute in the next ggplot2 release or [`statexpress::qstat()`](https://github.com/EvaMaeRey/statexpress) for a quick stat short-cut in extension explorations.  
 
 Examples follow:
 

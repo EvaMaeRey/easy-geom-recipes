@@ -9,11 +9,11 @@ webr:
 # The Goal
 
 
-In the last recipe, you should have seen and practiced how to write a compute function that can be used in a Stat. Specifically, you  defined group-wise computation by defining `compute_group` for your `Stat` ggproto object.  You specified that other behavior should be inherited from the more generic `Stat` class. You improved user interface for your `Stat` by specifying which `aes` must be provided by the user in the `require_aes` slot. Finally you wrote user-facing functions `stat_\*()` and `geom_\*()` based on the new Stat object and an existing Geom object.
+In the last recipe, you should have seen and practiced how to write a compute function that can be used in a `Stat`. Specifically, you  defined group-wise computation by defining `compute_group` for your `Stat` ggproto object.  You specified that other behavior should be inherited from the more generic `Stat` class. You improved user interface for your `Stat` by specifying which `aes` must be provided by the user in the `require_aes` slot. Finally you wrote user-facing functions `stat_*()` and `geom_*()` based on the new Stat object and an existing Geom object.
 
 In this next recipe, we'll first see the creation of `StatIndex`, `stat_index`, and `geom_index`, which can all be used to label observations with their row numbers
 
-Along the way, we'll contrast a *new extension move* - defining panel-wise instead of group-wise compute using `compute_panel`.  Panel-wise computation will be used in the two recipes that follow.  
+Along the way, we'll contrast a **new extension move** - defining *panel-wise* instead of *group-wise* compute using `compute_panel`.  Panel-wise  computation (computing by facet) will be used in the two recipes that follow.  
 
 In the exercise for this recipe, you'll create `StatCoordinates`, `stat_coordinates()` and `geom_coordinates()`, usable to mark points with their `x` and `y` coordinates.
 
@@ -70,7 +70,7 @@ cars
 ## Step 0: use base ggplot2 to get the job done
 
 
-It's good idea to go through at how you'd get things done without Stat extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.  
+It's good idea to go through at how you'd get things done without extension first, just using 'base' ggplot2. The computational moves you make here can serve a reference for building our extension function.  
 
 
 ```{r status-quo}
@@ -150,7 +150,7 @@ cars |>
 
 ## Step 2: Define new Stat. Test.
 
-Next, we use the ggplot2::ggproto function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
+Next, we use the `ggplot2::ggproto` function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
 
 <!-- https://ggplot2.tidyverse.org/reference/ggproto.html -->
 
@@ -171,7 +171,7 @@ StatIndex <-
 
 1. **... that the naming convention for the `ggproto` object is written in  CamelCase. **The new class should also be named the same, i.e. `"StatIndex"`.
 
-2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* -- you are inheriting class properties from ggplot2::Stat. 
+2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* -- you are inheriting class properties from `ggplot2::Stat`. 
 
 3. **... that the `compute_group_index` function is used to define our Stat's `compute_group` element.** This means that data will be transformed group-wise by our compute definition -- i.e. by categories if a categorical variable is mapped.
 
@@ -216,9 +216,11 @@ last_plot() +
 ```
 
 ::: {.callout-note collapse="false"}
-# You may have noticed ...
+# You may have noticed ... 👀
 
-**... that some indices change with color mapping.**  This is because compute is by group (`compute_group` is defined), so the index is within group. Contrast this to the case where `compute_panel` is defined instead.
+**... that some indices change with color mapping.**  This is because compute is by group (`compute_group` is defined), so the index is within group.
+
+Contrast this to the case where `compute_panel` is defined instead, which defines facet-wise computation.
 
 ```{r}
 StatIndexPanel <- 
@@ -230,12 +232,16 @@ cars |>
   ggplot() + 
   aes(x = speed, y = dist) + 
   geom_point() + 
-  geom_text(stat = StatIndexPanel, hjust = 1, vjust = 1) + 
-  labs(title = "Testing StatIndex") + 
+  geom_text(stat = StatIndexPanel, 
+            hjust = 1, 
+            vjust = 1) + 
+  labs(title = "Testing StatIndexPanel") + 
   aes(color = speed > 15)
 ```
 
-The indexing (row_numbers) are not computed within the T/F computed color variable `speed > 15`, but across the panel (facet).
+The indexing (row_numbers) are not computed within the T/F computed color variable `speed > 15`, but across the panel (facet).  
+
+The exercises that follow will specify `compute_panel` for the Stat objects throughout.
 
 :::
 
@@ -285,21 +291,19 @@ cars |>
 In this next section, we define user-facing functions.  It is a bit of a mouthful, but *see the 'Pro tip:  Use `stat_identity` definition as a template in this step ...' that follows*.
 
 
-### Define stat_*() function
+### Define `stat_*()` function using `make_constructor()` which writes boilerplate code for us.
 
 ```{r}
 #| label: geom_point_medians
 
 # user-facing function
-stat_index <- function(mapping = NULL, data = NULL, 
-                         geom = "label", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(data = data, mapping = mapping, stat = StatIndex, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
+stat_index <- make_constructor(StatIndex, geom = GeomLabel)
+```
+
+And let's take a look at the function's definition:
+
+```{r}
+print(stat_index)
 ```
 
 
@@ -314,57 +318,19 @@ stat_index <- function(mapping = NULL, data = NULL,
 :::
 
 
-::: {.callout-tip collapse="true"}
-## Pro tip.  Use `stat_identity` definition as a template in this step ...
-...
+### Define `geom_*()` function
 
-You may be thinking, defining a new stat_\*() function is a mouthful that's probably hard to reproduce from memory.  So you might use `stat_identity()`'s definition as scaffolding to write your own layer. i.e:
-
-- Type `stat_identity` in your console to print function contents; copy-paste the function definition. 
-- Switch out `StatIdentity` with your Stat, e.g. `StatIndex`. 
-- Switch out `"point"` other geom ('rect', 'text', 'line' etc) if needed
-- Final touch, `list2` will error without export from rlang, so update to `rlang::list2`.
+Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties using `make_constructor()`.  Using make_constructor on a `Geom` as the primary input, instead of a `Stat` will mean that the `stat` argument will be flexible (i.e. the user could theoretically switch it out), but the `Geom` will be fixed.
 
 ```{r}
-stat_identity
+geom_index <- make_constructor(GeomLabel, stat = "index")
 ```
 
-:::
-
-
-::: {.callout-tip collapse="true"}
-
-# Pro-tip: In the next ggplot2 release 🎉, use `stat_index <- make_constructor(StatIndex, geom = "text")` to write the scaffolding code for you!
-
-
-```{r error = T, eval = F}
-stat_index <- make_constructor(StatIndex, geom = "text")
-```
-
-:::
-
-### Define geom_*() function
-
-Because users are more accustom to using layers that have the 'geom' prefix, you might also define geom with identical properties via aliasing. 
+And let's just check the work `make_constructor()` is doing for us.
 
 ```{r}
-geom_index <- stat_index
+print(geom_index)
 ```
-
-
-::: {.callout-warning collapse="true"}
-# Be aware that verbatim aliasing as shown above is a bit of a shortcut, and a tad unconventional. 
-
-It is more conventional write out scaffolding code, nearly identical to the stat_*() definition, but has the geom fixed and the stat flexible.
-
-But soon we can use `make_constructor()` in the next ggplot2 release, just about as easy as aliasing and which will deliver the fixed geom and flexible stat convention in what follows:
-
-
-```{r, eval = F}
-geom_index <- make_constructor(GeomText, stat = "index")
-```
-
-:::
 
 
 ### Test geom_index()
@@ -430,18 +396,10 @@ StatIndex = ggproto(`_class` = "StatIndex",
 # Step 3. Define user-facing functions
 
 ## define stat_*()
-stat_index <- function(mapping = NULL, data = NULL, 
-                         geom = "label", position = "identity", 
-                         ..., show.legend = NA, inherit.aes = TRUE) 
-{
-    layer(data = data, mapping = mapping, stat = StatIndex, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
+stat_index <- make_constructor(StatIndex, geom = "label")
 
 ## define geom_*()
-geom_index <- stat_index
+geom_index <- make_constructor(GeomLabel, stat = "index")
 ```
 
 ::: 
@@ -525,18 +483,11 @@ cars |>
 
 ```{webr}
 #| exercise: geom_means
-# Define.
-stat_coordinates <- function (mapping = NULL, data = NULL, geom = "____", position = "identity", 
-    ..., show.legend = NA, inherit.aes = TRUE){
-    layer(data = data, mapping = mapping, stat = ____, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = rlang::list2(na.rm = FALSE, 
-            ...))
-}
+# Define stat_coordinates
+stat_coordinates <- make_constructor(____, geom = "text")
 
-
-# Alias.
-geom_coordinates <- ____
+# Define geom_coordinates
+geom_coordinates <- make_constructor(____, stat = "coordinates")
 
 
 # Test.
