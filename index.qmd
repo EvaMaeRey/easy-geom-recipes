@@ -1,24 +1,56 @@
 ---
 title: "Easy geom_*() recipes"
+execute:
+  echo: false
+  warning: false
 ---
 
-```{r, echo = F, warning=F, fig.height=3.5}
-# download.file("https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Ggplot2_hex_logo.png/800px-Ggplot2_hex_logo.png", destfile = "800px-Ggplot2_hex_logo.png")  
-  
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
 
-library(ggstamp)
-library(ggplot2)
-ggcanvas() + 
-  stamp_polygon(x0y0 = pos_honeycomb(n = 50, ncol = 10), 
-                fill = "whitesmoke") + 
-  ggstamp::stamp_wash(fill = "whitesmoke") +
-  ggstamp::theme_void_fill("whitesmoke") + 
-  ggstamp::stamp_png(png = "800px-Ggplot2_hex_logo.png", x0 = 6,
-                     y0 = -3, width = 4
-                    )
+```{python}
+#| label: hero-image
+#| output: false
 
+import numpy as np
+import pandas as pd
+from plotnine import *
 
+# Honeycomb grid: 5 rows × 10 cols of hexagons
+centers = []
+for row in range(5):
+    for col in range(10):
+        x = col * np.sqrt(3)
+        y = -row * 1.5
+        if row % 2 == 1:
+            x += np.sqrt(3) / 2
+        centers.append((x, y))
+
+angles = np.linspace(0, 2 * np.pi, 7)
+hex_data = pd.concat(
+    [
+        pd.DataFrame({
+            "x": cx + np.cos(angles),
+            "y": cy + np.sin(angles),
+            "group": i,
+        })
+        for i, (cx, cy) in enumerate(centers)
+    ],
+    ignore_index=True,
+)
+
+(
+    ggplot(hex_data, aes(x="x", y="y", group="group"))
+    + geom_polygon(fill="#dcdcdc", color="white", size=2)
+    + coord_equal()
+    + theme_void()
+    + theme(
+        figure_size=(8, 3.5),
+        plot_background=element_rect(fill="white", color="white"),
+    )
+).save("hero-image.png", dpi=150, verbose=False)
 ```
+
+![](hero-image.png)
 
 Extending plotnine is a powerful way to enhance productivity and make creating plots more fun. The plotnine extension system allows us to build new 'vocabulary' for more fluent expression.
 
