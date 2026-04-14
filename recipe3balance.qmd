@@ -1,150 +1,185 @@
 ---
 title: "Recipe 3: geom_bal_point() and geom_support()"
-webr: 
+pyodide:
   packages:
-    - tidyverse
-    - palmerpenguins
+    - plotnine
+execute:
+  echo: false
+  warning: false
 ---
 
+{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
 
+```{python}
+#| label: imports
 
-In the first two of recipes, you defined compute that would work group-wise. In recipe #2 we briefly we contrasted a panel-wise computation specification with our group-wise computation (see `StatIndexPanel`).  We saw that when introducing a categorical variable using `StatIndexPanel`, indices were computed *across* the groups, instead of within groups -- the behavior for `StatIndex`. 
+import pandas as pd
+from plotnine import *
+from plotnine.layer import layer
+from plotnine.stats.stat import stat
+from plotnine.session import last_plot
 
-In this recipe, we'll use *panel-wise* computation throughout to look at the 'balance' of the frequency of discrete ordinal variables.  Panel-wise compute is needed because of the discrete variable mapping, i.e. `aes(x = response)`.  So that the data isn't broken up by category (unique responses), we define `compute_panel` instead of `compute_group`.
-
-Our goal is to be able to write the following code, producing the plot that follows. 
-
-
-```{r, eval = F}
-survey_df <- data.frame(response = 
-             c("Awful", "Bad", 
-                        "Neutral",
-                        "Good",
-                        "Amazing") |> 
-                          fct_inorder(ordered = T), 
-                         freq = c(1, 6, 9, 7, 3))
-
-ggplot(data = survey_df) + 
-  aes(x = response,
-      y = freq) + 
-  geom_col() + 
-  geom_support(color = "magenta", 
-               size = 2) + 
-  geom_bal_point(color = "magenta", 
-                 size = 7)
+survey_df = pd.DataFrame({
+    "response": pd.Categorical(
+        ["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        categories=["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        ordered=True,
+    ),
+    "freq": [1, 6, 9, 7, 3],
+})
 ```
 
 
-```{r, echo = F, message = F, warning=F}
-library(tidyverse)
 
-survey_df <- data.frame(response = 
-                          c("Awful",
-                        "Bad", 
-                        "Neutral",
-                        "Good",
-                        "Amazing") |> 
-                          fct_inorder(ordered = T), 
-                         freq = c(1, 6, 9, 7, 3))
+In the first two recipes, you defined compute that would work group-wise. In recipe #2 we briefly contrasted a panel-wise computation specification with our group-wise computation (see `stat_index_panel`).  We saw that when introducing a categorical variable using `stat_index_panel`, indices were computed *across* the groups, instead of within groups -- the behavior for `stat_index`.
 
-balancing_point_df <- survey_df |> 
-  summarize(x = sum(as.numeric(response) * freq) / 
-              sum(freq)) |> 
-  mutate(y = 0)
+In this recipe, we'll use *panel-wise* computation throughout to look at the 'balance' of the frequency of discrete ordinal variables.  Panel-wise compute is needed because of the discrete variable mapping, i.e. `aes(x="response")`.  So that the data isn't broken up by category (unique responses), we define `compute_panel` instead of `compute_group`.
 
-ggplot(survey_df) + 
-  aes(x = response, 
-      y = freq) + 
-  geom_col() + 
-  geom_point(data = balancing_point_df,
-             aes(x = x, y = y),
-             size = 5, color = "magenta") + 
-  annotate(geom = "segment", x = 1, xend = 5, y = 0, yend = 0,
-           color = "magenta", size = 2) +
-  labs(title = "Responses are a bit more positive than negative on balance")
+Our goal is to be able to write the following code, producing the plot that follows.
 
 
+```python
+survey_df = pd.DataFrame({
+    "response": pd.Categorical(
+        ["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        categories=["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        ordered=True,
+    ),
+    "freq": [1, 6, 9, 7, 3],
+})
+
+(
+    ggplot(data=survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + geom_support(color="magenta", size=2)
+    + geom_bal_point(color="magenta", size=7)
+)
+```
+
+
+```{pyodide-python}
+#| echo: false
+#| warning: false
+import micropip
+await micropip.install("pandas<3.0.0")
+await micropip.install("plotnine>=0.16.0a7", keep_going=True)
+
+import pandas as pd
+from plotnine import *
+
+survey_df = pd.DataFrame({
+    "response": pd.Categorical(
+        ["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        categories=["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        ordered=True,
+    ),
+    "freq": [1, 6, 9, 7, 3],
+})
+
+x_numeric = survey_df["response"].cat.codes + 1
+bal_x = (x_numeric * survey_df["freq"]).sum() / survey_df["freq"].sum()
+balancing_point_df = pd.DataFrame({"x": [bal_x], "y": [0]})
+
+(
+    ggplot(survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + geom_point(
+        data=balancing_point_df,
+        mapping=aes(x="x", y="y"),
+        size=5, color="magenta",
+    )
+    + annotate(
+        "segment", x=1, xend=5, y=0, yend=0,
+        color="magenta", size=2,
+    )
+    + labs(title="Responses are a bit more positive than negative on balance")
+)
 ```
 
 Let's get started!
 
 ---
 
-## Step 0: use base ggplot2 to get the job done
+## Step 0: use base plotnine to get the job done
 
-It's a good idea to look at how you'd get things done without extension first, just using 'base' ggplot2. Here, we'll plot the frequencies of some ordered responses (A to E), and look at the 'balance' based on their numeric values.
+It's a good idea to look at how you'd get things done without extension first, just using 'base' plotnine. Here, we'll plot the frequencies of some ordered responses (Awful to Amazing), and look at the 'balance' based on their numeric values.
 
-```{r }
-#| label: fitted_1
+```{python}
+#| label: base-approach
 
-library(tidyverse)
-survey_df <- data.frame(response = 
-                          c("Awful",
-                        "Bad", 
-                        "Neutral",
-                        "Good",
-                        "Amazing") |> 
-                          fct_inorder(ordered = T), 
-                         freq = c(1, 6, 9, 7, 3))
+import pandas as pd
 
-balancing_point_df <- survey_df |> 
-  summarize(x = sum(as.numeric(response) * freq) / 
-              sum(freq)) |> 
-  mutate(y = 0)
+survey_df = pd.DataFrame({
+    "response": pd.Categorical(
+        ["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        categories=["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        ordered=True,
+    ),
+    "freq": [1, 6, 9, 7, 3],
+})
 
-ggplot(survey_df) + 
-  aes(x = response, 
-      y = freq) + 
-  geom_col() + 
-  geom_point(data = balancing_point_df,
-             aes(x = x, y = y),
-             size = 5, color = "magenta")
+x_numeric = survey_df["response"].cat.codes + 1
+bal_x = (x_numeric * survey_df["freq"]).sum() / survey_df["freq"].sum()
+balancing_point_df = pd.DataFrame({"x": [bal_x], "y": [0]})
+
+p0 = (
+    ggplot(survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + geom_point(
+        data=balancing_point_df,
+        mapping=aes(x="x", y="y"),
+        size=5, color="magenta",
+    )
+)
+p0
 ```
 
 
 
 ## Step 1: Define compute. Test.
 
-Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_panel_bal_point()`.  You will also need to include a `scales` argument, which ggplot2 uses internally. Because the x scale is converted to numeric early on in ggplot2 plot build - the compute is even simpler - you don't need to convert your x variable to numeric as was required in Step 0!
+Now you are ready to begin building your extension function. The first step is to define the compute that should be done under-the-hood when your function is used.  We'll define this in a function called `compute_panel_bal_point()`.  You will also need to include a `scales` argument, which plotnine uses internally. Because the x scale is converted to numeric early on in plotnine's plot build - the compute is even simpler - you don't need to convert your x variable to numeric as was required in Step 0!
 
-```{r}
-#| label: fitted_2
+```{python}
+#| label: compute_panel_bal_point
 
-compute_panel_bal_point <- function(data, scales){
-
-  data |> 
-  summarize(x = sum(x * y) / sum(y)) |> 
-  mutate(y = 0)
-  
-}
+def compute_panel_bal_point(data, scales=None):
+    x_bal = (data["x"] * data["y"]).sum() / data["y"].sum()
+    return data.head(1).assign(x=x_bal, y=0)
 ```
 
 
 ::: {.callout-note collapse="false"}
-# You may have noticed ... 
+# You may have noticed ...
 
-1. **... the `scales` argument in the compute definition, which is used internally in ggplot2.**  While it won't be used in your test (up next), you do need so that the computation will work in the ggplot2 setting.
+1. **... the `scales` argument in the compute definition, which is used internally in plotnine.**  While it won't be used in your test (up next), you do need it so that the computation will work in the plotnine setting.
 
-2. **... that the compute function can only be used with data with variables `x`**  Aesthetic variables names, relevant for building the plot, are generally not found in the raw data inputs for plot.
+2. **... that the compute function can only be used with data with variables `x` and `y`.**  Aesthetic variable names, relevant for building the plot, are generally not found in the raw data inputs for the plot.
+
+3. **... that we use `data.head(1).assign(...)` to build the result.**  This preserves internal columns (like `PANEL` and `group`) that plotnine needs for rendering. Creating a brand-new DataFrame would lose these columns.
 :::
 
 
 ### Test compute.
 
 
-```{r}
-## Test compute. 
-survey_df |>
-  mutate(response = response |> as.numeric()) |>
-  select(x = response, 
-         y = freq) |>
-  compute_panel_bal_point()
+```{python}
+## Test compute.
+(
+    survey_df
+    .assign(x=survey_df["response"].cat.codes + 1)
+    .rename(columns={"freq": "y"})
+    .pipe(compute_panel_bal_point)
+)
 ```
 
 ::: {.callout-note collapse="false"}
 # You may have noticed ...
 
-**... that we prepare the data to have columns with names x and y before testing `compute_panel_bal_point`.** Computation will fail if the names x and y are not present given our function definition.  Internally in a plot, columns are named based on aesthetic mapping, e.g. `aes(x = response, y = freq)`.
+**... that we prepare the data to have columns with names `x` and `y` before testing `compute_panel_bal_point`.** Computation will fail if the names `x` and `y` are not present given our function definition.  Internally in a plot, columns are named based on aesthetic mapping, e.g. `aes(x="response", y="freq")`.
 :::
 
 
@@ -152,52 +187,56 @@ survey_df |>
 ## Step 2: Define new Stat. Test.
 
 
-Next, we use the ggplot2::ggproto function which allows you to define a new Stat object - which will let us do computation under the hood while building our plot. 
+Next, we define a new stat class — which will let us do computation under the hood while building our plot.
 
 ### Define Stat.
 
 
-```{r}
-#| label: fitted_3
-StatBalPoint <- ggplot2::ggproto(`_class` = "StatBalPoint",
-                                  `_inherit` = ggplot2::Stat,
-                                  required_aes = c("x", "y"),
-                                  compute_panel = compute_panel_bal_point)
+```{python}
+#| label: stat_bal_point
+
+from plotnine.stats.stat import stat
+
+class stat_bal_point(stat):  # <1> <2>
+    REQUIRED_AES = {"x", "y"}  # <4>
+    DEFAULT_PARAMS = {"geom": "point"}
+
+    def compute_panel(self, data, scales):  # <3>
+        return compute_panel_bal_point(data)
 ```
 
 
 ::: {.callout-note collapse="false"}
 # You may have noticed ...
 
-1. **... that the naming convention for the ggproto object is CamelCase.** The new class should also be named the same, i.e. `"StatLmFitted"`.
-2. **... that we inherit from the 'Stat' class.**  In fact, your ggproto object is a *subclass* and you aren't fully defining it.  You simplify the definition by inheriting class properties from ggplot2::Stat. 
+1. **... that the naming convention for the stat class uses snake_case.** e.g. `stat_bal_point`.
+2. **... that we inherit from the `stat` class.**  In fact, your class is a *subclass* — you are inheriting class properties from plotnine's `stat`.
 
-3. **that the compute_panel_lm_cat function is used to define our Stat's compute_panel element.** This means that data will be transformed by our compute definition -- group-wise if groups are specified.
-4. **that setting `required_aes` to 'x', 'y', and 'cat' is consistent with compute requirements** The compute assumes data to be a dataframe with columns x and y. If you data doesn't have x, y, and cat your compute will fail.  Specifying `required_aes` in your Stat can improve your user interface because standard ggplot2 error messages will issue when required aes are not specified, e.g. '`stat_lm_cat()` requires the following missing aesthetics: x.'
-  
+3. **... that the `compute_panel_bal_point` function is called in the `compute_panel` method.** This means that data will be transformed panel-wise (by facet), not group-wise.
+4. **... that setting `REQUIRED_AES` to `{"x", "y"}` is consistent with compute requirements.** The compute assumes data to be a DataFrame with columns `x` and `y`. Specifying `REQUIRED_AES` in your stat can improve your user interface because standard plotnine error messages will issue when required aesthetics are not specified.
+
 :::
 
 
 ### Test Stat.
 
-You can test out your Stat using them in ggplot2 `geom_*()` functions.  
+You can test out your stat by using it in plotnine `geom_*()` functions.
 
-```{r}
-survey_df |> 
-  ggplot() + 
-  aes(x = response,
-      y = freq) + 
-  geom_col() + 
-  geom_point(stat = StatBalPoint, 
-             color = "magenta", 
-             size = 7) +
-  labs(title = "Testing StatBalPoint")
+```{python}
+p2 = (
+    ggplot(survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + geom_point(stat=stat_bal_point, color="magenta", size=7)
+    + labs(title="Testing stat_bal_point")
+)
+p2
 ```
 
 ::: {.callout-note collapse="false"}
 # You may have noticed ...
 
-**that we don't use `"bal_point"` as the stat argument, which - but you could!**  `StatBalPoint` would be retrieved under the hood.
+**... that we pass the class `stat_bal_point` to the `stat` argument.** You could also write `geom_point(stat="bal_point")` which will direct to your new `stat_bal_point` under the hood.
 
 :::
 
@@ -205,33 +244,35 @@ survey_df |>
 
 
 :::  {.callout-tip collapse="true"}
-# Pro tip: Think about an early exit (don't define use facing functions) ...
+# Pro tip: Think about an early exit (don't define a user-facing function) ...
 
-You might be thinking, what we've done would already be pretty useful to me.  Can I just use my Stat as-is within geom_*() functions?  
+You might be thinking, what we've done would already be pretty useful to me.  Can I just use my stat as-is within `geom_*()` functions?
 
-The short answer is 'yes'!  If you just want to use the Stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
+The short answer is 'yes'!  If you just want to use the stat yourself locally in a script, there might not be much reason to go on to Step 3, user-facing functions.  But if you have a wider audience in mind, i.e. internal to organization or open sourcing in a package, probably a more succinct expression of what functionality you deliver will be useful - i.e. write the user-facing functions.
 
 :::
 
 
 :::   {.callout-tip collapse="true"}
-# Pro tip: consider using `layer()` function to test instead of `geom_*(stat = StatNew)`
+# Pro tip: consider using `layer()` function to test instead of `geom_*(stat=stat_new)`
 
-Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, it's necessary to go this route; for example, `geom_vline()` contain no `stat` argument, but you can use the GeomVline in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.  
+Instead of using a `geom_*()` function, you might prefer to use the `layer()` function in your testing step.  Occasionally, you *must* go this route; for example, `geom_vline()` contains no `stat` argument, but you can use `geom_vline` in `layer()`.  If you are teaching this content, using `layer()` may help you better connect this step with the next, defining the user-facing functions.
 
-A test of StatBalPoint using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
+A test of `stat_bal_point` using this method follows.  You can see it is a little more verbose, as there is no default for the position argument, and setting the size must be handled with a little more care.
 
-```{r}
-survey_df |> 
-  ggplot() + 
-  aes(x = response,
-      y = freq) + 
-  geom_col() + 
-  layer(geom = GeomPoint, 
-        stat = StatBalPoint, 
-        position = "identity", 
-        params = list(color = "magenta")) + 
-  labs(title = "Testing StatBalPoint with layer() function")
+```{python}
+(
+    ggplot(survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + layer(
+        geom=geom_point,
+        stat=stat_bal_point,
+        position="identity",
+        color="magenta",
+    )
+    + labs(title="Testing stat_bal_point with layer() function")
+)
 ```
 
 :::
@@ -240,103 +281,63 @@ survey_df |>
 ## Step 3: Define user-facing functions. Test.
 
 
-In this next section, we define user-facing functions.  Doing so is a bit of a mouthful, but see the 'Pro tip:  *Use `stat_identity` definition as a template in this step ...*' that follows.
+In this next section, we define user-facing `geom_*` classes. In plotnine, creating a new geom is as simple as subclassing an existing geom and setting `DEFAULT_PARAMS` with your new stat.
 
 
-```{r}
-#| label: fitted_4
+### Define `geom_*()` class
 
-stat_bal_point <- function(mapping = NULL, data = NULL, geom = "point", position = "identity", 
-    ..., show.legend = NA, inherit.aes = TRUE) {
-    layer(data = data, mapping = mapping, stat = StatBalPoint, 
-        geom = geom, position = position, show.legend = show.legend, 
-        inherit.aes = inherit.aes, params = list(na.rm = FALSE, 
-            ...))
-}
-```
+> 'Most plotnine users are accustomed to adding geoms, not stats, when building up a plot.' *ggplot2: Elegant Graphics for Data Analysis*.
 
+Because plotnine users may be more accustomed to using layers that have the `geom_` prefix, you might define a `geom_` class with the same properties as the `stat_`. Here we subclass `geom_point` and set the default stat to `"bal_point"`.
 
-::: {.callout-note collapse="false"}
-# You may have noticed...
+```{python}
+#| label: geom_bal_point
 
-1. **... that the `stat_*()` function name derives from the Stat objects's name, but is snake case.** So if I wanted a StatBigCircle-based stat_\*() function, I'd create stat_big_circle().
-
-2. **... that `StatBalPoint` is used to define the new layer function**, so the computation that defines it, which is to summarize to medians, will be in play before the layer is rendered.
-
-3. **... that `"point"` is specified as the default for the geom argument in the function.**  This means that the `ggplot2::GeomPoint` will be used in the layer unless otherwise specified by the user. 
-:::
-
-
-::: {.callout-tip collapse="true"}
-## Pro tip. 🎉 Use `make_constructor` from the next ggplot2 release to write this scaffolding code for you!
-
-```{r, eval = F}
-stat_bal_point <- make_constructor(StatBalPoint, geom = "point")
-```
-
-:::
-
-
-### Define `geom_*()` function
-
-Because users are more accustom to using layers that have the `geom` prefix, you might also define geom with similar properties. 
-
-```{r}
-geom_bal_point <- make_constructor(GeomPoint, stat = "bal_point")
+class geom_bal_point(geom_point):
+    DEFAULT_PARAMS = {"stat": "bal_point"}
 ```
 
 
 ## Test/Enjoy functions
 
-```{r}
-#| label: fitted_5
-survey_df |> 
-  ggplot() + 
-  aes(x = response, 
-      y = freq) +
-  geom_col() + 
-  geom_bal_point(color = "magenta", 
-                 size = 7)
+```{python}
+#| label: test_geom_bal_point
+(
+    ggplot(survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + geom_bal_point(color="magenta", size=7)
+)
 ```
 
 
 # Done! Time for a review.
 
-Here is a quick review of the functions and `ggproto` objects we've covered, dropping tests and discussion.
+Here is a quick review of the classes we've covered, dropping tests and discussion.
 
 ::: {.callout-note collapse="false"}
 # Review
 
-```{r}
-library(tidyverse)
-
+```{python}
 # Step 1. Define compute
-compute_panel_bal_point <- function(data, scales){
-  
-  data |> 
-    summarise(x = (x*y)/sum(y)) |>
-    mutate(y = 0)
-  
-}
-
+def compute_panel_bal_point(data, scales=None):
+    x_bal = (data["x"] * data["y"]).sum() / data["y"].sum()
+    return data.head(1).assign(x=x_bal, y=0)
 
 # Step 2. Define Stat
-StatBalPoint = ggproto(`_class` = "StatBalPoint",
-                      `_inherit` = Stat,
-                      required_aes = c("x", "y"),
-                      compute_group = compute_panel_bal_point)
+class stat_bal_point(stat):
+    REQUIRED_AES = {"x", "y"}
+    DEFAULT_PARAMS = {"geom": "point"}
 
-# Step 3. Define user-facing functions
+    def compute_panel(self, data, scales):
+        return compute_panel_bal_point(data)
 
-## define stat_*()
-stat_bal_point <- make_constructor(StatBalPoint, geom = "point")
-
-
-## define geom_*()
-geom_bal_point <- make_constructor(GeomPoint, stat = "bal_point")
+# Step 3. Define Geom
+class geom_bal_point(geom_point):
+    DEFAULT_PARAMS = {"stat": "bal_point"}
 ```
 
-::: 
+:::
 
 # Your Turn: Write `geom_support()`
 
@@ -346,106 +347,112 @@ Using the `geom_bal_point` Recipe #3 as a reference, try to create a `stat_suppo
 
 
 
+## Step 0: use base plotnine to get the job done
 
-## Step 0: use base ggplot2 to get the job done
+```{pyodide}
+#| setup: true
+#| exercise: geom_support
+#| warning: false
 
-```{webr-r}
-#| label: exercise-setup
-#| autorun: true
-#| read-only: true
-library(tidyverse)
+import pandas as pd
+from plotnine import *
+from plotnine.stats.stat import stat
 
-survey_df <- data.frame(response = 
-                          c("Awful",
-                        "Bad", 
-                        "Neutral",
-                        "Good",
-                        "Amazing") |> 
-                          fct_inorder(ordered = T), 
-                         freq = c(1, 6, 9, 7, 3))
+survey_df = pd.DataFrame({
+    "response": pd.Categorical(
+        ["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        categories=["Awful", "Bad", "Neutral", "Good", "Amazing"],
+        ordered=True,
+    ),
+    "freq": [1, 6, 9, 7, 3],
+})
 
-# step 0: use base ggplot2
-response_min_max_df <- survey_df |> 
-  mutate(x = response |> as.numeric()) |>
-  summarise(xend = min(x), x = max(x)) |> 
-  mutate(yend = 0, y = 0)
+# step 0: use base plotnine
+x_numeric = survey_df["response"].cat.codes + 1
+response_min_max_df = pd.DataFrame({
+    "x": [x_numeric.min()],
+    "xend": [x_numeric.max()],
+    "y": [0],
+    "yend": [0],
+})
 
-survey_df |> 
-  ggplot() + 
-  aes(x = response, y = freq) +
-  geom_col() + 
-  geom_segment(data = response_min_max_df,
-               aes(x = x, xend = xend, 
-                   y = y, yend = yend),
-               color = "magenta", 
-               linewidth = 3)
+(
+    ggplot(survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + geom_segment(
+        data=response_min_max_df,
+        mapping=aes(x="x", xend="xend", y="y", yend="yend"),
+        color="magenta",
+        size=3,
+    )
+)
 ```
 
 ### Step 1: Write compute function. Test.
 
 
-```{webr}
-#| exercise: geom_means
-# Define. 
-compute_panel_support <- function(data, scales){
-  
-  data |> 
-    summarize(xend = min(x, na.rm = T),
-              x = ____(x, na.rm = T)) |>
-    mutate(yend = 0,
-           ____ = 0)
-  
-}
+```{pyodide-python}
+#| exercise: geom_support
+# Define.
+def compute_panel_support(data, scales=None):
+    return data.head(1).assign(
+        x=data["x"].min(),
+        xend=____(data["x"]),
+        y=0,
+        ____ = 0,
+    )
 
 # Test.
-survey_df |> 
-  ## ggplot2 converts factors to numeric
-  mutate(x = response |> as.numeric()) |>
-  select(x) |>
-  compute_panel_support()
+(
+    survey_df
+    .assign(x=survey_df["response"].cat.codes + 1)
+    [["x"]]
+    .pipe(compute_panel_support)
+)
 ```
 
 ### Step 2: Write Stat.
 
 
-```{webr}
-#| exercise: geom_means
+```{pyodide-python}
+#| exercise: geom_support
 # Define.
-StatSupport <- ggproto(`_class` = "____",
-                     `_inherit` = Stat,
-                     compute_panel = ____,
-                     required_aes = c("____"))
+class stat_support(stat):
+    REQUIRED_AES = {"____"}
+    DEFAULT_PARAMS = {"geom": "segment"}
+
+    def compute_panel(self, data, scales):
+        return ____(data)
 
 # Test.
-survey_df |> 
-  ggplot() + 
-  aes(x = response, y = freq) + 
-  geom_col() +
-  geom_segment(stat = ____, color = "magenta")
+(
+    ggplot(survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + geom_segment(stat=____, color="magenta")
+)
 
 ```
 
-### Step 3: Write user-facing functions. 
+### Step 3: Write user-facing geom class.
 
-```{webr}
-#| exercise: geom_means
+```{pyodide-python}
+#| exercise: geom_support
 # Define.
-stat_support <- make_constructor(StatSupport, geom = "segment")
-
-# Alias.
-geom_support <- make_constructor(GeomSegment, stat = ____)
+class geom_support(____):
+    DEFAULT_PARAMS = {"stat": "support", "lineend": "butt", "arrow": None}
 
 # Test.
-survey_df |> 
-  ggplot() + 
-  aes(x = response, y = freq) + 
-  geom_col() +
-  ____(color = "magenta", 
-       linewidth = 2)
+(
+    ggplot(survey_df)
+    + aes(x="response", y="freq")
+    + geom_col()
+    + ____(color="magenta", size=2)
+)
 ```
 
 
-##  Next up, Recipe 4: [geom_lm_cat()](https://evamaerey.github.io/easy-geom-recipes/recipe4catlm.html)
+##  Next up, Recipe 4: `geom_cat_lm()`
 
-How would you write the function draws residuals based on a linear model fit that contains a categorical variable, `lm(y ~ x + cat)`? Go to Recipe 4.
-
+How would you write the function that draws residuals based on a linear model fit that contains a categorical variable, `lm(y ~ x + cat)`? Go to [Recipe 4](./recipe4catlm.qmd).
