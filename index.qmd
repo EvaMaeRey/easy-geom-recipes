@@ -20,24 +20,25 @@ ggcanvas() +
 
 ```
 
-Extending ggplot2 is a powerful way to enhance productivity and make creating plots more fun. The ggplot2 extension system allows us to build new 'vocabulary' for more fluent expression.
+Extending plotnine is a powerful way to enhance productivity and make creating plots more fun. The plotnine extension system allows us to build new 'vocabulary' for more fluent expression.
 
 <!-- Yet some useful areas of extension are not in mainstream use even among seasoned ggplot2 users. -->
 
-'Easy geom_\*() recipes' is a new point of entry for learning ggplot2 *Stat* extension, a particularly exension powerful mechanism which allows users to define computation to be used in new geom\_\*() or stat\_\*() functions.
+'Easy geom_\*() recipes' is a new point of entry for learning plotnine *Stat* extension, a particularly exension powerful mechanism which allows users to define computation to be used in new geom\_\*() or stat\_\*() functions.
 
-With new Stats, *you* can specify calculation to be done within the ggplot2 plot pipeline:
+With new Stats, *you* can specify calculation to be done within the plotnine plot pipeline:
 
-```{r}
-#| eval = F
-ggplot(data = cars,
-       aes(x = speed, y = dist)) + 
-  geom_customized()  # YOU specify compute
+```{python}
+#| eval: false
+(
+    ggplot(data=cars, aes(x="speed", y="dist"))
+    + geom_customized()  # YOU specify compute
+)
 ```
 
 In this project's tutorials, you'll see how to define your own Stats and write new user-facing geom\_\*() or stat\_\*() functions.
 
-The materials are aimed at academics, data analysts, BI professionals, seasoned and new ggplot2 users, statistics educators and their students, journalists, etc. The approach has been tested and evaluated by data science and statistics educators.
+The materials are aimed at academics, data analysts, BI professionals, seasoned and new plotnine users, statistics educators and their students, journalists, etc. The approach has been tested and evaluated by data science and statistics educators.
 
 # Where to next
 
