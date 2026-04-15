@@ -63,7 +63,7 @@ Let's get started! By the end of the exercise, we should be able to specify the 
 )
 ```
 
-```{pyodide}
+```{python}
 #| echo: false
 #| warning: false
 
@@ -72,31 +72,18 @@ from plotnine import *
 from plotnine.stats.stat import stat
 
 cars = pd.read_csv("cars.csv")
-
-def compute_group_coordinates(data, scales=None):
-    return data.assign(
-        label="(" + data["x"].astype(str) + ", " + data["y"].astype(str) + ")"
-    )
-
-class stat_coordinates(stat):
-    REQUIRED_AES = {"x", "y"}
-    DEFAULT_PARAMS = {"geom": "text"}
-
-    def compute_group(self, data, scales):
-        return compute_group_coordinates(data)
-
-class geom_coordinates(geom_text):
-    DEFAULT_PARAMS = {
-        "stat": "coordinates",
-        "parse": False, "nudge_x": 0, "nudge_y": 0,
-        "adjust_text": None, "format_string": None, "path_effects": None,
-    }
+data = (
+   cars
+   .assign(
+       coordinates="(" + cars["speed"].astype(str) + ", " + cars["dist"].astype(str) + ")"
+   )
+)
 
 (
-    ggplot(cars)
-    + aes(x="speed", y="dist")
+   ggplot(data)
+    + aes(x="speed", y="dist", label="coordinates")
     + geom_point()
-    + geom_coordinates(
+    + geom_text(
         va="top",
         ha="right",
         adjust_text={"arrowprops": {"arrowstyle": "-"}},
@@ -129,14 +116,13 @@ It's good idea to go through how you'd get things done without extension first, 
 ```{python}
 #| label: base-approach
 # Compute.
-p0 = (
+(
     ggplot(cars.assign(index=range(1, len(cars) + 1)))
     + aes(x="speed", y="dist", label="index")
     + geom_point()
     + geom_label(va="top", ha="right")
     + labs(title="Created with base plotnine")
 )
-p0
 ```
 
 
@@ -146,7 +132,7 @@ p0
 Use `ggplot.layer_data()` to inspect the render-ready data internal in the plot.  Your stat will help prep data to look something like this.
 
 ```{python}
-p0.layer_data(i=1).head()  # layer 2, with labels designated is of interest
+last_plot().layer_data(i=1).head()  # layer 2, with labels designated is of interest
 ```
 :::
 
@@ -242,14 +228,13 @@ class stat_index(stat):  # <1> <2>
 You can test out your stat by using it in plotnine `geom_*()` functions.
 
 ```{python}
-p2 = (
+(
     ggplot(cars)
     + aes(x="speed", y="dist")
     + geom_point()
     + geom_text(stat=stat_index, ha="right", va="top")
     + labs(title="Testing stat_index")
 )
-p2
 ```
 
 
@@ -265,7 +250,7 @@ Test group-wise behavior by using a discrete variable with a group-triggering ae
 
 
 ```{python}
-p2 + aes(color="speed > 15")
+last_plot() + aes(color="speed > 15")
 ```
 
 ::: {.callout-note collapse="false"}
@@ -388,14 +373,13 @@ class geom_index(geom_label):
 
 ```{python}
 ## Test user-facing.
-p3 = (
+(
     ggplot(cars)
     + aes(x="speed", y="dist")
     + geom_point()
     + geom_index(ha="right", va="top")
     + labs(title="Testing geom_index()")
 )
-p3
 ```
 
 ### Test/Enjoy your user-facing functions
@@ -404,7 +388,7 @@ p3
 
 
 ```{python}
-p3 + aes(color="speed > 15")
+last_plot() + aes(color="speed > 15")
 ```
 
 ### Use stat_*() function with another Geom

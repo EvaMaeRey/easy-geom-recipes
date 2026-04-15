@@ -59,10 +59,6 @@ survey_df = pd.DataFrame({
 ```{pyodide}
 #| echo: false
 #| warning: false
-import micropip
-await micropip.install("pandas<3.0.0")
-await micropip.install("plotnine>=0.16.0a7", keep_going=True)
-
 import pandas as pd
 from plotnine import *
 
@@ -122,7 +118,7 @@ x_numeric = survey_df["response"].cat.codes + 1
 bal_x = (x_numeric * survey_df["freq"]).sum() / survey_df["freq"].sum()
 balancing_point_df = pd.DataFrame({"x": [bal_x], "y": [0]})
 
-p0 = (
+(
     ggplot(survey_df)
     + aes(x="response", y="freq")
     + geom_col()
@@ -132,7 +128,6 @@ p0 = (
         size=5, color="magenta",
     )
 )
-p0
 ```
 
 
@@ -221,14 +216,13 @@ class stat_bal_point(stat):  # <1> <2>
 You can test out your stat by using it in plotnine `geom_*()` functions.
 
 ```{python}
-p2 = (
+(
     ggplot(survey_df)
     + aes(x="response", y="freq")
     + geom_col()
     + geom_point(stat=stat_bal_point, color="magenta", size=7)
     + labs(title="Testing stat_bal_point")
 )
-p2
 ```
 
 ::: {.callout-note collapse="false"}

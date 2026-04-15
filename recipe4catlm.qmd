@@ -41,11 +41,6 @@ Our first goal is to be able to specify a plot with newly created `geom_cat_lm()
 ```{pyodide}
 #| echo: false
 #| warning: false
-import micropip
-await micropip.install("pandas<3.0.0")
-await micropip.install("plotnine>=0.16.0a7", keep_going=True)
-await micropip.install("statsmodels", keep_going=True)
-
 import pandas as pd
 import statsmodels.formula.api as smf
 from plotnine import *
@@ -100,7 +95,7 @@ model = smf.ols(
 
 penguins_w_fitted = penguins_clean.assign(fitted=model.fittedvalues)
 
-p0 = (
+(
     ggplot(penguins_clean)
     + aes(x="bill_depth_mm", y="bill_length_mm", group="species")
     + geom_point()
@@ -110,7 +105,6 @@ p0 = (
         color="maroon",
     )
 )
-p0
 ```
 
 ::: {.callout-tip collapse="true"}
@@ -119,7 +113,7 @@ p0
 Use `ggplot.layer_data()` to inspect the render-ready data internal in the plot.  Your stat will help prep data to look something like this.
 
 ```{python}
-p0.layer_data(i=1).head()  # the fitted y (not the raw data y) is of interest
+last_plot().layer_data(i=1).head()  # the fitted y (not the raw data y) is of interest
 ```
 
 :::
@@ -212,7 +206,7 @@ class stat_cat_lm(stat):  # <1> <2>
 You can test out your stat by using it in plotnine `geom_*()` functions.
 
 ```{python}
-p2 = (
+(
     ggplot(penguins_clean)
     + aes(x="bill_depth_mm", y="bill_length_mm", cat="species")
     + geom_point()
@@ -220,7 +214,6 @@ p2 = (
     + geom_line(stat=stat_cat_lm)
     + labs(title="Testing stat_cat_lm")
 )
-p2
 ```
 
 ::: {.callout-note collapse="false"}
@@ -235,7 +228,7 @@ p2
 
 ```{python}
 (
-    p2
+    last_plot()
     + aes(color="species")
     + facet_wrap("sex")
 )
