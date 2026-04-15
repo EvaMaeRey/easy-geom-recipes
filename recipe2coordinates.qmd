@@ -455,32 +455,21 @@ Using the `geom_index()` Recipe #2 as a reference, try to create a `stat_coordin
 
 ```{pyodide}
 #| setup: true
-#| exercise: geom_coordinates
+#| exercise: geom_coordinates_00
 #| warning: false
 
 import pandas as pd
 from plotnine import *
 from plotnine.stats.stat import stat
 
-cars = pd.DataFrame({
-    "speed": [
-       4, 4, 7, 7, 8, 9, 10, 10, 10, 11, 11, 12, 12, 12, 12, 13, 13, 13, 13, 14,
-       14, 14, 14, 15, 15, 15, 16, 16, 17, 17, 17, 18, 18, 18, 18, 19, 19, 19, 20,
-       20, 20, 20, 20, 22, 23, 24, 24, 24, 24, 25
-    ],
-    "dist":  [
-       2, 10, 4, 22, 16, 10, 18, 26, 34, 17, 28, 14, 20, 24, 28, 26, 34, 34, 46,
-       26, 36, 60, 80, 20, 26, 54, 32, 40, 32, 40, 50, 42, 56, 76, 84, 36, 46, 68,
-       32, 48, 52, 56, 64, 66, 54, 70, 92, 93, 120, 85
-   ],
-})
+cars = pd.read_csv("cars.csv")
 cars.head()
 ```
 
 ### Step 0: Use base plotnine to get the job done
 
 ```{pyodide}
-#| exercise: geom_coordinates
+#| exercise: geom_coordinates_0
 # Step 0: Use base plotnine to get the job done.
 (
     ggplot(
@@ -501,7 +490,7 @@ cars.head()
 ### Step 1: Write compute function. Test.
 
 ```{pyodide}
-#| exercise: geom_coordinates
+#| exercise: geom_coordinates_1
 # Define.
 def compute_group_coordinates(data, scales=None):
     return data.assign(
@@ -522,7 +511,7 @@ def compute_group_coordinates(data, scales=None):
 
 
 ```{pyodide}
-#| exercise: geom_coordinates
+#| exercise: geom_coordinates_2
 # Define.
 class stat_coordinates(stat):
     REQUIRED_AES = {"x", "____"}
@@ -550,7 +539,7 @@ class stat_coordinates(stat):
 
 
 ```{pyodide}
-#| exercise: geom_coordinates
+#| exercise: geom_coordinates_3
 # Define geom_coordinates
 class geom_coordinates(____):
     DEFAULT_PARAMS = {
