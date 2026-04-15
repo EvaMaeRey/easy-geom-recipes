@@ -1,6 +1,6 @@
 on:
     push:
-      branches: [main, master]
+      branches: [plotnine]
     release:
         types: [published]
     workflow_dispatch: {}
@@ -21,41 +21,26 @@ jobs:
       - name: "Check out repository"
         uses: actions/checkout@v4
 
-      # To render using knitr, we need a few more setup steps...
-      # If we didn't want the examples to use `engine: knitr`, we could
-      # skip a few of the setup steps.
-      - name: "Setup pandoc"
-        uses: r-lib/actions/setup-pandoc@v2
+      - name: Install uv
+        uses: astral-sh/setup-uv@v8
 
-      - name: "Setup R"
-        uses: r-lib/actions/setup-r@v2
-
-      - name: "Setup R dependencies for Quarto's knitr engine"
-        uses: r-lib/actions/setup-r-dependencies@v2
-        with:
-          packages:
-            deps::.
-            any::knitr
-            any::rmarkdown
-            any::downlit
-            any::xml2
-
-            # Back to our regularly scheduled Quarto output
+        # Back to our regularly scheduled Quarto output
       - name: "Set up Quarto"
         uses: quarto-dev/quarto-actions/setup@v2
         with:
           version: "pre-release"
 
+      - name: Install dependencies
+        run: uv sync
 
       # Install quarto extensions
       - name: "Install quarto extensions"
-        shell: bash
         run: |
-          quarto add --no-prompt coatless/quarto-webr
+          quarto add --no-prompt r-wasm/quarto-live
 
       # Render the Quarto file
       - name: "Render working directory"
-        uses: quarto-dev/quarto-actions/render@v2
+        run: uv run quarto render
 
       # Upload a tar file that will work with GitHub Pages
       # Make sure to set a retention day to avoid running into a cap
