@@ -361,7 +361,7 @@ Using the `geom_medians` Recipe #1 as a reference, try to create a `geom_means()
 ### Step 00: load libraries, data
 ```{pyodide}
 #| setup: true
-#| exercise: geom_means
+#| exercise: geom_means_data
 #| warning: false
 
 from plotnine import *
@@ -373,7 +373,7 @@ penguins.head()
 ### Step 0: Use base plotnine to get the job done
 
 ```{pyodide}
-#| exercise: geom_means
+#| exercise: geom_means_0
 # Step 0: Use base plotnine to get the job done
 
 (
@@ -401,7 +401,7 @@ penguins.head()
 ### Step 1: Write compute function. Test.
 
 ```{pyodide}
-#| exercise: geom_means
+#| exercise: geom_means_1
 # Define.
 
 def compute_group_means(data, scales=None):
@@ -420,7 +420,7 @@ def compute_group_means(data, scales=None):
 ### Step 2: Write Stat.
 
 ```{pyodide}
-#| exercise: geom_means
+#| exercise: geom_means_2
 # Define.
 class stat_means(stat):
     REQUIRED_AES = {"x", "y"}
