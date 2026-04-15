@@ -7,3 +7,7 @@ survey
 _site/*
 /.quarto/
 survey_results_summary_files/*
+
+*/*-html
+**/*.quarto_ipynb
+uv.lock
