@@ -343,7 +343,7 @@ Using the `geom_bal_point` Recipe #3 as a reference, try to create a `stat_suppo
 
 ```{pyodide}
 #| setup: true
-#| exercise: geom_support
+#| exercise: geom_support_0
 #| warning: false
 
 import pandas as pd
@@ -385,7 +385,7 @@ response_min_max_df = pd.DataFrame({
 
 
 ```{pyodide}
-#| exercise: geom_support
+#| exercise: geom_support_1
 # Define.
 def compute_panel_support(data, scales=None):
     return data.head(1).assign(
@@ -408,7 +408,7 @@ def compute_panel_support(data, scales=None):
 
 
 ```{pyodide}
-#| exercise: geom_support
+#| exercise: geom_support_2
 # Define.
 class stat_support(stat):
     REQUIRED_AES = {"____"}
@@ -430,7 +430,7 @@ class stat_support(stat):
 ### Step 3: Write user-facing geom class.
 
 ```{pyodide}
-#| exercise: geom_support
+#| exercise: geom_support_3
 # Define.
 class geom_support(____):
     DEFAULT_PARAMS = {"stat": "support", "lineend": "butt", "arrow": None}

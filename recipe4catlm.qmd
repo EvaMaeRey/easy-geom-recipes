@@ -381,7 +381,7 @@ Using the `geom_cat_lm` Recipe #4 as a reference, try to create a `geom_cat_fitt
 
 ```{pyodide}
 #| setup: true
-#| exercise: geom_cat_fitted
+#| exercise: geom_cat_fitted_0
 #| warning: false
 
 import pandas as pd
@@ -420,7 +420,7 @@ penguins_w_fitted = penguins_clean.assign(fitted=model.fittedvalues)
 ### Step 1: Write compute. Test.
 
 ```{pyodide}
-#| exercise: geom_cat_fitted
+#| exercise: geom_cat_fitted_1
 # Define.
 def compute_panel_cat_fitted(data, scales=None):
     model = smf.ols("y ~ x + C(cat)", data=____).fit()
@@ -446,7 +446,7 @@ def compute_panel_cat_residuals(data, scales=None):
 
 
 ```{pyodide}
-#| exercise: geom_cat_fitted
+#| exercise: geom_cat_fitted_2
 
 # Define stat_cat_fitted.
 class stat_cat_fitted(stat):
@@ -481,7 +481,7 @@ class stat_cat_residuals(stat):
 
 
 ```{pyodide}
-#| exercise: geom_cat_fitted
+#| exercise: geom_cat_fitted_3
 # Define geom_cat_fitted
 class geom_cat_fitted(____):
     DEFAULT_PARAMS = {"stat": "cat_fitted"}
