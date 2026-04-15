@@ -8,8 +8,6 @@ execute:
   warning: false
 ---
 
-{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
-
 ```{python}
 #| label: imports
 
@@ -46,14 +44,9 @@ Let's get started!  Our objective in this first 'recipe' is to be able to compos
 ```
 
 
-```{pyodide-python}
+```{pyodide}
 #| echo: false
 #| warning: false
-import micropip
-await micropip.install("pandas<3.0.0")
-#await micropip.install("statsmodels<0.14.6")
-await micropip.install("plotnine>=0.16.0a7", keep_going=True)
-
 from plotnine import *
 from plotnine.data import penguins
 
@@ -379,7 +372,7 @@ penguins.head()
 
 ### Step 0: Use base plotnine to get the job done
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_means
 # Step 0: Use base plotnine to get the job done
 
@@ -407,7 +400,7 @@ penguins.head()
 
 ### Step 1: Write compute function. Test.
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_means
 # Define.
 
@@ -426,7 +419,7 @@ def compute_group_means(data, scales=None):
 
 ### Step 2: Write Stat.
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_means
 # Define.
 class stat_means(stat):
@@ -450,7 +443,7 @@ class stat_means(stat):
 
 ### Step 3: Write Geom.
 
-```{pyodide-python}
+```{pyodide}
 # Define geom_means
 class geom_medians(geom_point):
     DEFAULT_PARAMS = {"stat": "___"}

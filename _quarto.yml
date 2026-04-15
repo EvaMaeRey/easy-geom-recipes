@@ -47,11 +47,6 @@ website:
       #     - href: 2023_easy_geom_recipes.qmd
 
 format:
-  html:
+  live-html:
     theme: theme.scss
     toc: true
-
-filters:
-  - pyodide
-
-

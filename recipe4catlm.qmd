@@ -3,13 +3,10 @@ title: "Recipe 4: geom_cat_lm(), geom_cat_fitted(), and geom_cat_residuals()"
 pyodide:
   packages:
     - plotnine
-    - statsmodels
 execute:
   echo: false
   warning: false
 ---
-
-{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
 
 ```{python}
 #| label: imports
@@ -41,7 +38,7 @@ Our first goal is to be able to specify a plot with newly created `geom_cat_lm()
 )
 ```
 
-```{pyodide-python}
+```{pyodide}
 #| echo: false
 #| warning: false
 import micropip
@@ -429,7 +426,7 @@ penguins_w_fitted = penguins_clean.assign(fitted=model.fittedvalues)
 
 ### Step 1: Write compute. Test.
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_cat_fitted
 # Define.
 def compute_panel_cat_fitted(data, scales=None):
@@ -455,7 +452,7 @@ def compute_panel_cat_residuals(data, scales=None):
 ### Step 2: Write Stat.
 
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_cat_fitted
 
 # Define stat_cat_fitted.
@@ -490,7 +487,7 @@ class stat_cat_residuals(stat):
 ### Step 3: Write user-facing geom classes.
 
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_cat_fitted
 # Define geom_cat_fitted
 class geom_cat_fitted(____):

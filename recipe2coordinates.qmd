@@ -8,8 +8,6 @@ execute:
   warning: false
 ---
 
-{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
-
 ```{python}
 #| label: imports
 
@@ -517,7 +515,7 @@ cars.head()
 
 ### Step 0: Use base plotnine to get the job done
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_coordinates
 # Step 0: Use base plotnine to get the job done.
 (
@@ -538,7 +536,7 @@ cars.head()
 
 ### Step 1: Write compute function. Test.
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_coordinates
 # Define.
 def compute_group_coordinates(data, scales=None):
@@ -559,7 +557,7 @@ def compute_group_coordinates(data, scales=None):
 ### Step 2: Write Stat.
 
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_coordinates
 # Define.
 class stat_coordinates(stat):
@@ -587,7 +585,7 @@ class stat_coordinates(stat):
 ### Step 3: Write user-facing geom class.
 
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_coordinates
 # Define geom_coordinates
 class geom_coordinates(____):

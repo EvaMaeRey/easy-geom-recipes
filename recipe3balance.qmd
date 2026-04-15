@@ -8,8 +8,6 @@ execute:
   warning: false
 ---
 
-{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
-
 ```{python}
 #| label: imports
 
@@ -58,7 +56,7 @@ survey_df = pd.DataFrame({
 ```
 
 
-```{pyodide-python}
+```{pyodide}
 #| echo: false
 #| warning: false
 import micropip
@@ -392,7 +390,7 @@ response_min_max_df = pd.DataFrame({
 ### Step 1: Write compute function. Test.
 
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_support
 # Define.
 def compute_panel_support(data, scales=None):
@@ -415,7 +413,7 @@ def compute_panel_support(data, scales=None):
 ### Step 2: Write Stat.
 
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_support
 # Define.
 class stat_support(stat):
@@ -437,7 +435,7 @@ class stat_support(stat):
 
 ### Step 3: Write user-facing geom class.
 
-```{pyodide-python}
+```{pyodide}
 #| exercise: geom_support
 # Define.
 class geom_support(____):
