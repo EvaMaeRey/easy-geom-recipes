@@ -444,7 +444,7 @@ class stat_means(stat):
 ### Step 3: Write Geom.
 
 ```{pyodide}
-# Define geom_means
+# Define geom_means_3
 class geom_medians(geom_point):
     DEFAULT_PARAMS = {"stat": "___"}
 

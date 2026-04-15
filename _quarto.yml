@@ -30,7 +30,7 @@ website:
     contents:
       - section: "Tutorials"
         contents:
-          - href: preview.qmd
+          - href: tutorial-preview.qmd
           - href: recipe1means.qmd
           - href: recipe2coordinates.qmd
           - href: recipe3balance.qmd
