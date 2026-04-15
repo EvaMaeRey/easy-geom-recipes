@@ -5,8 +5,6 @@ execute:
   warning: false
 ---
 
-{{< include ./_extensions/r-wasm/live/_knitr.qmd >}}
-
 ```{python}
 #| label: hero-image
 #| output: false
