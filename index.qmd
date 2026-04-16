@@ -52,8 +52,6 @@ hex_data = pd.concat(
 
 Extending plotnine is a powerful way to enhance productivity and make creating plots more fun. The plotnine extension system allows us to build new 'vocabulary' for more fluent expression.
 
-<!-- Yet some useful areas of extension are not in mainstream use even among seasoned ggplot2 users. -->
-
 'Easy geom_\*() recipes' is a new point of entry for learning plotnine *Stat* extension, a particularly exension powerful mechanism which allows users to define computation to be used in new geom\_\*() or stat\_\*() functions.
 
 With new Stats, *you* can specify calculation to be done within the plotnine plot pipeline:
