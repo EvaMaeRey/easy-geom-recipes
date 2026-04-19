@@ -4,7 +4,7 @@ pyodide:
   packages:
     - plotnine
 execute:
-  echo: false
+  echo: true
   warning: false
 resources:
     - cars.csv
