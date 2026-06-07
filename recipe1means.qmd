@@ -282,9 +282,9 @@ A test of StatMedians using this method follows.  You can see it is a little mor
 
 ### Define geom_*() class
 
-> 'Most plotnine users are accustomed to adding geoms, not stats, when building up a plot.' *ggplot2: Elegant Graphics for Data Analysis*.
+> 'Most ggplot2 users are accustomed to adding geoms, not stats, when building up a plot.' *ggplot2: Elegant Graphics for Data Analysis*.
 
-Because plotnine users may be more accustomed to using layers that have the `geom_` prefix, you might also define a `geom_` function with almost the same properties as the `stat_`.  Here we'll use `make_constructor()` for convenience.
+Because plotnine users, like ggplot2 users, may be more accustomed to using layers that have the `geom_` prefix, you might also define a `geom_` function with almost the same properties as the `stat_`.  Here we'll use `make_constructor()` for convenience.
 
 ```{python}
 class geom_medians(geom_point):
